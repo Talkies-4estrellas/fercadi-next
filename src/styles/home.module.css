@@ -1,0 +1,139 @@
+/* ── Hero: carrusel al centro, tarjetas a los lados ───────────────────────── */
+.hero {
+  display: grid;
+  grid-template-columns: 260px 1fr 260px;
+  gap: 20px;
+  align-items: center;
+  padding: 28px 24px 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.carouselWrapper {
+  min-width: 0;
+}
+
+.sideCards {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-self: stretch;
+  justify-content: center;
+}
+
+/* ── Tarjeta ───────────────────────────────────────────────────────────────── */
+.card {
+  padding: 22px 20px;
+  background-color: var(--azul-profundo);
+  color: var(--fondo-claro);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.card h3 {
+  font-size: 0.88rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  margin-bottom: 12px;
+}
+
+.card p {
+  font-size: 0.82rem;
+  line-height: 1.65;
+  flex: 1;
+}
+
+/* Botón amarillo en todas las tarjetas */
+.card button {
+  margin: 16px auto 0;
+  padding: 7px 28px;
+  background-color: var(--dorado);
+  color: var(--azul-profundo);
+  border-radius: 20px;
+  border: none;
+  font-weight: 700;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.card button:hover {
+  background-color: var(--dorado);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 191, 0, 0.45);
+}
+
+.card button a {
+  color: var(--azul-profundo);
+  font-size: inherit;
+}
+
+/* ── Tablet ────────────────────────────────────────────────────────────────── */
+@media screen and (max-width: 1160px) {
+  .hero {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    padding: 20px 16px 32px;
+    gap: 16px;
+  }
+
+  .carouselWrapper {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  .sideCards {
+    grid-row: 2;
+  }
+
+  .card h3 {
+    font-size: 1.6rem;
+  }
+
+  .card p {
+    font-size: 1.4rem;
+    line-height: 1.7;
+  }
+
+  .card button {
+    font-size: 1.4rem;
+    padding: 16px 48px;
+    border-radius: 40px;
+  }
+}
+
+/* ── Mobile ────────────────────────────────────────────────────────────────── */
+@media screen and (max-width: 640px) {
+  .hero {
+    grid-template-columns: 1fr;
+    padding: 14px 12px 24px;
+    gap: 12px;
+  }
+
+  .carouselWrapper {
+    grid-column: 1;
+  }
+
+  .sideCards {
+    grid-column: 1;
+    grid-row: auto;
+    gap: 12px;
+  }
+
+  .card h3 {
+    font-size: 0.95rem;
+  }
+
+  .card p {
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  .card button {
+    font-size: 0.85rem;
+    padding: 8px 24px;
+    border-radius: 20px;
+    margin-top: 14px;
+  }
+}
