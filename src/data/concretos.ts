@@ -34,6 +34,14 @@ export const concretos: Categoria[] = [
         imagen: '/productos/concretos/agregados/grava.png',
         categoria: 'agregados',
       },
+      {
+        slug: 'aditivos',
+        nombre: 'Aditivos',
+        descripcion:
+          'Aditivos químicos para mejorar las propiedades del concreto: aceleradores de fraguado, plastificantes, retardadores y mejoradores de trabajabilidad.',
+        imagen: '/productos/concretos/agregados/aditivos.png',
+        categoria: 'agregados',
+      },
     ],
   },
   {
@@ -187,6 +195,44 @@ export const concretos: Categoria[] = [
           'Postes de concreto prefabricados para cercas, instalaciones eléctricas y señalización, con alta resistencia y durabilidad.',
         imagen: '/productos/concretos/prefabricados/postes.png',
         categoria: 'prefabricados',
+      },
+    ],
+  },
+  {
+    slug: 'renta-de-equipo',
+    nombre: 'Renta de Equipo',
+    productos: [
+      {
+        slug: 'vibrador-de-concreto',
+        nombre: 'Vibrador de Concreto',
+        descripcion:
+          'Renta de vibrador de concreto para consolidar mezclas y eliminar vacíos en el colado, garantizando estructuras más resistentes.',
+        imagen: '/productos/concretos/renta-de-equipo/vibrador.png',
+        categoria: 'renta-de-equipo',
+      },
+      {
+        slug: 'grua',
+        nombre: 'Grúa',
+        descripcion:
+          'Renta de grúa para izaje y manejo de materiales pesados en obra. Diferentes capacidades de carga disponibles.',
+        imagen: '/productos/concretos/renta-de-equipo/grua.png',
+        categoria: 'renta-de-equipo',
+      },
+      {
+        slug: 'retroescabadora',
+        nombre: 'Retroescabadora',
+        descripcion:
+          'Renta de retroescabadora para excavaciones, zanjas y movimiento de tierra en proyectos de construcción.',
+        imagen: '/productos/concretos/renta-de-equipo/retroescabadora.png',
+        categoria: 'renta-de-equipo',
+      },
+      {
+        slug: 'bolteo',
+        nombre: 'Bolteo',
+        descripcion:
+          'Renta de camión de volteo para transporte y descarga de materiales a granel en obra.',
+        imagen: '/productos/concretos/renta-de-equipo/bolteo.png',
+        categoria: 'renta-de-equipo',
       },
     ],
   },

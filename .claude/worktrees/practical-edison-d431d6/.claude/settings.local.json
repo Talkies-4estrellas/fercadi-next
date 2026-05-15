@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc *)",
+      "Bash(netstat -ano)",
+      "PowerShell(\\(Get-Process -Id 15456\\).MainModule.FileName)",
+      "PowerShell(Get-WmiObject Win32_Process -Filter \"ProcessId = 15456\")",
+      "PowerShell($p = Get-CimInstance Win32_Process -Filter \"ProcessId=15456\"; $p.CommandLine)",
+      "Bash(cp 'D:/WEB FERCADI 2.0/JOSMAN/fercadi-next/.claude/worktrees/practical-edison-d431d6/src/data/textucos.ts' 'D:/WEB FERCADI 2.0/JOSMAN/fercadi-next/src/data/textucos.ts')",
+      "Bash(cp 'D:/WEB FERCADI 2.0/JOSMAN/fercadi-next/.claude/worktrees/practical-edison-d431d6/src/styles/product.module.css' 'D:/WEB FERCADI 2.0/JOSMAN/fercadi-next/src/styles/product.module.css')",
+      "Bash(mkdir -p 'D:/WEB FERCADI 2.0/JOSMAN/fercadi-next/src/app/textucos/morteros/[producto]')",
+      "Bash(cp 'D:/WEB FERCADI 2.0/JOSMAN/fercadi-next/.claude/worktrees/practical-edison-d431d6/src/app/textucos/morteros/page.tsx' 'D:/WEB FERCADI 2.0/JOSMAN/fercadi-next/src/app/textucos/morteros/page.tsx')",
+      "Bash(cp 'D:/WEB FERCADI 2.0/JOSMAN/fercadi-next/.claude/worktrees/practical-edison-d431d6/src/app/textucos/morteros/[producto]/page.tsx' 'D:/WEB FERCADI 2.0/JOSMAN/fercadi-next/src/app/textucos/morteros/[producto]/page.tsx')",
+      "Bash(mkdir -p \"D:/WEB FERCADI 2.0/JOSMAN/fercadi-next/src/app/textucos/selladores/[producto]\")",
+      "Bash(mkdir -p \"D:/WEB FERCADI 2.0/JOSMAN/fercadi-next/src/app/textucos/especializados/[producto]\")",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "mcp__Claude_in_Chrome__navigate",
+      "mcp__Claude_in_Chrome__computer"
+    ]
+  }
+}

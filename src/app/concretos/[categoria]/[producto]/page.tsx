@@ -1,8 +1,7 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { concretos, getCategoriaBySlug, getProductoBySlug } from '@/data/concretos'
-import styles from '@/styles/product.module.css'
+import ProductoDetalle from '@/components/ProductoDetalle'
 
 export function generateStaticParams() {
   return concretos.flatMap((cat) =>
@@ -31,26 +30,18 @@ export default async function ProductoPage({
   if (!p) notFound()
 
   return (
-    <>
-      <div className={styles.breadcrumb}>
-        <Link href="/">Inicio</Link> / <Link href="/concretos">Concretos</Link> /{' '}
-        <Link href={`/concretos/${categoria}`}>{cat?.nombre}</Link> / {p.nombre}
-      </div>
-      <div className={styles.imagen1}>
-        <Image
-          src={p.imagen}
-          alt={p.nombre}
-          width={1200}
-          height={600}
-          style={{ width: '100%', height: 'auto' }}
-          priority
-        />
-      </div>
-      <div className={styles.etiqueta}>
-        <h2 className={styles.titulo}>{p.nombre.toUpperCase()}</h2>
-      </div>
-      <p className={styles.texto1}>{p.descripcion}</p>
-      {p.descripcion2 && <p className={styles.texto2}>{p.descripcion2}</p>}
-    </>
+    <ProductoDetalle
+      nombre={p.nombre}
+      descripcion={p.descripcion}
+      descripcion2={p.descripcion2}
+      imagen={p.imagen}
+      categoria={cat?.nombre ?? categoria}
+      breadcrumb={
+        <>
+          <Link href="/">Inicio</Link> / <Link href="/concretos">Concretos</Link> /{' '}
+          <Link href={`/concretos/${categoria}`}>{cat?.nombre}</Link> / {p.nombre}
+        </>
+      }
+    />
   )
 }

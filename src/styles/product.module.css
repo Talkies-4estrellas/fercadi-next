@@ -141,6 +141,55 @@
   object-fit: contain;
 }
 
+/* Tarjeta estilo morteros */
+.cuadroBlanco {
+  width: 280px;
+  background-color: transparent;
+  transition: transform 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+}
+
+.cuadroBlanco:hover {
+  transform: translateY(-4px);
+}
+
+.cuadroBlanco img {
+  width: 100%;
+  height: 220px;
+  object-fit: contain;
+}
+
+.nombreProducto {
+  color: var(--azul-medio);
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-align: center;
+  margin-top: 14px;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.verMasBtn {
+  margin-top: 12px;
+  padding: 8px 24px;
+  background-color: var(--azul-boton);
+  color: var(--fondo-claro);
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.verMasBtn:hover {
+  background-color: var(--dorado);
+  color: var(--azul-profundo);
+}
+
 @media screen and (max-width: 1160px) {
   .titulo {
     font-size: 3rem;
@@ -156,8 +205,167 @@
     width: 100%;
   }
 
+  .cuadroBlanco {
+    width: 100%;
+  }
+
   .marcaCard {
     width: 280px;
     height: 160px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Detalle de producto — layout moderno (dos columnas)
+   ═══════════════════════════════════════════════════════════ */
+.detalle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 48px 40px 56px;
+  gap: 48px;
+  align-items: center;
+  min-height: 500px;
+}
+
+/* ── Columna izquierda ─────────────────────────────────────── */
+.detalleInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.detalleCat {
+  display: inline-block;
+  background: var(--azul-boton);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  padding: 4px 14px;
+  border-radius: 20px;
+  width: fit-content;
+}
+
+.detalleTitulo {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--azul-oscuro);
+  line-height: 1.1;
+  border-left: 5px solid var(--dorado);
+  padding-left: 20px;
+  margin: 0;
+}
+
+.detalleDesc {
+  font-size: 0.96rem;
+  color: var(--azul-secundario);
+  line-height: 1.8;
+  text-align: justify;
+  padding-left: 25px;
+}
+
+.detalleAcciones {
+  display: flex;
+  gap: 12px;
+  padding-left: 25px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.btnCotizar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px;
+  border-radius: 25px;
+  background: var(--azul-profundo);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  border: none;
+  transition: background 0.2s;
+}
+
+.btnCotizar:hover {
+  background: var(--azul-oscuro);
+}
+
+.btnContactar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px;
+  border-radius: 25px;
+  background: transparent;
+  color: var(--azul-oscuro);
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  border: 2px solid var(--azul-oscuro);
+  transition: background 0.2s, color 0.2s;
+}
+
+.btnContactar:hover {
+  background: var(--azul-oscuro);
+  color: #fff;
+}
+
+/* ── Columna derecha ───────────────────────────────────────── */
+.detalleImagen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.detalleImagen img {
+  max-height: 440px;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 12px 36px rgba(1, 27, 79, 0.18));
+}
+
+/* ── Segunda sección (descripcion2) ────────────────────────── */
+.detalleSec {
+  background: var(--azul-profundo);
+  padding: 48px 40px;
+}
+
+.detalleSecInner {
+  max-width: 1200px;
+  margin: 0 auto;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.96rem;
+  line-height: 1.85;
+  text-align: justify;
+}
+
+/* ── Responsive ────────────────────────────────────────────── */
+@media screen and (max-width: 900px) {
+  .detalle {
+    grid-template-columns: 1fr;
+    padding: 28px 24px 40px;
+    gap: 28px;
+  }
+
+  .detalleImagen {
+    order: -1;
+  }
+
+  .detalleImagen img {
+    max-height: 300px;
+  }
+
+  .detalleTitulo {
+    font-size: 1.8rem;
+  }
+
+  .detalleSec {
+    padding: 36px 24px;
   }
 }
