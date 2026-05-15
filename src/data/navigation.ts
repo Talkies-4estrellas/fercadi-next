@@ -10,7 +10,7 @@ export interface NavItem {
 }
 
 export const navItems: NavItem[] = [
-  { label: 'Tips', href: '/tips' },
+  { label: 'Tutoriales y Tips', href: '/tips' },
   {
     label: 'Materiales',
     href: '/materiales',
@@ -33,6 +33,7 @@ export const navItems: NavItem[] = [
       { label: 'Especializados', href: '/concretos/especializados' },
       { label: 'Línea Pre-Fabricadas', href: '/concretos/prefabricados' },
       { label: 'Servicios', href: '/concretos/servicios' },
+      { label: 'Renta de Equipo', href: '/concretos/renta-de-equipo' },
     ],
   },
   {
@@ -43,6 +44,8 @@ export const navItems: NavItem[] = [
       { label: 'Adhesivos', href: '/textucos/adhesivos' },
       { label: 'Selladores', href: '/textucos/selladores' },
       { label: 'Especializados', href: '/textucos/especializados' },
+      { label: 'Pinturas', href: '/textucos/pinturas' },
+      { label: 'Servicios', href: '/textucos/servicios' },
     ],
   },
   { label: 'Contacto', href: '/contacto' },

@@ -1,14 +1,7 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { notFound } from 'next/navigation'
-import { textucos, getCategoriaBySlug, getProductoBySlug } from '@/data/textucos'
-import styles from '@/styles/product.module.css'
-
-export function generateStaticParams() {
-  return textucos.flatMap((cat) =>
-    cat.productos.map((p) => ({ categoria: cat.slug, producto: p.slug }))
-  )
-}
+import { getProducto } from '@/lib/productos'
+import ProductoDetalle from '@/components/ProductoDetalle'
 
 export async function generateMetadata({
   params,
@@ -16,7 +9,7 @@ export async function generateMetadata({
   params: Promise<{ categoria: string; producto: string }>
 }) {
   const { categoria, producto } = await params
-  const p = getProductoBySlug(categoria, producto)
+  const p = await getProducto('textucos', categoria, producto)
   return { title: `${p?.nombre ?? 'Producto'} - FERCADI` }
 }
 
@@ -26,30 +19,21 @@ export default async function ProductoPage({
   params: Promise<{ categoria: string; producto: string }>
 }) {
   const { categoria, producto } = await params
-  const cat = getCategoriaBySlug(categoria)
-  const p = getProductoBySlug(categoria, producto)
+  const p = await getProducto('textucos', categoria, producto)
   if (!p) notFound()
 
   return (
-    <>
-      <div className={styles.breadcrumb}>
-        <Link href="/">Inicio</Link> / <Link href="/textucos">Acabados</Link> /{' '}
-        <Link href={`/textucos/${categoria}`}>{cat?.nombre}</Link> / {p.nombre}
-      </div>
-      <div className={styles.imagen1}>
-        <Image
-          src={p.imagen}
-          alt={p.nombre}
-          width={1200}
-          height={600}
-          style={{ width: '100%', height: 'auto' }}
-          priority
-        />
-      </div>
-      <div className={styles.etiqueta}>
-        <h2 className={styles.titulo}>{p.nombre.toUpperCase()}</h2>
-      </div>
-      <p className={styles.texto1}>{p.descripcion}</p>
-    </>
+    <ProductoDetalle
+      nombre={p.nombre}
+      descripcion={p.descripcion}
+      imagen={p.imagen_url ?? ''}
+      categoria={p.categoria_nombre}
+      breadcrumb={
+        <>
+          <Link href="/">Inicio</Link> / <Link href="/textucos">Acabados</Link> /{' '}
+          <Link href={`/textucos/${categoria}`}>{p.categoria_nombre}</Link> / {p.nombre}
+        </>
+      }
+    />
   )
 }

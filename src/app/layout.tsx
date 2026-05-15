@@ -3,6 +3,7 @@ import { Montserrat } from 'next/font/google'
 import './globals.css'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import ClientProviders from '@/components/ClientProviders'
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -22,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es" className={montserrat.variable}>
+    <html lang="es" className={montserrat.variable} suppressHydrationWarning>
       <head>
         <script
           src="https://kit.fontawesome.com/efc2f668b2.js"
@@ -30,10 +31,12 @@ export default function RootLayout({
           async
         ></script>
       </head>
-      <body>
-        <Header />
-        <main>{children}</main>
-        <Footer />
+      <body suppressHydrationWarning>
+        <ClientProviders>
+          <Header />
+          <main>{children}</main>
+          <Footer />
+        </ClientProviders>
       </body>
     </html>
   )

@@ -1,17 +1,13 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
-import { materiales, getCategoriaBySlug } from '@/data/materiales'
+import { getCategoriaMaterial } from '@/lib/productos'
 import styles from '@/styles/product.module.css'
-
-export function generateStaticParams() {
-  return materiales.map((cat) => ({ categoria: cat.slug }))
-}
 
 export async function generateMetadata({ params }: { params: Promise<{ categoria: string }> }) {
   const { categoria } = await params
-  const cat = getCategoriaBySlug(categoria)
-  return { title: `${cat?.nombre ?? 'Materiales'} - FERCADI` }
+  const cat = await getCategoriaMaterial(categoria)
+  return { title: `\ - FERCADI` }
 }
 
 export default async function MaterialCategoriaPage({
@@ -20,7 +16,7 @@ export default async function MaterialCategoriaPage({
   params: Promise<{ categoria: string }>
 }) {
   const { categoria } = await params
-  const cat = getCategoriaBySlug(categoria)
+  const cat = await getCategoriaMaterial(categoria)
   if (!cat) notFound()
 
   return (

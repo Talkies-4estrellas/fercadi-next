@@ -1,0 +1,438 @@
+-- ============================================================
+--  FERCADI / Josman Texturizados — josman_db
+--  Esquema completo + seed de datos
+--  Ejecutar en phpMyAdmin o MySQL Workbench
+-- ============================================================
+
+-- 1. Base de datos
+CREATE DATABASE IF NOT EXISTS josman_db
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE josman_db;
+
+-- ============================================================
+-- 2. Usuarios
+-- ============================================================
+CREATE TABLE IF NOT EXISTS usuarios (
+    id               INT          AUTO_INCREMENT PRIMARY KEY,
+    nombre           VARCHAR(100) NOT NULL,
+    correo           VARCHAR(100) NOT NULL UNIQUE,
+    password         VARCHAR(255) NOT NULL,
+    edad             INT,
+    profesion        VARCHAR(100),
+    fecha_nacimiento DATE,
+    domicilio        VARCHAR(255),
+    colonia          VARCHAR(100),
+    ciudad           VARCHAR(100),
+    estado           VARCHAR(100),
+    creado_en        TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+    actualizado_en   TIMESTAMP    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- 3. Productos del catálogo
+-- ============================================================
+CREATE TABLE IF NOT EXISTS productos (
+    id               INT           AUTO_INCREMENT PRIMARY KEY,
+    nombre           VARCHAR(255)  NOT NULL,
+    slug             VARCHAR(255)  NOT NULL,
+    descripcion      TEXT,
+    descripcion2     TEXT,                           -- Segunda descripción (algunos concretos)
+    precio           DECIMAL(10,2) DEFAULT 0.00,
+    imagen_url       VARCHAR(500),
+    seccion          ENUM('concretos','textucos','materiales') NOT NULL,
+    categoria_slug   VARCHAR(100)  NOT NULL,         -- Ej: 'adhesivos'
+    categoria_nombre VARCHAR(255),                   -- Ej: 'Morteros y Afinadores'
+    stock            INT           DEFAULT 0,
+    activo           BOOLEAN       DEFAULT TRUE,
+    creado_en        TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_slug_seccion (slug, seccion)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ============================================================
+-- 4. Categorías de Materiales (marcas por categoría)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS materiales_categorias (
+    id          INT          AUTO_INCREMENT PRIMARY KEY,
+    slug        VARCHAR(100) NOT NULL UNIQUE,
+    nombre      VARCHAR(255) NOT NULL,
+    descripcion TEXT,
+    marcas      JSON,                                -- Array: [{nombre, logo}]
+    activo      BOOLEAN      DEFAULT TRUE,
+    creado_en   TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ============================================================
+-- 5. Pedidos
+-- ============================================================
+CREATE TABLE IF NOT EXISTS pedidos (
+    id          INT           AUTO_INCREMENT PRIMARY KEY,
+    usuario_id  INT,
+    producto    VARCHAR(255),
+    cantidad    INT,
+    total       DECIMAL(10,2),
+    estado      ENUM('pendiente','procesando','completado','cancelado') DEFAULT 'pendiente',
+    fecha       TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ============================================================
+-- 6. Servicios contratados
+-- ============================================================
+CREATE TABLE IF NOT EXISTS servicios_contratados (
+    id          INT          AUTO_INCREMENT PRIMARY KEY,
+    usuario_id  INT,
+    tipo        VARCHAR(100),
+    descripcion TEXT,
+    estado      ENUM('activo','completado','cancelado') DEFAULT 'activo',
+    fecha       TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ============================================================
+-- 7. Suscripciones
+-- ============================================================
+CREATE TABLE IF NOT EXISTS suscripciones (
+    id           INT          AUTO_INCREMENT PRIMARY KEY,
+    usuario_id   INT,
+    plan         VARCHAR(100),
+    estado       ENUM('activa','vencida','cancelada') DEFAULT 'activa',
+    fecha_inicio DATE,
+    fecha_fin    DATE,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+-- ============================================================
+-- 8. SEED — Productos
+--    Seguro ejecutar varias veces (ON DUPLICATE KEY UPDATE).
+-- ============================================================
+INSERT INTO productos
+    (nombre, slug, descripcion, descripcion2, imagen_url, seccion, categoria_slug, categoria_nombre, activo)
+VALUES
+
+-- ── Concretos · Agregados ──────────────────────────────────
+('Arena','arena',
+ 'La arena es un material granular natural indispensable en la construcción. Se utiliza como agregado fino en mezclas de concreto y mortero, garantizando una mezcla homogénea y resistente.',
+ NULL, '/productos/concretos/agregados/arena.png', 'concretos', 'agregados', 'Agregados', 1),
+
+('Grava','grava',
+ 'La grava es un material pétreo de gran utilidad en obras civiles. Se emplea como agregado grueso en la fabricación de concreto, aportando resistencia y durabilidad a las estructuras.',
+ NULL, '/productos/concretos/agregados/grava.png', 'concretos', 'agregados', 'Agregados', 1),
+
+('Aditivos','aditivos',
+ 'Aditivos químicos para mejorar las propiedades del concreto: aceleradores de fraguado, plastificantes, retardadores y mejoradores de trabajabilidad.',
+ NULL, '/productos/concretos/agregados/aditivos.png', 'concretos', 'agregados', 'Agregados', 1),
+
+-- ── Concretos · Clase A ────────────────────────────────────
+('Concreto FC/150 KG/cm²','fc150',
+ 'El Concreto FC150, con una resistencia de 150 kg/cm², es una mezcla especialmente diseñada para satisfacer las necesidades de obras civiles de baja y mediana exigencia estructural.',
+ 'Este tipo de concreto es igualmente apropiado para su aplicación en cunetas, canales de arroyo y otras estructuras que requieran resistencia moderada.',
+ '/productos/concretos/clase-a/150.png', 'concretos', 'clase-a', 'Concretos Clase A', 1),
+
+('Concreto FC/200 KG/cm²','fc200',
+ 'El Concreto FC200 ofrece una resistencia de 200 kg/cm², ideal para cimentaciones, losas y elementos estructurales de construcciones habitacionales y comerciales.',
+ NULL, '/productos/concretos/clase-a/200.png', 'concretos', 'clase-a', 'Concretos Clase A', 1),
+
+('Concreto FC/350 KG/cm²','fc350',
+ 'El Concreto FC350, de alta resistencia con 350 kg/cm², está formulado para estructuras que demandan mayor capacidad de carga, como edificios, puentes y obras de infraestructura.',
+ NULL, '/productos/concretos/clase-a/350.png', 'concretos', 'clase-a', 'Concretos Clase A', 1),
+
+-- ── Concretos · MR ────────────────────────────────────────
+('Concreto Modular','modular',
+ 'El concreto modular está diseñado para proyectos que requieren módulos prefabricados y elementos estandarizados, ofreciendo versatilidad y economía en la construcción.',
+ NULL, '/productos/concretos/mr/modular.png', 'concretos', 'mr', 'Concretos MR', 1),
+
+('Concreto MR','mr',
+ 'El concreto de Módulo de Ruptura (MR) es ideal para pavimentos, pisos industriales y carreteras donde la flexión es el factor de diseño determinante.',
+ NULL, '/productos/concretos/mr/mr.png', 'concretos', 'mr', 'Concretos MR', 1),
+
+-- ── Concretos · Especializados ─────────────────────────────
+('Concreto Antibacterial','antibacterial',
+ 'Concreto con aditivos especiales que inhiben el crecimiento de bacterias y microorganismos. Ideal para hospitales, laboratorios y plantas de alimentos.',
+ NULL, '/productos/concretos/especializados/antibacterial.png', 'concretos', 'especializados', 'Especializados', 1),
+
+('Concreto Autocompactable','autocompactable',
+ 'Se compacta por su propio peso sin necesidad de vibración. Perfecto para estructuras con geometría compleja o alta densidad de armado.',
+ NULL, '/productos/concretos/especializados/autocompactable.png', 'concretos', 'especializados', 'Especializados', 1),
+
+('Concreto Durable','durable',
+ 'Formulado para soportar condiciones ambientales agresivas, ataques químicos y ciclos de hielo-deshielo, prolongando la vida útil de la estructura.',
+ NULL, '/productos/concretos/especializados/durable.png', 'concretos', 'especializados', 'Especializados', 1),
+
+('Concreto de Edad Temprana','edad-temprana',
+ 'Alcanza su resistencia de diseño en menor tiempo, ideal para proyectos que requieren rápida puesta en servicio.',
+ NULL, '/productos/concretos/especializados/edad-temprana.png', 'concretos', 'especializados', 'Especializados', 1),
+
+('Concreto Impermeable','impermeable',
+ 'Con baja permeabilidad al agua, es perfecto para cisternas, albercas, sótanos y estructuras en contacto permanente con agua.',
+ NULL, '/productos/concretos/especializados/impermeable.png', 'concretos', 'especializados', 'Especializados', 1),
+
+('Concreto Ligero','ligero',
+ 'Menor densidad que el concreto convencional, reduce la carga muerta en estructuras. Ideal para losas de entrepiso y cubiertas.',
+ NULL, '/productos/concretos/especializados/ligero.png', 'concretos', 'especializados', 'Especializados', 1),
+
+('Concreto Permeable','permeable',
+ 'Permite el paso del agua a través de su estructura, favoreciendo la recarga del manto freático. Ideal para estacionamientos y banquetas.',
+ NULL, '/productos/concretos/especializados/permeable.png', 'concretos', 'especializados', 'Especializados', 1),
+
+('Concreto Pigmentado','pigmentado',
+ 'Concreto con pigmentos integrales en masa que ofrece acabados decorativos duraderos para pisos, plazas y elementos arquitectónicos.',
+ NULL, '/productos/concretos/especializados/pigmentado.png', 'concretos', 'especializados', 'Especializados', 1),
+
+-- ── Concretos · Prefabricados ──────────────────────────────
+('Barda Pre-Fabricada','barda',
+ 'Sistema de bardas prefabricadas de concreto que ofrecen seguridad, rapidez de instalación y acabado estético para delimitación de propiedades.',
+ NULL, '/productos/concretos/prefabricados/barda.png', 'concretos', 'prefabricados', 'Línea de Prefabricados', 1),
+
+('Barrera','barrera',
+ 'Barreras de concreto tipo New Jersey para control de tráfico, seguridad vial y delimitación de zonas de trabajo.',
+ NULL, '/productos/concretos/prefabricados/barrera.png', 'concretos', 'prefabricados', 'Línea de Prefabricados', 1),
+
+('Postes','postes',
+ 'Postes de concreto prefabricados para cercas, instalaciones eléctricas y señalización, con alta resistencia y durabilidad.',
+ NULL, '/productos/concretos/prefabricados/postes.png', 'concretos', 'prefabricados', 'Línea de Prefabricados', 1),
+
+-- ── Concretos · Renta de Equipo ────────────────────────────
+('Vibrador de Concreto','vibrador-de-concreto',
+ 'Renta de vibrador de concreto para consolidar mezclas y eliminar vacíos en el colado, garantizando estructuras más resistentes.',
+ NULL, '/productos/concretos/renta-de-equipo/vibrador.png', 'concretos', 'renta-de-equipo', 'Renta de Equipo', 1),
+
+('Grúa','grua',
+ 'Renta de grúa para izaje y manejo de materiales pesados en obra. Diferentes capacidades de carga disponibles.',
+ NULL, '/productos/concretos/renta-de-equipo/grua.png', 'concretos', 'renta-de-equipo', 'Renta de Equipo', 1),
+
+('Retroescabadora','retroescabadora',
+ 'Renta de retroescabadora para excavaciones, zanjas y movimiento de tierra en proyectos de construcción.',
+ NULL, '/productos/concretos/renta-de-equipo/retroescabadora.png', 'concretos', 'renta-de-equipo', 'Renta de Equipo', 1),
+
+('Bolteo','bolteo',
+ 'Renta de camión de volteo para transporte y descarga de materiales a granel en obra.',
+ NULL, '/productos/concretos/renta-de-equipo/bolteo.png', 'concretos', 'renta-de-equipo', 'Renta de Equipo', 1),
+
+-- ── Concretos · Servicios ──────────────────────────────────
+('Bomba Telescópica','bomba-telescopica',
+ 'Servicio de bombeo de concreto con equipo telescópico para alcanzar zonas de difícil acceso en altura.',
+ NULL, '/productos/concretos/servicios/bomba-telescopica.png', 'concretos', 'servicios', 'Servicios', 1),
+
+('Concreto Estampado','concreto-estampado',
+ 'Aplicación de patrones y texturas sobre concreto fresco para crear acabados decorativos imitando materiales naturales.',
+ NULL, '/productos/concretos/servicios/estampado.png', 'concretos', 'servicios', 'Servicios', 1),
+
+('Concreto Móvil','concreto-movil',
+ 'Producción y entrega de concreto fresco directamente en obra con planta volumétrica móvil.',
+ NULL, '/productos/concretos/servicios/movil.png', 'concretos', 'servicios', 'Servicios', 1),
+
+('Corte de Concreto','corte-concreto',
+ 'Servicio de corte de concreto con equipos de disco diamantado para juntas de control y demolición selectiva.',
+ NULL, '/productos/concretos/servicios/corte.png', 'concretos', 'servicios', 'Servicios', 1),
+
+('Floteado y Pulido','floteado-pulido',
+ 'Acabado superficial de pisos de concreto mediante máquinas floteadoras y pulidoras para obtener superficies lisas y brillantes.',
+ NULL, '/productos/concretos/servicios/floteado.png', 'concretos', 'servicios', 'Servicios', 1),
+
+-- ── Acabados · Adhesivos ───────────────────────────────────
+('Boquilla Sin Arena','boquilla',
+ 'Sellador para emboquillar superficies de cerámica y porcelanato. Fórmula sin arena para juntas finas y acabado limpio.',
+ NULL, '/productos/adhesivos/Boquilla Sin Arena copia.png', 'textucos', 'adhesivos', 'Adhesivos', 1),
+
+('Fija Fachalet','fija-fachalet',
+ 'Adhesivo especial para la colocación de fachaleta y piedra artificial en fachadas y muros interiores.',
+ NULL, '/productos/adhesivos/fijafachalet.png', 'textucos', 'adhesivos', 'Adhesivos', 1),
+
+('Junteador','junteador',
+ 'Mortero para juntas de cerámica y porcelanato. Disponible en varios colores para complementar el diseño.',
+ NULL, '/productos/adhesivos/junteador con arena.png', 'textucos', 'adhesivos', 'Adhesivos', 1),
+
+('Pegapiso','pegapiso',
+ 'Adhesivo cementoso para colocación de pisos y recubrimientos cerámicos en interiores y exteriores.',
+ NULL, '/productos/adhesivos/pegapiso.png', 'textucos', 'adhesivos', 'Adhesivos', 1),
+
+('Piso Sobre Piso','piso-sobre-piso',
+ 'Adhesivo de alta adherencia que permite instalar cerámica directamente sobre piso existente sin demoler.',
+ NULL, '/productos/adhesivos/pisosobrepiso.png', 'textucos', 'adhesivos', 'Adhesivos', 1),
+
+('Adhesivo para Porcelanato','porcelanato',
+ 'Adhesivo de alto rendimiento para porcelanato y piezas grandes. Formulado para minimizar el deslizamiento.',
+ NULL, '/productos/adhesivos/porcelanato.png', 'textucos', 'adhesivos', 'Adhesivos', 1),
+
+('Renivelador','renivelador',
+ 'Mortero autonivelante para corrección de pisos irregulares antes de la instalación de recubrimientos.',
+ NULL, '/productos/adhesivos/reanivelador.png', 'textucos', 'adhesivos', 'Adhesivos', 1),
+
+('Fija Sillar','fija-sillar',
+ 'Adhesivo resistente para la colocación de sillar y cantera natural en muros y fachadas.',
+ NULL, '/productos/adhesivos/sillar.png', 'textucos', 'adhesivos', 'Adhesivos', 1),
+
+('Fija Teja','fija-teja',
+ 'Adhesivo especializado para la colocación de teja de barro y cantera en techos y muros exteriores.',
+ NULL, '/productos/adhesivos/teja.png', 'textucos', 'adhesivos', 'Adhesivos', 1),
+
+('Fija Veneciano','veneciano',
+ 'Adhesivo para colocación de mosaico veneciano y piezas pequeñas en albercas, fuentes y acabados decorativos.',
+ NULL, '/productos/adhesivos/venesiano.png', 'textucos', 'adhesivos', 'Adhesivos', 1),
+
+-- ── Acabados · Morteros y Afinadores ──────────────────────
+('Mortero Integral','mortero-integral',
+ 'Mortero multiusos para aplanados, pegas y nivelaciones. Formulado con aditivos para mayor trabajabilidad.',
+ NULL, '/productos/mortero_y_afinadores/mortero.png', 'textucos', 'morteros', 'Morteros y Afinadores', 1),
+
+('Mortero en Pasta Blanca','mortero-en-pasta',
+ 'Mortero listo para usar en presentación en pasta blanca. Ideal para reparaciones y acabados de pequeñas áreas.',
+ NULL, '/productos/mortero_y_afinadores/mortero en pasta blanca.png', 'textucos', 'morteros', 'Morteros y Afinadores', 1),
+
+('Texturizado Coral Fino','coral',
+ 'Mortero de acabado decorativo con textura coral fino para fachadas y muros exteriores.',
+ NULL, '/productos/mortero_y_afinadores/coral fino.png', 'textucos', 'morteros', 'Morteros y Afinadores', 1),
+
+('Fachalet en Polvo','fachalet',
+ 'Mortero decorativo en polvo para fachadas con acabado tipo fachaleta. Simula la textura de piedra natural.',
+ NULL, '/productos/mortero_y_afinadores/fachalet.png', 'textucos', 'morteros', 'Morteros y Afinadores', 1),
+
+('Texturizado','texturizado',
+ 'Mortero texturizado para aplicación en muros y fachadas. Brinda acabado decorativo y protección contra la intemperie.',
+ NULL, '/productos/mortero_y_afinadores/texturizado.png', 'textucos', 'morteros', 'Morteros y Afinadores', 1),
+
+('Tirol Reforzado','tirol-reforzado',
+ 'Mortero tirol reforzado para acabados de alta resistencia en fachadas y muros exteriores.',
+ NULL, '/productos/mortero_y_afinadores/tirol reforzado.png', 'textucos', 'morteros', 'Morteros y Afinadores', 1),
+
+('Afina Fácil','afina-facil',
+ 'Mortero afinador de acabado fino para muros y plafones. Fácil aplicación y excelente terminado.',
+ NULL, '/productos/mortero_y_afinadores/afina fasil.png', 'textucos', 'morteros', 'Morteros y Afinadores', 1),
+
+('Aplana Fina','aplana-fina',
+ 'Mortero para aplanado fino de paredes interiores y exteriores, preparando la superficie para pintura o recubrimiento.',
+ NULL, '/productos/mortero_y_afinadores/aplanafinaa.png', 'textucos', 'morteros', 'Morteros y Afinadores', 1),
+
+('Endurecedor','endurecedor',
+ 'Tratamiento endurecedor para pisos de concreto que aumenta la resistencia a la abrasión y facilita la limpieza.',
+ NULL, '/productos/mortero_y_afinadores/enduresedor.png', 'textucos', 'morteros', 'Morteros y Afinadores', 1),
+
+('Grano de Mármol','grano-marmol',
+ 'Mortero con granito de mármol para acabados decorativos de alta calidad en interiores y exteriores.',
+ NULL, '/productos/mortero_y_afinadores/marmol.png', 'textucos', 'morteros', 'Morteros y Afinadores', 1),
+
+('Reflex','reflex',
+ 'Mortero de acabado reflex para superficies decorativas con efecto reflectante.',
+ NULL, '/productos/mortero_y_afinadores/reflex.png', 'textucos', 'morteros', 'Morteros y Afinadores', 1),
+
+('Sombra','sombra',
+ 'Mortero sombra para acabados decorativos con efecto de profundidad en muros y fachadas.',
+ NULL, '/productos/mortero_y_afinadores/ssombra.png', 'textucos', 'morteros', 'Morteros y Afinadores', 1),
+
+-- ── Acabados · Selladores ─────────────────────────────────
+('5x1','5x1',
+ 'Sellador multipropósito 5 en 1: sella, impermeabiliza, adhiere, pinta y protege superficies.',
+ NULL, '/productos/selladores/5X1.png', 'textucos', 'selladores', 'Selladores', 1),
+
+('Barniz','barniz',
+ 'Barniz protector para superficies de madera, concreto y cantera. Brinda acabado brillante y resistencia al clima.',
+ NULL, '/productos/selladores/BARNIZ CON.png', 'textucos', 'selladores', 'Selladores', 1),
+
+('Bond','bond',
+ 'Promotor de adherencia para mejorar la unión entre capas de mortero, concreto y superficies existentes.',
+ NULL, '/productos/selladores/BOND.png', 'textucos', 'selladores', 'Selladores', 1),
+
+('Disgregante','disgregante',
+ 'Desmoldante para cimbra que evita la adherencia del concreto y facilita el retiro del encofrado.',
+ NULL, '/productos/selladores/DISGREGANTE.png', 'textucos', 'selladores', 'Selladores', 1),
+
+('Fijacril','fijacril',
+ 'Sellador acrílico de alta penetración para superficies porosas. Prepara y consolida la base antes de pintar.',
+ NULL, '/productos/selladores/FIJACLIL.png', 'textucos', 'selladores', 'Selladores', 1),
+
+('Ipermax','ipermax',
+ 'Impermeabilizante elástico de alto rendimiento para losas, azoteas y muros con problemas de filtración.',
+ NULL, '/productos/selladores/IPERMAX.png', 'textucos', 'selladores', 'Selladores', 1),
+
+('Pintacril','pintacril',
+ 'Pintura acrílica impermeabilizante para fachadas y muros exteriores. Protege y embellece.',
+ NULL, '/productos/selladores/PINTACRIL.png', 'textucos', 'selladores', 'Selladores', 1),
+
+('Teflón','teflon',
+ 'Sellador con teflón para pisos y recubrimientos cerámicos. Facilita la limpieza y previene manchas.',
+ NULL, '/productos/selladores/TEFLON.png', 'textucos', 'selladores', 'Selladores', 1),
+
+('Textumar','textumar',
+ 'Sellador texturizado para aplicación en fachadas. Brinda acabado decorativo y protección contra la intemperie.',
+ NULL, '/productos/selladores/TEXTUMAR.png', 'textucos', 'selladores', 'Selladores', 1),
+
+-- ── Acabados · Pinturas ───────────────────────────────────
+('Satinado','satinado',
+ 'Pintura con acabado satinado que ofrece un brillo suave y elegante. Fácil limpieza y excelente cubrimiento para interiores y exteriores.',
+ NULL, '/productos/pinturas/pinturas satinado  copia.png', 'textucos', 'pinturas', 'Pinturas', 1),
+
+('Mate','mate',
+ 'Pintura con acabado mate que elimina reflejos y disimula imperfecciones. Ideal para paredes interiores con acabado liso y uniforme.',
+ NULL, '/productos/pinturas/mate copia.png', 'textucos', 'pinturas', 'Pinturas', 1),
+
+('Brillante','brillante',
+ 'Pintura con acabado brillante de alta resistencia. Perfecta para superficies que requieren limpieza frecuente como cocinas, baños y carpintería.',
+ NULL, '/productos/pinturas/pinturas copia.png', 'textucos', 'pinturas', 'Pinturas', 1),
+
+-- ── Acabados · Especializados ─────────────────────────────
+('Lanzado Texturizado','lanzado-texturizado',
+ 'Servicio de aplicación de texturizado lanzado con equipo neumático para acabados uniformes en grandes superficies.',
+ NULL, '/productos/especialisados/TEXTUMAR.png', 'textucos', 'especializados', 'Especializados', 1),
+
+('Colocación de Exturizado','colocacion-exturizado',
+ 'Servicio especializado de colocación de materiales texturizados con maquinaria vibratoria para acabados de alta calidad.',
+ NULL, '/productos/especialisados/porcelanato.png', 'textucos', 'especializados', 'Especializados', 1),
+
+('Impermeabilización','impermeabilizacion',
+ 'Servicio de impermeabilización para losas, azoteas y muros. Aplicación con productos de alto rendimiento.',
+ NULL, '/productos/especialisados/IPERMAX.png', 'textucos', 'especializados', 'Especializados', 1),
+
+('Colocación de Teja','colocacion-teja',
+ 'Servicio especializado de colocación de teja de barro y cantera en techos y muros exteriores.',
+ NULL, '/productos/especialisados/teja.png', 'textucos', 'especializados', 'Especializados', 1)
+
+ON DUPLICATE KEY UPDATE
+    nombre           = VALUES(nombre),
+    descripcion      = VALUES(descripcion),
+    descripcion2     = VALUES(descripcion2),
+    imagen_url       = VALUES(imagen_url),
+    categoria_nombre = VALUES(categoria_nombre),
+    activo           = VALUES(activo);
+
+
+-- ============================================================
+-- 9. SEED — Categorías de Materiales
+-- ============================================================
+INSERT INTO materiales_categorias (slug, nombre, descripcion, marcas, activo) VALUES
+
+('construccion', 'Construcción',
+ 'Herramientas eléctricas y manuales de las mejores marcas para tu obra.',
+ '[{"nombre":"DeWalt","logo":"/productos/materiales/construccion/dewalt.png"},{"nombre":"Makita","logo":"/productos/materiales/construccion/makita.png"},{"nombre":"Truper","logo":"/productos/materiales/construccion/truper.png"}]',
+ 1),
+
+('electrico', 'Eléctrico',
+ 'Materiales eléctricos de las marcas más confiables del mercado.',
+ '[{"nombre":"Condumex","logo":"/productos/materiales/electrico/condumex.png"},{"nombre":"IUSA","logo":"/productos/materiales/electrico/iusa.png"},{"nombre":"Square D","logo":"/productos/materiales/electrico/squared.png"},{"nombre":"Royer","logo":"/productos/materiales/electrico/royer.png"}]',
+ 1),
+
+('plomeria', 'Plomería',
+ 'Sistemas de conducción y almacenamiento de agua para tu construcción.',
+ '[{"nombre":"Rotoplas","logo":"/productos/materiales/plomeria/rotoplas.png"}]',
+ 1),
+
+('herreria', 'Herrería',
+ 'Perfiles y acero estructural de las mejores siderúrgicas.',
+ '[{"nombre":"Prolamsa","logo":"/productos/materiales/herreria/prolamsa.png"},{"nombre":"INFRA","logo":"/productos/materiales/herreria/infra.png"}]',
+ 1),
+
+('decoracion', 'Decoración',
+ 'Materiales y acabados para decoración interior y exterior.',
+ '[]',
+ 1),
+
+('herramienta', 'Herramienta',
+ 'Herramientas manuales y accesorios para construcción.',
+ '[]',
+ 1)
+
+ON DUPLICATE KEY UPDATE
+    nombre      = VALUES(nombre),
+    descripcion = VALUES(descripcion),
+    marcas      = VALUES(marcas),
+    activo      = VALUES(activo);

@@ -104,11 +104,59 @@ export const textucos: Categoria[] = [
     nombre: 'Morteros y Afinadores',
     productos: [
       {
+        slug: 'mortero-integral',
+        nombre: 'Mortero Integral',
+        descripcion:
+          'Mortero multiusos para aplanados, pegas y nivelaciones. Formulado con aditivos para mayor trabajabilidad.',
+        imagen: '/productos/mortero_y_afinadores/mortero.png',
+        categoria: 'morteros',
+      },
+      {
+        slug: 'mortero-en-pasta',
+        nombre: 'Mortero en Pasta Blanca',
+        descripcion:
+          'Mortero listo para usar en presentación en pasta blanca. Ideal para reparaciones y acabados de pequeñas áreas.',
+        imagen: '/productos/mortero_y_afinadores/mortero en pasta blanca.png',
+        categoria: 'morteros',
+      },
+      {
+        slug: 'coral',
+        nombre: 'Texturizado Coral Fino',
+        descripcion:
+          'Mortero de acabado decorativo con textura coral fino para fachadas y muros exteriores.',
+        imagen: '/productos/mortero_y_afinadores/coral fino.png',
+        categoria: 'morteros',
+      },
+      {
+        slug: 'fachalet',
+        nombre: 'Fachalet en Polvo',
+        descripcion:
+          'Mortero decorativo en polvo para fachadas con acabado tipo fachaleta. Simula la textura de piedra natural.',
+        imagen: '/productos/mortero_y_afinadores/fachalet.png',
+        categoria: 'morteros',
+      },
+      {
+        slug: 'texturizado',
+        nombre: 'Texturizado',
+        descripcion:
+          'Mortero texturizado para aplicación en muros y fachadas. Brinda acabado decorativo y protección contra la intemperie.',
+        imagen: '/productos/mortero_y_afinadores/texturizado.png',
+        categoria: 'morteros',
+      },
+      {
+        slug: 'tirol-reforzado',
+        nombre: 'Tirol Reforzado',
+        descripcion:
+          'Mortero tirol reforzado para acabados de alta resistencia en fachadas y muros exteriores.',
+        imagen: '/productos/mortero_y_afinadores/tirol reforzado.png',
+        categoria: 'morteros',
+      },
+      {
         slug: 'afina-facil',
         nombre: 'Afina Fácil',
         descripcion:
           'Mortero afinador de acabado fino para muros y plafones. Fácil aplicación y excelente terminado.',
-        imagen: '/productos/textucos/morteros/afina-facil.png',
+        imagen: '/productos/mortero_y_afinadores/afina fasil.png',
         categoria: 'morteros',
       },
       {
@@ -116,15 +164,7 @@ export const textucos: Categoria[] = [
         nombre: 'Aplana Fina',
         descripcion:
           'Mortero para aplanado fino de paredes interiores y exteriores, preparando la superficie para pintura o recubrimiento.',
-        imagen: '/productos/textucos/morteros/aplana-fina.png',
-        categoria: 'morteros',
-      },
-      {
-        slug: 'coral',
-        nombre: 'Coral',
-        descripcion:
-          'Mortero de acabado decorativo con textura coral para fachadas y muros exteriores.',
-        imagen: '/productos/textucos/morteros/coral.png',
+        imagen: '/productos/mortero_y_afinadores/aplanafinaa.png',
         categoria: 'morteros',
       },
       {
@@ -132,15 +172,7 @@ export const textucos: Categoria[] = [
         nombre: 'Endurecedor',
         descripcion:
           'Tratamiento endurecedor para pisos de concreto que aumenta la resistencia a la abrasión y facilita la limpieza.',
-        imagen: '/productos/textucos/morteros/endurecedor.png',
-        categoria: 'morteros',
-      },
-      {
-        slug: 'fachalet',
-        nombre: 'Fachalet',
-        descripcion:
-          'Mortero decorativo para fachadas con acabado tipo fachaleta. Simula la textura de piedra natural.',
-        imagen: '/productos/textucos/morteros/fachalet.png',
+        imagen: '/productos/mortero_y_afinadores/enduresedor.png',
         categoria: 'morteros',
       },
       {
@@ -148,23 +180,23 @@ export const textucos: Categoria[] = [
         nombre: 'Grano de Mármol',
         descripcion:
           'Mortero con granito de mármol para acabados decorativos de alta calidad en interiores y exteriores.',
-        imagen: '/productos/textucos/morteros/grano-marmol.png',
+        imagen: '/productos/mortero_y_afinadores/marmol.png',
         categoria: 'morteros',
       },
       {
-        slug: 'mortero-integral',
-        nombre: 'Mortero Integral',
+        slug: 'reflex',
+        nombre: 'Reflex',
         descripcion:
-          'Mortero multiusos para aplanados, pegas y nivelaciones. Formulado con aditivos para mayor trabajabilidad.',
-        imagen: '/productos/textucos/morteros/mortero-integral.png',
+          'Mortero de acabado reflex para superficies decorativas con efecto reflectante.',
+        imagen: '/productos/mortero_y_afinadores/reflex.png',
         categoria: 'morteros',
       },
       {
-        slug: 'mortero-en-pasta',
-        nombre: 'Mortero en Pasta',
+        slug: 'sombra',
+        nombre: 'Sombra',
         descripcion:
-          'Mortero listo para usar en presentación en pasta. Ideal para reparaciones y acabados de pequeñas áreas.',
-        imagen: '/productos/textucos/morteros/mortero-pasta.png',
+          'Mortero sombra para acabados decorativos con efecto de profundidad en muros y fachadas.',
+        imagen: '/productos/mortero_y_afinadores/ssombra.png',
         categoria: 'morteros',
       },
     ],

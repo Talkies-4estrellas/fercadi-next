@@ -1,0 +1,382 @@
+.wrapper {
+  padding: 40px;
+  background: #f0f4f8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.layout {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+}
+
+/* ── Columna izquierda ── */
+.izq {
+  flex: 1;
+  min-width: 0;
+  max-width: 800px;
+}
+
+.titulo {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--azul-profundo);
+  margin-bottom: 28px;
+  width: 100%;
+}
+
+/* ── Forma card ── */
+.formaCard {
+  background: white;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.formaHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.formaLabel {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--azul-boton);
+}
+
+.formaActions {
+  display: flex;
+  gap: 8px;
+}
+
+.iconBtn {
+  background: none;
+  background-color: transparent;
+  border: none;
+  border-radius: 6px;
+  margin: 0;
+  padding: 4px 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: #888;
+  transition: color 0.2s;
+}
+
+.iconBtn:hover {
+  background: none;
+  background-color: transparent;
+  color: var(--azul-boton);
+}
+
+/* ── Selector de formas ── */
+.shapesGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.shapeBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1.5px solid #d0ddf0;
+  border-radius: 10px;
+  background: #f0f6ff;
+  background-color: #f0f6ff;
+  cursor: pointer;
+  font-size: 0.7rem;
+  font-family: inherit;
+  color: var(--azul-boton);
+  font-weight: 500;
+  text-align: center;
+  min-width: 72px;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  margin: 0;
+}
+
+.shapeBtn:hover {
+  border-color: var(--azul-boton);
+  background-color: #e0ecff;
+}
+
+.shapeBtnActivo {
+  background-color: var(--azul-boton);
+  border-color: var(--azul-boton);
+  color: white;
+}
+
+.shapeBtnActivo:hover {
+  background-color: var(--azul-oscuro);
+  border-color: var(--azul-oscuro);
+}
+
+/* ── Campos ── */
+.campos {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.campoRow {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.campoGroup {
+  flex: 1;
+  min-width: 140px;
+}
+
+.campoLabel {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--azul-boton);
+  margin-bottom: 6px;
+}
+
+.campoInput {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #c0d4f0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: var(--azul-profundo);
+  background: white;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.campoInput:focus {
+  border-color: var(--azul-boton);
+}
+
+.campoSelect {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #c0d4f0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: var(--azul-profundo);
+  background: white;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.campoSelect:focus {
+  border-color: var(--azul-boton);
+}
+
+.volPrev {
+  margin-top: 14px;
+  font-size: 0.85rem;
+  color: #666;
+  text-align: right;
+}
+
+.volPrev strong {
+  color: var(--azul-boton);
+}
+
+/* ── Botón agregar ── */
+.agregarBtn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 0;
+  margin: 8px 0 0;
+  background: none;
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #e53935;
+  cursor: pointer;
+}
+
+.agregarBtn:hover {
+  background: none;
+  background-color: transparent;
+  color: #b71c1c;
+}
+
+/* ── Panel derecho ── */
+.panel {
+  width: 340px;
+  flex-shrink: 0;
+  background: var(--azul-profundo);
+  border-radius: 16px;
+  padding: 28px 24px;
+  color: white;
+  position: sticky;
+  top: 80px;
+}
+
+.panelTitulo {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: white;
+}
+
+.panelItems {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.panelItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.panelItemNombre {
+  font-size: 0.88rem;
+  color: rgba(255,255,255,0.85);
+}
+
+.panelItemVol {
+  font-size: 0.88rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ── Reserva ── */
+.reservaRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 16px 0;
+  border-top: 1px solid rgba(255,255,255,0.15);
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+  margin-bottom: 16px;
+}
+
+.reservaLabel {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.75);
+  flex: 1;
+  min-width: 100%;
+  margin-bottom: 6px;
+}
+
+.reservaInputWrap {
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: 6px;
+  overflow: hidden;
+  flex: 1;
+}
+
+.reservaInput {
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  outline: none;
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: var(--azul-profundo);
+  background: transparent;
+}
+
+.reservaPct {
+  padding: 0 10px;
+  font-size: 0.85rem;
+  color: #888;
+  background: white;
+}
+
+.reservaExtra {
+  font-size: 0.88rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ── Total ── */
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.85);
+}
+
+.totalVal {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: white;
+}
+
+/* ── Botón cotizar ── */
+.cotizarBtn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 16px;
+  background: var(--dorado);
+  color: var(--azul-profundo);
+  font-size: 1.1rem;
+  font-weight: 900;
+  border-radius: 40px;
+  letter-spacing: 1px;
+  transition: background 0.2s, transform 0.15s;
+  text-decoration: none;
+}
+
+.cotizarBtn:hover {
+  background: #e6ab00;
+  transform: scale(1.02);
+}
+
+/* ── Responsive ── */
+@media screen and (max-width: 1000px) {
+  .wrapper {
+    padding: 24px 20px;
+  }
+
+  .layout {
+    flex-direction: column;
+  }
+
+  .panel {
+    width: 100%;
+    position: static;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .shapesGrid {
+    gap: 6px;
+  }
+
+  .shapeBtn {
+    min-width: 60px;
+    padding: 8px;
+    font-size: 0.65rem;
+  }
+
+  .campoRow {
+    flex-direction: column;
+    gap: 10px;
+  }
+}

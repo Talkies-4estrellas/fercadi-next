@@ -54,6 +54,27 @@ button:hover {
   background-color: var(--dorado);
 }
 
+/* --- NUEVAS REGLAS PARA EL COLOR DE LETRA EN FORMULARIOS --- */
+
+/* Cambia el color del texto de ayuda (placeholder) a blanco */
+input::placeholder {
+  color: rgba(255, 255, 255, 0.7) !important;
+  opacity: 1; /* Necesario para Firefox */
+}
+
+/* Ajusta el campo de fecha para que el texto y el icono sean blancos */
+input[type="date"] {
+  color-scheme: dark;
+  color: white !important;
+}
+
+/* Asegura que cualquier input dentro de las tarjetas tenga texto blanco */
+input {
+  color: white !important;
+}
+
+/* --- MEDIA QUERIES --- */
+
 @media screen and (max-width: 1160px) {
   button {
     padding: 12px 36px;

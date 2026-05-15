@@ -1,43 +1,44 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
-import { textucos, getCategoriaBySlug } from '@/data/textucos'
+import { getProductosPorCategoria } from '@/lib/productos'
 import styles from '@/styles/product.module.css'
-
-export function generateStaticParams() {
-  return textucos.map((cat) => ({ categoria: cat.slug }))
-}
 
 export async function generateMetadata({ params }: { params: Promise<{ categoria: string }> }) {
   const { categoria } = await params
-  const cat = getCategoriaBySlug(categoria)
-  return { title: `${cat?.nombre ?? 'Acabados'} - FERCADI` }
+  return { title: `${categoria.replace(/-/g, ' ')} - FERCADI` }
 }
 
 export default async function CategoriaPage({ params }: { params: Promise<{ categoria: string }> }) {
   const { categoria } = await params
-  const cat = getCategoriaBySlug(categoria)
-  if (!cat) notFound()
+  const productos = await getProductosPorCategoria('textucos', categoria)
+  if (productos.length === 0) notFound()
+
+  const categoriaNombre = productos[0]?.categoria_nombre ?? categoria
 
   return (
     <>
       <div className={styles.breadcrumb}>
-        <Link href="/">Inicio</Link> / <Link href="/textucos">Acabados</Link> / {cat.nombre}
+        <Link href="/">Inicio</Link> / <Link href="/textucos">Acabados</Link> / {categoriaNombre}
       </div>
       <div className={styles.general}>
-        {cat.productos.map((producto) => (
+        {productos.map((producto) => (
           <Link key={producto.slug} href={`/textucos/${categoria}/${producto.slug}`} className={styles.cuadro}>
             <div className={styles.azul}>
               <h3>{producto.nombre.toUpperCase()}</h3>
             </div>
-            <Image
-              src={producto.imagen}
-              alt={producto.nombre}
-              width={280}
-              height={180}
-              style={{ objectFit: 'cover' }}
-            />
-            <div className={styles.verBtn}>Ver</div>
+            {producto.imagen_url && (
+              <div style={{ position: 'relative', width: '280px', height: '180px', margin: '0 auto' }}>
+                <Image
+                  src={producto.imagen_url}
+                  alt={producto.nombre}
+                  fill
+                  sizes="280px"
+                  style={{ objectFit: 'contain' }}
+                />
+              </div>
+            )}
+            <div className={styles.verBtn}>Ver más</div>
           </Link>
         ))}
       </div>
