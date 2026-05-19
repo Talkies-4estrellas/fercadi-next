@@ -4,6 +4,8 @@ import { createContext, useContext, useState, useEffect } from 'react';
 export interface CartItem {
   id: string;
   nombre: string;
+  /** Opción elegida del producto (p. ej. "50 kg", "Azul Rey", "Saco x 25 kg"). */
+  opciones?: string;
   precio: number;
   cantidad: number;
   imagen?: string;

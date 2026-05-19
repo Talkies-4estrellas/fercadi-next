@@ -5,16 +5,20 @@ interface User {
   id: number;
   nombre: string;
   correo: string;
+  /** Rol del usuario en el sistema. 'admin' habilita /admin */
+  rol?: 'admin' | 'usuario';
 }
 
 interface AuthContextType {
   user: User | null;
+  isAdmin: boolean;
   login: (userData: User) => void;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
+  isAdmin: false,
   login: () => {},
   logout: () => {},
 });
@@ -37,8 +41,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem('fercadi_user');
   };
 
+  const isAdmin = user?.rol === 'admin';
+
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, isAdmin, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

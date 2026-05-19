@@ -7,9 +7,10 @@ export async function POST(request: Request) {
     const { correo, password } = await request.json();
 
     // 1. Buscamos al usuario en la base de datos de XAMPP
-    // Seleccionamos específicamente los campos que necesitamos para la sesión
+    // Seleccionamos específicamente los campos que necesitamos para la sesión.
+    // `rol` se agrega para que el frontend sepa si puede acceder a /admin.
     const [rows]: any = await db.query(
-      'SELECT id, nombre, correo, password FROM usuarios WHERE correo = ?', 
+      'SELECT id, nombre, correo, password, rol FROM usuarios WHERE correo = ?',
       [correo]
     );
 
@@ -35,14 +36,16 @@ export async function POST(request: Request) {
     }
 
     // 4. Respuesta exitosa
-    // Devolvemos el nombre para poder personalizar la bienvenida en el frontend
-    return NextResponse.json({ 
-      message: 'Inicio de sesión exitoso', 
+    // Devolvemos el rol además del nombre para que el frontend pueda
+    // mostrar/ocultar opciones reservadas al admin (entrada /admin, etc.).
+    return NextResponse.json({
+      message: 'Inicio de sesión exitoso',
       user: {
         id: usuario.id,
         nombre: usuario.nombre,
-        correo: usuario.correo
-      } 
+        correo: usuario.correo,
+        rol: usuario.rol ?? 'usuario',
+      }
     }, { status: 200 });
 
   } catch (error) {

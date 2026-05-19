@@ -20,7 +20,7 @@ export default async function ProductoPage({ params }: { params: Promise<{ produ
     <ProductoDetalle
       nombre={p.nombre}
       descripcion={p.descripcion}
-      imagen={p.imagen_url ?? ''}
+      imagen={p.imagen_url ?? undefined}
       categoria={p.categoria_nombre}
       breadcrumb={
         <>

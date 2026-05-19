@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
     nombre           VARCHAR(100) NOT NULL,
     correo           VARCHAR(100) NOT NULL UNIQUE,
     password         VARCHAR(255) NOT NULL,
+    rol              ENUM('usuario','admin') DEFAULT 'usuario',  -- 'admin' habilita /admin
     edad             INT,
     profesion        VARCHAR(100),
     fecha_nacimiento DATE,
@@ -39,13 +40,39 @@ CREATE TABLE IF NOT EXISTS productos (
     descripcion2     TEXT,                           -- Segunda descripción (algunos concretos)
     precio           DECIMAL(10,2) DEFAULT 0.00,
     imagen_url       VARCHAR(500),
-    seccion          ENUM('concretos','textucos','materiales') NOT NULL,
-    categoria_slug   VARCHAR(100)  NOT NULL,         -- Ej: 'adhesivos'
-    categoria_nombre VARCHAR(255),                   -- Ej: 'Morteros y Afinadores'
+    seccion          ENUM('concretos','textucos','materiales','ferreteria') NOT NULL,
+    categoria_slug   VARCHAR(100)  NOT NULL,         -- Ej: 'adhesivos', 'p085'
+    categoria_nombre VARCHAR(255),                   -- Ej: 'Morteros y Afinadores', 'Llaves ajustables'
     stock            INT           DEFAULT 0,
     activo           BOOLEAN       DEFAULT TRUE,
+    -- ── Campos públicos nuevos (CSV) ──────────────────────────
+    marca            VARCHAR(100),                   -- Ej: 'Truper', 'Expert'
+    unidad           VARCHAR(50),                    -- Ej: 'Pieza', 'Set', 'Par'
+    -- ── Campos comerciales (solo admin) ──────────────────────
+    codigo_interno   VARCHAR(50),                    -- Código interno del proveedor
+    ean              VARCHAR(30),                    -- Código de barras (puede venir en notación científica)
+    margen           VARCHAR(20),                    -- Margen de mercado: MM00, MM0, MM1…
+    caja             SMALLINT UNSIGNED,              -- Unidades por caja
+    master           SMALLINT UNSIGNED,              -- Unidades por master
+    alta_rotacion    TINYINT(1)    DEFAULT 0,
+    precio_minimo    DECIMAL(10,2),                  -- Precio mínimo de venta
+    precio_mayoreo_con_iva       DECIMAL(10,2),
+    precio_distribuidor_con_iva  DECIMAL(10,2),
+    precio_publico_con_iva       DECIMAL(10,2),      -- Igual que `precio` para acceso rápido admin
+    precio_mayoreo_sin_iva       DECIMAL(10,2),
+    precio_distribuidor_sin_iva  DECIMAL(10,2),
+    precio_publico_sin_iva       DECIMAL(10,2),
+    precio_medio_mayoreo_sin_iva DECIMAL(10,2),
+    precio_medio_mayoreo_con_iva DECIMAL(10,2),
+    codigo_sat       VARCHAR(20),                    -- Clasificación SAT
+    descripcion_sat  VARCHAR(255),
+    peso_kg          DECIMAL(8,3),
+    volumen_cm3      DECIMAL(12,3),
     creado_en        TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE KEY unique_slug_seccion (slug, seccion)
+    UNIQUE KEY unique_slug_seccion (slug, seccion),
+    INDEX idx_codigo_interno (codigo_interno),
+    INDEX idx_marca           (marca),
+    INDEX idx_categoria       (seccion, categoria_slug)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
@@ -65,13 +92,15 @@ CREATE TABLE IF NOT EXISTS materiales_categorias (
 -- 5. Pedidos
 -- ============================================================
 CREATE TABLE IF NOT EXISTS pedidos (
-    id          INT           AUTO_INCREMENT PRIMARY KEY,
-    usuario_id  INT,
-    producto    VARCHAR(255),
-    cantidad    INT,
-    total       DECIMAL(10,2),
-    estado      ENUM('pendiente','procesando','completado','cancelado') DEFAULT 'pendiente',
-    fecha       TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+    id              INT           AUTO_INCREMENT PRIMARY KEY,
+    usuario_id      INT,
+    producto        VARCHAR(255),
+    opciones        VARCHAR(255),                    -- Presentación/tamaño elegido (puede ser NULL)
+    cantidad        INT,
+    precio_unitario DECIMAL(10,2),                  -- Precio por unidad al momento de la compra
+    total           DECIMAL(10,2),
+    estado          ENUM('pendiente','procesando','completado','cancelado') DEFAULT 'pendiente',
+    fecha           TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -101,9 +130,64 @@ CREATE TABLE IF NOT EXISTS suscripciones (
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- ============================================================
+-- 8. ALTER TABLE — Columnas añadidas en versiones posteriores
+--    Si ejecutas este script desde cero, las tablas ya las incluyen.
+--    Sólo ejecuta estas líneas si la tabla fue creada antes de los cambios.
+-- ============================================================
+
+-- usuarios: columna rol (habilita /admin)
+ALTER TABLE usuarios
+  ADD COLUMN IF NOT EXISTS rol ENUM('usuario','admin') DEFAULT 'usuario' AFTER password;
+
+-- pedidos: columnas opciones y precio_unitario (historial de compras detallado)
+ALTER TABLE pedidos
+  ADD COLUMN IF NOT EXISTS opciones        VARCHAR(255)   AFTER producto,
+  ADD COLUMN IF NOT EXISTS precio_unitario DECIMAL(10,2)  AFTER cantidad;
+
+-- Para convertir un usuario existente en admin (reemplazar 1 con el id real):
+-- UPDATE usuarios SET rol = 'admin' WHERE id = 1;
+
+-- productos: columnas públicas (marca, unidad)
+ALTER TABLE productos
+  ADD COLUMN IF NOT EXISTS marca   VARCHAR(100) DEFAULT NULL AFTER categoria_nombre,
+  ADD COLUMN IF NOT EXISTS unidad  VARCHAR(50)  DEFAULT NULL AFTER marca;
+
+-- productos: columnas comerciales (admin-only)
+ALTER TABLE productos
+  ADD COLUMN IF NOT EXISTS codigo_interno              VARCHAR(50)      DEFAULT NULL AFTER unidad,
+  ADD COLUMN IF NOT EXISTS ean                         VARCHAR(30)      DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS margen                      VARCHAR(20)      DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS caja                        SMALLINT UNSIGNED DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS master                      SMALLINT UNSIGNED DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS alta_rotacion               TINYINT(1)       DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS precio_minimo               DECIMAL(10,2)    DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS precio_mayoreo_con_iva      DECIMAL(10,2)    DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS precio_distribuidor_con_iva DECIMAL(10,2)    DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS precio_publico_con_iva      DECIMAL(10,2)    DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS precio_mayoreo_sin_iva      DECIMAL(10,2)    DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS precio_distribuidor_sin_iva DECIMAL(10,2)    DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS precio_publico_sin_iva      DECIMAL(10,2)    DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS precio_medio_mayoreo_sin_iva DECIMAL(10,2)   DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS precio_medio_mayoreo_con_iva DECIMAL(10,2)   DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS codigo_sat                  VARCHAR(20)      DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS descripcion_sat             VARCHAR(255)     DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS peso_kg                     DECIMAL(8,3)     DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS volumen_cm3                 DECIMAL(12,3)    DEFAULT NULL;
+
+-- productos: expandir seccion ENUM para incluir 'ferreteria' (productos del CSV)
+ALTER TABLE productos
+  MODIFY COLUMN seccion ENUM('concretos','textucos','materiales','ferreteria') NOT NULL;
+
+-- productos: índices para búsquedas del admin
+ALTER TABLE productos
+  ADD INDEX IF NOT EXISTS idx_codigo_interno (codigo_interno),
+  ADD INDEX IF NOT EXISTS idx_marca          (marca),
+  ADD INDEX IF NOT EXISTS idx_categoria      (seccion, categoria_slug);
+
 
 -- ============================================================
--- 8. SEED — Productos
+-- 9. SEED — Productos
 --    Seguro ejecutar varias veces (ON DUPLICATE KEY UPDATE).
 -- ============================================================
 INSERT INTO productos

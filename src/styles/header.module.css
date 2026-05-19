@@ -178,6 +178,40 @@
   line-height: 1;
 }
 
+/* ── Admin button (sólo visible para rol=admin) ─────────────────────────────── */
+.adminBtn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+  padding: 7px 14px;
+  border: 1.5px solid rgba(255, 191, 0, 0.6);
+  border-radius: 20px;
+  background: rgba(255, 191, 0, 0.12);
+  color: var(--dorado);
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: background 0.2s, color 0.2s;
+}
+
+.adminBtn:hover {
+  background: var(--dorado);
+  color: var(--azul-profundo);
+}
+
+@media screen and (max-width: 768px) {
+  .adminBtn {
+    font-size: 0;
+    padding: 8px 10px;
+    border-radius: 50%;
+    gap: 0;
+  }
+  .adminBtn i {
+    font-size: 1.1rem;
+  }
+}
+
 /* ── User logged in ─────────────────────────────────────────────────────────── */
 .userWrapper {
   display: flex;

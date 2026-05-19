@@ -1,12 +1,13 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import styles from '@/styles/product.module.css'
+import { resolverImagenProducto } from '@/lib/imagen'
 
 interface Props {
   nombre: string
   descripcion: string
   descripcion2?: string
-  imagen: string
+  imagen?: string | null
   categoria: string
   breadcrumb: React.ReactNode
 }
@@ -46,14 +47,23 @@ export default function ProductoDetalle({
 
         {/* ── Imagen ── */}
         <div className={styles.detalleImagen}>
-          <Image
-            src={imagen}
-            alt={nombre}
-            width={520}
-            height={520}
-            style={{ width: 'auto', height: 'auto', maxHeight: '440px' }}
-            priority
-          />
+          {(() => {
+            const src = resolverImagenProducto(imagen);
+            return src ? (
+              <Image
+                src={src}
+                alt={nombre}
+                width={520}
+                height={520}
+                style={{ width: 'auto', height: 'auto', maxHeight: '440px' }}
+                priority
+              />
+            ) : (
+              <div style={{ width: 520, height: 320, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.04)', borderRadius: 12 }}>
+                <i className="fa-regular fa-image" style={{ fontSize: '3rem', opacity: 0.25 }} />
+              </div>
+            );
+          })()}
         </div>
       </div>
 

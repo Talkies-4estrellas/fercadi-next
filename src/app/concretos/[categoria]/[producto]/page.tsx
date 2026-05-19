@@ -27,7 +27,7 @@ export default async function ProductoPage({
       nombre={p.nombre}
       descripcion={p.descripcion}
       descripcion2={p.descripcion2}
-      imagen={p.imagen_url ?? ''}
+      imagen={p.imagen_url ?? undefined}
       categoria={p.categoria_nombre}
       breadcrumb={
         <>

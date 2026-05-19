@@ -12,7 +12,7 @@ import Buscador from '@/components/Buscador'
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null)
-  const { user, logout } = useAuth()
+  const { user, isAdmin, logout } = useAuth()
   const { itemCount, openCart } = useCart()
 
   const close = () => {
@@ -104,6 +104,18 @@ export default function Header() {
             <i className="fa-solid fa-bag-shopping" aria-hidden="true" />
             {itemCount > 0 && <span className={styles.cartBadge}>{itemCount}</span>}
           </button>
+
+          {isAdmin && (
+            <Link
+              href="/admin"
+              className={styles.adminBtn}
+              onClick={close}
+              title="Panel de administración"
+            >
+              <i className="fa-solid fa-screwdriver-wrench" aria-hidden="true" />
+              <span>Admin</span>
+            </Link>
+          )}
 
           {user ? (
             <div className={styles.userWrapper}>

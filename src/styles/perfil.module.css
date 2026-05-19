@@ -203,6 +203,19 @@
 .badgeActivo     { background: #d1e7dd; color: #0a3622; }
 .badgeVencido    { background: #f8d7da; color: #58151c; }
 
+/* ── Chip de opciones del producto en la tabla de compras ──────────────────── */
+.chipOpcion {
+  display: inline-block;
+  padding: 3px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: 12px;
+  background: rgba(53, 101, 197, 0.1);
+  color: var(--azul-boton);
+  border: 1px solid rgba(53, 101, 197, 0.25);
+  white-space: nowrap;
+}
+
 /* ── Empty state ───────────────────────────────────────────────────────────── */
 .empty {
   display: flex;

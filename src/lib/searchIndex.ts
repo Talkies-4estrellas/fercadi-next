@@ -1,4 +1,4 @@
-﻿import { db } from './db';
+import { db } from './db';
 
 export interface SearchItem {
   nombre: string;
@@ -16,7 +16,7 @@ export interface SearchItem {
 export async function getDynamicSearchIndex(): Promise<SearchItem[] | null> {
   try {
     const [rows]: any = await db.query(
-      
+
 "SELECT nombre, descripcion, categoria_slug AS categoria, categoria_nombre, seccion, slug, imagen_url AS imagen FROM productos WHERE activo = 1"
     );
 

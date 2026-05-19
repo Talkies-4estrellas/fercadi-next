@@ -1,7 +1,9 @@
 'use client';
+import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
+import { resolverImagenProducto } from '@/lib/imagen';
 import styles from '@/styles/cart.module.css';
 
 export default function CartDrawer() {
@@ -58,13 +60,26 @@ export default function CartDrawer() {
             </div>
           ) : (
             <ul className={styles.itemList}>
-              {cart.map(item => (
+              {cart.map(item => {
+                const img = resolverImagenProducto(item.imagen);
+                return (
                 <li key={item.id} className={styles.item}>
-                  {item.imagen && (
-                    <img src={item.imagen} alt={item.nombre} className={styles.itemImg} />
+                  {img && (
+                    <div className={styles.itemImg} style={{ position: 'relative' }}>
+                      <Image
+                        src={img}
+                        alt={item.nombre}
+                        fill
+                        sizes="60px"
+                        style={{ objectFit: 'cover' }}
+                      />
+                    </div>
                   )}
                   <div className={styles.itemInfo}>
                     <span className={styles.itemName}>{item.nombre}</span>
+                    {item.opciones && (
+                      <span className={styles.itemOption}>{item.opciones}</span>
+                    )}
                     <span className={styles.itemPrice}>
                       ${(item.precio * item.cantidad).toFixed(2)}
                     </span>
@@ -90,7 +105,8 @@ export default function CartDrawer() {
                     <i className="fa-solid fa-trash-can" aria-hidden="true" />
                   </button>
                 </li>
-              ))}
+                );
+              })}
             </ul>
           )}
         </div>

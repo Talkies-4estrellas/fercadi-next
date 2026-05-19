@@ -9,7 +9,9 @@ type Tab = 'resumen' | 'compras' | 'servicios' | 'suscripciones';
 interface Compra {
   id: number;
   producto: string;
+  opciones?: string | null;
   cantidad: number;
+  precio_unitario?: number | null;
   total: number;
   estado: string;
   fecha: string;
@@ -88,8 +90,15 @@ export default function PerfilPage() {
     }
     fetch(`/api/perfil?userId=${user.id}`)
       .then((r) => r.json())
-      .then((d) => setData(d))
-      .catch(() => {})
+      .then((d) => {
+        // Aceptamos tanto la respuesta nueva { ok, compras, ... } como la antigua { compras, ... }
+        setData({
+          compras: Array.isArray(d?.compras) ? d.compras : [],
+          servicios: Array.isArray(d?.servicios) ? d.servicios : [],
+          suscripciones: Array.isArray(d?.suscripciones) ? d.suscripciones : [],
+        });
+      })
+      .catch((err) => console.error('Error cargando perfil:', err))
       .finally(() => setLoading(false));
   }, [user, router]);
 
@@ -179,7 +188,14 @@ export default function PerfilPage() {
                           {data.compras.slice(0, 3).map((c) => (
                             <tr key={`c-${c.id}`}>
                               <td data-label="Tipo"><i className="fa-solid fa-bag-shopping" style={{ color: 'var(--azul-boton)', marginRight: 6 }} />Compra</td>
-                              <td data-label="Descripción">{c.producto}</td>
+                              <td data-label="Descripción">
+                                {c.producto}
+                                {c.opciones && (
+                                  <span className={styles.chipOpcion} style={{ marginLeft: 8 }}>
+                                    {c.opciones}
+                                  </span>
+                                )}
+                              </td>
                               <td data-label="Estado"><BadgeEstado estado={c.estado} /></td>
                               <td data-label="Fecha">{formatFecha(c.fecha)}</td>
                             </tr>
@@ -212,6 +228,7 @@ export default function PerfilPage() {
                           <tr>
                             <th>#</th>
                             <th>Producto</th>
+                            <th>Opciones</th>
                             <th>Cantidad</th>
                             <th>Total</th>
                             <th>Estado</th>
@@ -223,6 +240,13 @@ export default function PerfilPage() {
                             <tr key={c.id}>
                               <td data-label="#">{c.id}</td>
                               <td data-label="Producto">{c.producto}</td>
+                              <td data-label="Opciones">
+                                {c.opciones ? (
+                                  <span className={styles.chipOpcion}>{c.opciones}</span>
+                                ) : (
+                                  <span style={{ color: 'rgba(0,0,0,0.35)' }}>—</span>
+                                )}
+                              </td>
                               <td data-label="Cantidad">{c.cantidad}</td>
                               <td data-label="Total">{formatMoneda(c.total)}</td>
                               <td data-label="Estado"><BadgeEstado estado={c.estado} /></td>

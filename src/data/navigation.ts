@@ -48,5 +48,9 @@ export const navItems: NavItem[] = [
       { label: 'Servicios', href: '/textucos/servicios' },
     ],
   },
+  {
+    label: 'Ferretería',
+    href: '/ferreteria',
+  },
   { label: 'Contacto', href: '/contacto' },
 ]

@@ -126,12 +126,13 @@
 }
 
 .itemImg {
+  position: relative;
   width: 50px;
   height: 50px;
-  object-fit: cover;
   border-radius: 8px;
   flex-shrink: 0;
   background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
 }
 
 .itemInfo {
@@ -149,6 +150,18 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.itemOption {
+  display: inline-block;
+  width: fit-content;
+  padding: 2px 8px;
+  background: rgba(255, 191, 0, 0.15);
+  color: var(--dorado);
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 191, 0, 0.3);
 }
 
 .itemPrice {
