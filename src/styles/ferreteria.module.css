@@ -520,6 +520,12 @@
 }
 
 /* ── Detalle de producto ────────────────────────────────────── */
+.detalleCarrito {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 40px 32px;
+}
+
 .detalleExtra {
   max-width: 1200px;
   margin: 0 auto;

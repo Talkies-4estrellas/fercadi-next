@@ -105,7 +105,25 @@ CREATE TABLE IF NOT EXISTS pedidos (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
--- 6. Servicios contratados
+-- 6. Órdenes (agrupa los ítems de un mismo carrito)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS ordenes (
+    id                INT           AUTO_INCREMENT PRIMARY KEY,
+    usuario_id        INT           NOT NULL,
+    total             DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    estado            ENUM('pendiente','confirmado','en_preparacion','enviado','entregado','cancelado')
+                                    NOT NULL DEFAULT 'pendiente',
+    notas             TEXT,
+    direccion_entrega TEXT,
+    created_at        TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+    updated_at        TIMESTAMP     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_usuario (usuario_id),
+    INDEX idx_estado  (estado),
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ============================================================
+-- 7. Servicios contratados
 -- ============================================================
 CREATE TABLE IF NOT EXISTS servicios_contratados (
     id          INT          AUTO_INCREMENT PRIMARY KEY,
@@ -144,6 +162,27 @@ ALTER TABLE usuarios
 ALTER TABLE pedidos
   ADD COLUMN IF NOT EXISTS opciones        VARCHAR(255)   AFTER producto,
   ADD COLUMN IF NOT EXISTS precio_unitario DECIMAL(10,2)  AFTER cantidad;
+
+-- ordenes: tabla nueva (si la BD fue creada antes del módulo de ventas)
+CREATE TABLE IF NOT EXISTS ordenes (
+    id                INT           AUTO_INCREMENT PRIMARY KEY,
+    usuario_id        INT           NOT NULL,
+    total             DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    estado            ENUM('pendiente','confirmado','en_preparacion','enviado','entregado','cancelado')
+                                    NOT NULL DEFAULT 'pendiente',
+    notas             TEXT,
+    direccion_entrega TEXT,
+    created_at        TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+    updated_at        TIMESTAMP     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_usuario (usuario_id),
+    INDEX idx_estado  (estado),
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- pedidos: columna orden_id para vincular ítems a una orden
+ALTER TABLE pedidos
+  ADD COLUMN IF NOT EXISTS orden_id INT NULL AFTER usuario_id,
+  ADD INDEX  IF NOT EXISTS idx_orden_id (orden_id);
 
 -- Para convertir un usuario existente en admin (reemplazar 1 con el id real):
 -- UPDATE usuarios SET rol = 'admin' WHERE id = 1;

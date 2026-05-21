@@ -1,0 +1,129 @@
+/* ═══════════════════════════════════════════════════════════════
+   Pedido Confirmado — página de éxito tras finalizar la compra
+   ═══════════════════════════════════════════════════════════════ */
+
+.page {
+  min-height: calc(100vh - 60px);
+  background: #f5f7fb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.card {
+  background: white;
+  border-radius: 20px;
+  border: 1px solid rgba(1,27,79,0.08);
+  padding: 48px 40px;
+  max-width: 520px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(1,27,79,0.07);
+}
+
+/* ── Icono de éxito ── */
+.iconWrap {
+  font-size: 4rem;
+  color: #2ecc71;
+  margin-bottom: 20px;
+  line-height: 1;
+}
+
+/* ── Textos ── */
+.titulo {
+  font-size: 1.75rem;
+  font-weight: 900;
+  color: var(--azul-profundo);
+  margin: 0 0 12px;
+}
+
+.subtitulo {
+  font-size: 1rem;
+  color: #555;
+  margin: 0 0 16px;
+  line-height: 1.6;
+}
+
+.ordenId {
+  color: var(--azul-boton);
+  font-size: 1.1rem;
+}
+
+.info {
+  font-size: 0.9rem;
+  color: var(--azul-medio);
+  background: rgba(53,101,197,0.06);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin: 0 0 28px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  text-align: left;
+  line-height: 1.5;
+}
+
+.info i {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--azul-boton);
+}
+
+/* ── Acciones ── */
+.acciones {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.btnPrimario {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--azul-boton);
+  color: white;
+  font-size: 1rem;
+  font-weight: 800;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.btnPrimario:hover {
+  background: var(--azul-oscuro);
+  transform: translateY(-1px);
+}
+
+.btnSecundario {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px;
+  border-radius: 12px;
+  border: 1px solid rgba(1,27,79,0.15);
+  background: white;
+  color: var(--azul-medio);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.btnSecundario:hover {
+  border-color: var(--azul-boton);
+  color: var(--azul-boton);
+}
+
+/* ── Responsive ── */
+@media (max-width: 560px) {
+  .card {
+    padding: 36px 24px;
+  }
+  .titulo {
+    font-size: 1.4rem;
+  }
+}

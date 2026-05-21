@@ -41,10 +41,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   const links = [
-    { href: '/admin', label: 'Dashboard', icon: 'fa-solid fa-chart-line' },
-    { href: '/admin/productos', label: 'Productos', icon: 'fa-solid fa-boxes-stacked' },
-    { href: '/admin/productos/nuevo', label: 'Nuevo producto', icon: 'fa-solid fa-plus' },
-    { href: '/admin/importar', label: 'Importar CSV', icon: 'fa-solid fa-file-arrow-up' },
+    { href: '/admin',             label: 'Dashboard',     icon: 'fa-solid fa-chart-line'       },
+    { href: '/admin/pedidos',     label: 'Pedidos',        icon: 'fa-solid fa-bag-shopping'     },
+    { href: '/admin/productos',   label: 'Productos',      icon: 'fa-solid fa-boxes-stacked'    },
+    { href: '/admin/productos/nuevo', label: 'Nuevo producto', icon: 'fa-solid fa-plus'         },
+    { href: '/admin/importar',    label: 'Importar CSV',   icon: 'fa-solid fa-file-arrow-up'    },
   ];
 
   return (

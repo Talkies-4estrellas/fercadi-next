@@ -11,26 +11,13 @@ export default function CartDrawer() {
   const { user } = useAuth();
   const router = useRouter();
 
-  const handleCheckout = async () => {
+  const handleCheckout = () => {
+    closeCart();
     if (!user) {
-      closeCart();
-      router.push('/login');
+      router.push('/login?next=/checkout');
       return;
     }
-
-    const res = await fetch('/api/pedidos', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ usuario_id: user.id, items: cart, total }),
-    });
-
-    if (res.ok) {
-      clearCart();
-      closeCart();
-      router.push('/perfil');
-    } else {
-      alert('Error al procesar el pedido. Intenta de nuevo.');
-    }
+    router.push('/checkout');
   };
 
   return (

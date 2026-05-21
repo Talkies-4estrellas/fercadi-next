@@ -23,15 +23,24 @@ export async function GET(request: Request) {
     const [compras, servicios, suscripciones] = await Promise.all([
       db
         .query(
-          `SELECT id, producto, opciones, cantidad, precio_unitario, total, estado, fecha
-             FROM pedidos
-            WHERE usuario_id = ?
-            ORDER BY fecha DESC`,
+          `SELECT
+             o.id,
+             o.total,
+             o.estado,
+             o.notas,
+             o.direccion_entrega,
+             o.created_at AS fecha,
+             COUNT(p.id) AS num_items
+           FROM ordenes o
+           LEFT JOIN pedidos p ON p.orden_id = o.id
+           WHERE o.usuario_id = ?
+           GROUP BY o.id
+           ORDER BY o.created_at DESC`,
           [userId]
         )
         .then(([rows]) => rows)
         .catch((err) => {
-          console.warn('[/api/perfil] pedidos query falló:', err.message);
+          console.warn('[/api/perfil] ordenes query falló:', err.message);
           return [];
         }),
       db

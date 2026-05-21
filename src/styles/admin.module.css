@@ -302,6 +302,52 @@
   flex: 1;
 }
 
+.totalChip {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--azul-medio);
+  background: rgba(1, 27, 79, 0.07);
+  border-radius: 20px;
+  padding: 5px 14px;
+  white-space: nowrap;
+  align-self: center;
+}
+
+/* ── Paginador del admin ───────────────────────────────────────── */
+.paginador {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 0 6px;
+  flex-wrap: wrap;
+}
+
+.paginadorInfo {
+  font-size: 0.82rem;
+  color: #777;
+}
+
+.paginadorBtns {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.paginadorPagina {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--azul-profundo);
+  padding: 0 10px;
+  white-space: nowrap;
+}
+
+.paginadorBtns .btnSecondary:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 /* ── Tabla del listado ─────────────────────────────────────────── */
 .tablaWrap {
   background: white;
@@ -803,4 +849,50 @@ details[open] .seccionExtraTitulo::before {
   .tabla tbody td {
     padding: 10px 8px;
   }
+}
+
+/* ── Estados extra para pedidos ─────────────────────────────────── */
+.estadoPendiente {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.estadoConfirmado {
+  background: #cff4fc;
+  color: #055160;
+}
+
+.estadoPreparacion {
+  background: #e2d9f3;
+  color: #432874;
+}
+
+.estadoEnviado {
+  background: #d2e3fc;
+  color: #1a5276;
+}
+
+/* ── Detalle de pedido ───────────────────────────────────────────── */
+.detalleCard {
+  background: white;
+  border-radius: 14px;
+  border: 1px solid rgba(1,27,79,0.08);
+  padding: 20px 22px;
+}
+
+.detalleCardTitulo {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--azul-profundo);
+  margin: 0 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detalleRow {
+  font-size: 0.88rem;
+  color: #444;
+  margin: 0 0 8px;
+  line-height: 1.5;
 }

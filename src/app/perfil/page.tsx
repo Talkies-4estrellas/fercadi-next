@@ -8,12 +8,11 @@ type Tab = 'resumen' | 'compras' | 'servicios' | 'suscripciones';
 
 interface Compra {
   id: number;
-  producto: string;
-  opciones?: string | null;
-  cantidad: number;
-  precio_unitario?: number | null;
   total: number;
   estado: string;
+  notas?: string | null;
+  direccion_entrega?: string | null;
+  num_items: number;
   fecha: string;
 }
 
@@ -156,7 +155,7 @@ export default function PerfilPage() {
                   <div className={styles.statsGrid}>
                     <div className={styles.statCard}>
                       <span className={styles.statNum}>{data.compras.length}</span>
-                      <span className={styles.statLabel}>Compras realizadas</span>
+                      <span className={styles.statLabel}>Pedidos realizados</span>
                     </div>
                     <div className={styles.statCard}>
                       <span className={styles.statNum}>{data.servicios.filter(s => s.estado === 'activo').length}</span>
@@ -187,14 +186,9 @@ export default function PerfilPage() {
                         <tbody>
                           {data.compras.slice(0, 3).map((c) => (
                             <tr key={`c-${c.id}`}>
-                              <td data-label="Tipo"><i className="fa-solid fa-bag-shopping" style={{ color: 'var(--azul-boton)', marginRight: 6 }} />Compra</td>
+                              <td data-label="Tipo"><i className="fa-solid fa-bag-shopping" style={{ color: 'var(--azul-boton)', marginRight: 6 }} />Pedido</td>
                               <td data-label="Descripción">
-                                {c.producto}
-                                {c.opciones && (
-                                  <span className={styles.chipOpcion} style={{ marginLeft: 8 }}>
-                                    {c.opciones}
-                                  </span>
-                                )}
+                                Orden #{c.id} · {c.num_items} {Number(c.num_items) === 1 ? 'ítem' : 'ítems'}
                               </td>
                               <td data-label="Estado"><BadgeEstado estado={c.estado} /></td>
                               <td data-label="Fecha">{formatFecha(c.fecha)}</td>
@@ -218,18 +212,16 @@ export default function PerfilPage() {
               {/* COMPRAS */}
               {tab === 'compras' && (
                 <>
-                  <p className={styles.sectionTitle}>Mis compras</p>
+                  <p className={styles.sectionTitle}>Mis pedidos</p>
                   <div className={styles.tableWrap}>
                     {data.compras.length === 0 ? (
-                      <EmptyState icon="fa-solid fa-bag-shopping" texto="Aún no tienes compras registradas" />
+                      <EmptyState icon="fa-solid fa-bag-shopping" texto="Aún no tienes pedidos registrados" />
                     ) : (
                       <table className={styles.table}>
                         <thead>
                           <tr>
-                            <th>#</th>
-                            <th>Producto</th>
-                            <th>Opciones</th>
-                            <th>Cantidad</th>
+                            <th>Orden</th>
+                            <th>Ítems</th>
                             <th>Total</th>
                             <th>Estado</th>
                             <th>Fecha</th>
@@ -238,16 +230,10 @@ export default function PerfilPage() {
                         <tbody>
                           {data.compras.map((c) => (
                             <tr key={c.id}>
-                              <td data-label="#">{c.id}</td>
-                              <td data-label="Producto">{c.producto}</td>
-                              <td data-label="Opciones">
-                                {c.opciones ? (
-                                  <span className={styles.chipOpcion}>{c.opciones}</span>
-                                ) : (
-                                  <span style={{ color: 'rgba(0,0,0,0.35)' }}>—</span>
-                                )}
+                              <td data-label="Orden" style={{ fontWeight: 700 }}>#{c.id}</td>
+                              <td data-label="Ítems">
+                                {c.num_items} {Number(c.num_items) === 1 ? 'producto' : 'productos'}
                               </td>
-                              <td data-label="Cantidad">{c.cantidad}</td>
                               <td data-label="Total">{formatMoneda(c.total)}</td>
                               <td data-label="Estado"><BadgeEstado estado={c.estado} /></td>
                               <td data-label="Fecha">{formatFecha(c.fecha)}</td>

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getProducto, getFerreteriaCategorias } from '@/lib/productos';
 import ProductoDetalle from '@/components/ProductoDetalle';
+import BtnAgregarCarrito from '@/components/BtnAgregarCarrito';
 import styles from '@/styles/ferreteria.module.css';
 
 type Params = Promise<{ categoria: string; producto: string }>;
@@ -59,6 +60,18 @@ export default async function FerreteriaProductoPage({
         categoria={categoriaNombre}
         breadcrumb={breadcrumb}
       />
+
+      {/* Botón agregar al carrito */}
+      {Number(p.precio) > 0 && (
+        <section className={styles.detalleCarrito}>
+          <BtnAgregarCarrito
+            id={String(p.id)}
+            nombre={p.nombre}
+            precio={Number(p.precio)}
+            imagen={p.imagen_url ?? undefined}
+          />
+        </section>
+      )}
 
       {/* Datos adicionales públicos de ferretería */}
       {extras.length > 0 && (

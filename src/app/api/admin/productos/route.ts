@@ -16,14 +16,20 @@ import { esRutaImagenValida, resolverImagenProducto } from '@/lib/imagen';
  * Ambos endpoints requieren x-usuario-id de un usuario con rol='admin'.
  */
 
+const LIMIT_DEFAULT = 50;
+const LIMIT_MAX     = 200;
+
 export async function GET(request: Request) {
   const auth = await requerirAdmin(request);
   if (!auth.ok) return auth.response;
 
   const { searchParams } = new URL(request.url);
-  const seccion = searchParams.get('seccion');
+  const seccion   = searchParams.get('seccion');
   const categoria = searchParams.get('categoria');
-  const q = searchParams.get('q');
+  const q         = searchParams.get('q');
+  const page      = Math.max(1, parseInt(searchParams.get('page')  ?? '1', 10));
+  const limit     = Math.min(LIMIT_MAX, Math.max(1, parseInt(searchParams.get('limit') ?? String(LIMIT_DEFAULT), 10)));
+  const offset    = (page - 1) * limit;
 
   const where: string[] = [];
   const params: any[] = [];
@@ -37,21 +43,30 @@ export async function GET(request: Request) {
     params.push(categoria);
   }
   if (q) {
-    where.push('(nombre LIKE ? OR slug LIKE ?)');
-    params.push(`%${q}%`, `%${q}%`);
+    where.push('(nombre LIKE ? OR slug LIKE ? OR codigo_interno LIKE ?)');
+    params.push(`%${q}%`, `%${q}%`, `%${q}%`);
   }
 
+  const whereClause = where.length ? 'WHERE ' + where.join(' AND ') : '';
+
   // SELECT * para admin — devuelve todos los campos incluyendo los comerciales
-  const sql = `
-    SELECT *
-      FROM productos
-      ${where.length ? 'WHERE ' + where.join(' AND ') : ''}
-     ORDER BY seccion ASC, categoria_slug ASC, id ASC
-  `;
+  const sqlData  = `SELECT * FROM productos ${whereClause} ORDER BY seccion ASC, categoria_slug ASC, id ASC LIMIT ? OFFSET ?`;
+  const sqlCount = `SELECT COUNT(*) AS total FROM productos ${whereClause}`;
 
   try {
-    const [rows]: any = await db.query(sql, params);
-    return NextResponse.json({ ok: true, productos: rows });
+    const [[rows], [countRows]]: any = await Promise.all([
+      db.query(sqlData,  [...params, limit, offset]),
+      db.query(sqlCount, params),
+    ]);
+    const total = Number((countRows as any[])[0]?.total ?? 0);
+    return NextResponse.json({
+      ok: true,
+      productos: rows,
+      total,
+      page,
+      limit,
+      pages: Math.ceil(total / limit),
+    });
   } catch (error: any) {
     console.error('[GET /api/admin/productos]', error);
     return NextResponse.json(
