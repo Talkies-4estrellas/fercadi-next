@@ -1,4 +1,4 @@
-﻿import Link from 'next/link'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getProducto } from '@/lib/productos'
 import ProductoDetalle from '@/components/ProductoDetalle'

@@ -22,7 +22,7 @@ export const textucos: Categoria[] = [
         nombre: 'Boquilla Sin Arena',
         descripcion:
           'Sellador para emboquillar superficies de cerámica y porcelanato. Fórmula sin arena para juntas finas y acabado limpio.',
-        imagen: '/productos/textucos/adhesivos/boquilla.png',
+        imagen: '/productos/adhesivos/Boquilla Sin Arena copia.png',
         categoria: 'adhesivos',
       },
       {
@@ -30,7 +30,7 @@ export const textucos: Categoria[] = [
         nombre: 'Fija Fachalet',
         descripcion:
           'Adhesivo especial para la colocación de fachaleta y piedra artificial en fachadas y muros interiores.',
-        imagen: '/productos/textucos/adhesivos/fija-fachalet.png',
+        imagen: '/productos/adhesivos/fijafachalet.png',
         categoria: 'adhesivos',
       },
       {
@@ -38,7 +38,7 @@ export const textucos: Categoria[] = [
         nombre: 'Junteador',
         descripcion:
           'Mortero para juntas de cerámica y porcelanato. Disponible en varios colores para complementar el diseño.',
-        imagen: '/productos/textucos/adhesivos/junteador.png',
+        imagen: '/productos/adhesivos/junteador con arena.png',
         categoria: 'adhesivos',
       },
       {
@@ -46,7 +46,7 @@ export const textucos: Categoria[] = [
         nombre: 'Pegapiso',
         descripcion:
           'Adhesivo cementoso para colocación de pisos y recubrimientos cerámicos en interiores y exteriores.',
-        imagen: '/productos/textucos/adhesivos/pegapiso.png',
+        imagen: '/productos/adhesivos/pegapiso.png',
         categoria: 'adhesivos',
       },
       {
@@ -54,7 +54,7 @@ export const textucos: Categoria[] = [
         nombre: 'Piso Sobre Piso',
         descripcion:
           'Adhesivo de alta adherencia que permite instalar cerámica directamente sobre piso existente sin demoler.',
-        imagen: '/productos/textucos/adhesivos/piso-sobre-piso.png',
+        imagen: '/productos/adhesivos/pisosobrepiso.png',
         categoria: 'adhesivos',
       },
       {
@@ -62,7 +62,7 @@ export const textucos: Categoria[] = [
         nombre: 'Adhesivo para Porcelanato',
         descripcion:
           'Adhesivo de alto rendimiento para porcelanato y piezas grandes. Formulado para minimizar el deslizamiento.',
-        imagen: '/productos/textucos/adhesivos/porcelanato.png',
+        imagen: '/productos/adhesivos/porcelanato.png',
         categoria: 'adhesivos',
       },
       {
@@ -70,7 +70,7 @@ export const textucos: Categoria[] = [
         nombre: 'Renivelador',
         descripcion:
           'Mortero autonivelante para corrección de pisos irregulares antes de la instalación de recubrimientos.',
-        imagen: '/productos/textucos/adhesivos/renivelador.png',
+        imagen: '/productos/adhesivos/reanivelador.png',
         categoria: 'adhesivos',
       },
       {
@@ -78,7 +78,7 @@ export const textucos: Categoria[] = [
         nombre: 'Fija Sillar',
         descripcion:
           'Adhesivo resistente para la colocación de sillar y cantera natural en muros y fachadas.',
-        imagen: '/productos/textucos/adhesivos/fija-sillar.png',
+        imagen: '/productos/adhesivos/sillar.png',
         categoria: 'adhesivos',
       },
       {
@@ -86,7 +86,7 @@ export const textucos: Categoria[] = [
         nombre: 'Fija Teja',
         descripcion:
           'Adhesivo especializado para la colocación de teja de barro y cantera en techos y muros exteriores.',
-        imagen: '/productos/textucos/adhesivos/fija-teja.png',
+        imagen: '/productos/adhesivos/teja.png',
         categoria: 'adhesivos',
       },
       {
@@ -94,7 +94,7 @@ export const textucos: Categoria[] = [
         nombre: 'Fija Veneciano',
         descripcion:
           'Adhesivo para colocación de mosaico veneciano y piezas pequeñas en albercas, fuentes y acabados decorativos.',
-        imagen: '/productos/textucos/adhesivos/veneciano.png',
+        imagen: '/productos/adhesivos/venesiano.png',
         categoria: 'adhesivos',
       },
     ],
@@ -210,7 +210,7 @@ export const textucos: Categoria[] = [
         nombre: '5x1',
         descripcion:
           'Sellador multipropósito 5 en 1: sella, impermeabiliza, adhiere, pinta y protege superficies.',
-        imagen: '/productos/textucos/selladores/5x1.png',
+        imagen: '/productos/selladores/5X1.png',
         categoria: 'selladores',
       },
       {
@@ -218,7 +218,7 @@ export const textucos: Categoria[] = [
         nombre: 'Barniz',
         descripcion:
           'Barniz protector para superficies de madera, concreto y cantera. Brinda acabado brillante y resistencia al clima.',
-        imagen: '/productos/textucos/selladores/barniz.png',
+        imagen: '/productos/selladores/BARNIZ CON.png',
         categoria: 'selladores',
       },
       {
@@ -226,7 +226,7 @@ export const textucos: Categoria[] = [
         nombre: 'Bond',
         descripcion:
           'Promotor de adherencia para mejorar la unión entre capas de mortero, concreto y superficies existentes.',
-        imagen: '/productos/textucos/selladores/bond.png',
+        imagen: '/productos/selladores/BOND.png',
         categoria: 'selladores',
       },
       {
@@ -234,7 +234,7 @@ export const textucos: Categoria[] = [
         nombre: 'Disgregante',
         descripcion:
           'Desmoldante para cimbra que evita la adherencia del concreto y facilita el retiro del encofrado.',
-        imagen: '/productos/textucos/selladores/disgregante.png',
+        imagen: '/productos/selladores/DISGREGANTE.png',
         categoria: 'selladores',
       },
       {
@@ -242,7 +242,7 @@ export const textucos: Categoria[] = [
         nombre: 'Fijacril',
         descripcion:
           'Sellador acrílico de alta penetración para superficies porosas. Prepara y consolida la base antes de pintar.',
-        imagen: '/productos/textucos/selladores/fijacril.png',
+        imagen: '/productos/selladores/FIJACLIL.png',
         categoria: 'selladores',
       },
       {
@@ -250,7 +250,7 @@ export const textucos: Categoria[] = [
         nombre: 'Ipermax',
         descripcion:
           'Impermeabilizante elástico de alto rendimiento para losas, azoteas y muros con problemas de filtración.',
-        imagen: '/productos/textucos/selladores/ipermax.png',
+        imagen: '/productos/selladores/IPERMAX.png',
         categoria: 'selladores',
       },
       {
@@ -258,7 +258,7 @@ export const textucos: Categoria[] = [
         nombre: 'Pintacril',
         descripcion:
           'Pintura acrílica impermeabilizante para fachadas y muros exteriores. Protege y embellece.',
-        imagen: '/productos/textucos/selladores/pintacril.png',
+        imagen: '/productos/selladores/PINTACRIL.png',
         categoria: 'selladores',
       },
       {
@@ -266,7 +266,7 @@ export const textucos: Categoria[] = [
         nombre: 'Teflón',
         descripcion:
           'Sellador con teflón para pisos y recubrimientos cerámicos. Facilita la limpieza y previene manchas.',
-        imagen: '/productos/textucos/selladores/teflon.png',
+        imagen: '/productos/selladores/TEFLON.png',
         categoria: 'selladores',
       },
       {
@@ -274,8 +274,38 @@ export const textucos: Categoria[] = [
         nombre: 'Textumar',
         descripcion:
           'Sellador texturizado para aplicación en fachadas. Brinda acabado decorativo y protección contra la intemperie.',
-        imagen: '/productos/textucos/selladores/textumar.png',
+        imagen: '/productos/selladores/TEXTUMAR.png',
         categoria: 'selladores',
+      },
+    ],
+  },
+  {
+    slug: 'pinturas',
+    nombre: 'Pinturas',
+    productos: [
+      {
+        slug: 'satinado',
+        nombre: 'Satinado',
+        descripcion:
+          'Pintura con acabado satinado que ofrece un brillo suave y elegante. Fácil limpieza y excelente cubrimiento para interiores y exteriores.',
+        imagen: '/productos/pinturas/pinturas satinado  copia.png',
+        categoria: 'pinturas',
+      },
+      {
+        slug: 'mate',
+        nombre: 'Mate',
+        descripcion:
+          'Pintura con acabado mate que elimina reflejos y disimula imperfecciones. Ideal para paredes interiores con acabado liso y uniforme.',
+        imagen: '/productos/pinturas/mate copia.png',
+        categoria: 'pinturas',
+      },
+      {
+        slug: 'brillante',
+        nombre: 'Brillante',
+        descripcion:
+          'Pintura con acabado brillante de alta resistencia. Perfecta para superficies que requieren limpieza frecuente como cocinas, baños y carpintería.',
+        imagen: '/productos/pinturas/pinturas copia.png',
+        categoria: 'pinturas',
       },
     ],
   },
@@ -288,7 +318,7 @@ export const textucos: Categoria[] = [
         nombre: 'Lanzado Texturizado',
         descripcion:
           'Servicio de aplicación de texturizado lanzado con equipo neumático para acabados uniformes en grandes superficies.',
-        imagen: '/productos/textucos/especializados/lanzado.png',
+        imagen: '/productos/especialisados/TEXTUMAR.png',
         categoria: 'especializados',
       },
       {
@@ -296,7 +326,23 @@ export const textucos: Categoria[] = [
         nombre: 'Colocación de Exturizado',
         descripcion:
           'Servicio especializado de colocación de materiales texturizados con maquinaria vibratoria para acabados de alta calidad.',
-        imagen: '/productos/textucos/especializados/colocacion.png',
+        imagen: '/productos/especialisados/porcelanato.png',
+        categoria: 'especializados',
+      },
+      {
+        slug: 'impermeabilizacion',
+        nombre: 'Impermeabilización',
+        descripcion:
+          'Servicio de impermeabilización para losas, azoteas y muros. Aplicación con productos de alto rendimiento.',
+        imagen: '/productos/especialisados/IPERMAX.png',
+        categoria: 'especializados',
+      },
+      {
+        slug: 'colocacion-teja',
+        nombre: 'Colocación de Teja',
+        descripcion:
+          'Servicio especializado de colocación de teja de barro y cantera en techos y muros exteriores.',
+        imagen: '/productos/especialisados/teja.png',
         categoria: 'especializados',
       },
     ],

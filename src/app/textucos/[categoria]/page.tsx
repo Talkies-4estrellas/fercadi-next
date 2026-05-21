@@ -21,10 +21,12 @@ export default async function CategoriaPage({ params }: { params: Promise<{ cate
       <div className={styles.breadcrumb}>
         <Link href="/">Inicio</Link> / <Link href="/textucos">Acabados</Link> / {categoriaNombre}
       </div>
+
       <div className={styles.general}>
         {productos.map((producto) => (
           <Link key={producto.slug} href={`/textucos/${categoria}/${producto.slug}`} className={styles.cuadro}>
             <div className={styles.azul}>
+              {/* Usamos el nombre que viene de la base de datos */}
               <h3>{producto.nombre.toUpperCase()}</h3>
             </div>
             {producto.imagen_url && (
