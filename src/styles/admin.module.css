@@ -172,6 +172,24 @@
   letter-spacing: 0.04em;
 }
 
+.statCardDestacado {
+  background: var(--azul-profundo);
+  border-color: transparent;
+}
+
+.statCardDestacado .statNum {
+  color: var(--dorado);
+  font-size: 2.2rem;
+}
+
+.statCardDestacado .statLabel {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.statCardWarn .statNum {
+  color: #c0392b;
+}
+
 .quickActions {
   display: flex;
   gap: 12px;
