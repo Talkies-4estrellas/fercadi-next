@@ -3,8 +3,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { SearchItem } from '@/lib/searchIndex'
+import type { SearchItem } from '@/lib/searchIndex'
 import styles from '@/styles/buscador.module.css'
+
+/** Cuánto esperar después de la última tecla antes de disparar la consulta */
+const DEBOUNCE_MS = 200
+/** Caracteres mínimos para lanzar la búsqueda */
+const MIN_CHARS = 2
 
 /* ── Resalta el texto coincidente ──────────────────────────── */
 function Highlight({ text, query }: { text: string; query: string }) {
@@ -30,48 +35,63 @@ function agrupar(items: SearchItem[]) {
 }
 
 export default function Buscador() {
-  const [open, setOpen] = useState(false)
-  const [query, setQuery] = useState('')
-  const [index, setIndex] = useState<SearchItem[]>([])
-  const [loading, setLoading] = useState(false)
-  const indexLoaded = useRef(false)
+  const [open,       setOpen]       = useState(false)
+  const [query,      setQuery]      = useState('')
+  const [resultados, setResultados] = useState<SearchItem[]>([])
+  const [loading,    setLoading]    = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
-  const router = useRouter()
+  const router   = useRouter()
 
-  const q = query.trim().toLowerCase()
-
-  /* ── Carga el índice la primera vez que se abre el buscador ── */
+  /* ── Búsqueda con debounce 200 ms ──────────────────────────
+     Cada vez que `query` cambia:
+       1. Cancela el fetch anterior (AbortController).
+       2. Espera 200 ms. Si en ese tiempo el usuario sigue tecleando,
+          el timeout se cancela y no se lanza ninguna petición.
+       3. Al cumplirse el plazo, hace fetch con el término actual.
+  ──────────────────────────────────────────────────────────── */
   useEffect(() => {
-    if (!open || indexLoaded.current) return
+    const q = query.trim()
+
+    if (q.length < MIN_CHARS) {
+      setResultados([])
+      setLoading(false)
+      return
+    }
+
+    const controller = new AbortController()
+
+    // Muestra spinner de inmediato para indicar que se está procesando
     setLoading(true)
-    fetch('/api/search')
-      .then((r) => r.json())
-      .then((data: SearchItem[]) => {
-        setIndex(data)
-        indexLoaded.current = true
-      })
-      .catch(() => {
-        // Si falla la carga, el buscador simplemente no tendrá resultados
-        indexLoaded.current = true
-      })
-      .finally(() => setLoading(false))
-  }, [open])
 
-  const resultados =
-    q.length >= 2
-      ? index.filter(
-          (item) =>
-            item.nombre.toLowerCase().includes(q) ||
-            item.categoria.toLowerCase().includes(q) ||
-            item.descripcion.toLowerCase().includes(q)
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `/api/search?q=${encodeURIComponent(q)}`,
+          { signal: controller.signal }
         )
-      : []
+        if (!res.ok) throw new Error('search failed')
+        const data: SearchItem[] = await res.json()
+        setResultados(data)
+      } catch (e: any) {
+        // AbortError = el usuario ya escribió otra letra; ignorar silenciosamente
+        if (e?.name !== 'AbortError') setResultados([])
+      } finally {
+        // Solo apagar el spinner si este fetch no fue abortado
+        if (!controller.signal.aborted) setLoading(false)
+      }
+    }, DEBOUNCE_MS)
 
-  const grouped = agrupar(resultados)
+    return () => {
+      clearTimeout(timer)
+      controller.abort()
+    }
+  }, [query])
 
+  /* Limpiar resultados al cerrar */
   const cerrar = useCallback(() => {
     setOpen(false)
     setQuery('')
+    setResultados([])
   }, [])
 
   /* Auto-foco al abrir */
@@ -91,6 +111,9 @@ export default function Buscador() {
     router.push(href)
   }
 
+  const grouped  = agrupar(resultados)
+  const hayQuery = query.trim().length >= MIN_CHARS
+
   return (
     <>
       {/* ── Botón trigger ── */}
@@ -109,6 +132,7 @@ export default function Buscador() {
           <div className={styles.overlay} onClick={cerrar} />
 
           <div className={styles.panel} role="dialog" aria-modal="true" aria-label="Buscador">
+
             {/* Input row */}
             <div className={styles.inputWrap}>
               <i
@@ -119,21 +143,21 @@ export default function Buscador() {
                 ref={inputRef}
                 type="text"
                 className={styles.input}
-                placeholder="Buscar producto o categoría..."
+                placeholder="Buscar producto, marca o categoría..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 autoComplete="off"
                 style={{
-                  color: '#011b4f',
+                  color:      '#011b4f',
                   caretColor: '#011b4f',
                   background: '#ffffff',
-                  fontWeight: 500,
+                  fontWeight:  500,
                 }}
               />
               {query && (
                 <button
                   className={styles.clearBtn}
-                  onClick={() => { setQuery(''); inputRef.current?.focus() }}
+                  onClick={() => { setQuery(''); setResultados([]); inputRef.current?.focus() }}
                   aria-label="Limpiar búsqueda"
                 >
                   <i className="fa-solid fa-xmark" aria-hidden="true" />
@@ -146,17 +170,20 @@ export default function Buscador() {
 
             {/* Resultados */}
             <div className={styles.results}>
-              {loading ? (
+              {!hayQuery ? (
+                <p className={styles.hint}>Escribe al menos {MIN_CHARS} caracteres para buscar</p>
+
+              ) : loading ? (
                 <p className={styles.hint}>
-                  <i className="fa-solid fa-spinner fa-spin" aria-hidden="true" /> Cargando...
+                  <i className="fa-solid fa-spinner fa-spin" aria-hidden="true" /> Buscando...
                 </p>
-              ) : q.length < 2 ? (
-                <p className={styles.hint}>Escribe al menos 2 caracteres para buscar</p>
+
               ) : resultados.length === 0 ? (
                 <div className={styles.empty}>
                   <i className="fa-solid fa-box-open" aria-hidden="true" />
                   <p>Sin resultados para <strong>"{query}"</strong></p>
                 </div>
+
               ) : (
                 Object.entries(grouped).map(([seccion, items]) => (
                   <div key={seccion}>
@@ -207,6 +234,7 @@ export default function Buscador() {
                 ))
               )}
             </div>
+
           </div>
         </>
       )}
