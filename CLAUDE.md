@@ -669,3 +669,4 @@ Sin `RESEND_API_KEY` los formularios responden `ok: true` y loguean en consola.
 2. **Fix TypeScript en concretos:** `src/app/concretos/[categoria]/[producto]/page.tsx:29` — cambiar `descripcion2={p.descripcion2}` a `descripcion2={p.descripcion2 ?? undefined}`.
 
 3. **`BtnAgregarCarrito` en otras secciones** — actualmente solo en ferretería. Para habilitarlo en concretos/acabados: importar el componente en las páginas de detalle correspondientes y pasar `id={String(p.id)}`, `nombre`, `precio`, `imagen`.
+sas
