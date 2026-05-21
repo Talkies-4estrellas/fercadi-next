@@ -13,7 +13,7 @@ export interface CartItem {
 
 interface CartContextType {
   cart: CartItem[];
-  addToCart: (item: Omit<CartItem, 'cantidad'>) => void;
+  addToCart: (item: Omit<CartItem, 'cantidad'>, cantidad?: number) => void;
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, cantidad: number) => void;
   clearCart: () => void;
@@ -39,15 +39,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('fercadi_cart', JSON.stringify(cart));
   }, [cart]);
 
-  const addToCart = (producto: Omit<CartItem, 'cantidad'>) => {
+  const addToCart = (producto: Omit<CartItem, 'cantidad'>, cantidad = 1) => {
+    const n = Math.max(1, cantidad);
     setCart(prev => {
       const exists = prev.find(item => item.id === producto.id);
       if (exists) {
         return prev.map(item =>
-          item.id === producto.id ? { ...item, cantidad: item.cantidad + 1 } : item
+          item.id === producto.id ? { ...item, cantidad: item.cantidad + n } : item
         );
       }
-      return [...prev, { ...producto, cantidad: 1 }];
+      return [...prev, { ...producto, cantidad: n }];
     });
     setIsOpen(true);
   };

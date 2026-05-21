@@ -9,29 +9,48 @@ import { useAuth } from '@/context/AuthContext';
 import { resolverImagenProducto } from '@/lib/imagen';
 import styles from '@/styles/checkout.module.css';
 
+const FORMAS_PAGO = [
+  {
+    id: 'efectivo',
+    icon: 'fa-solid fa-money-bills',
+    titulo: 'Efectivo contra entrega',
+    desc: 'Pagas en el momento que recibes tu pedido.',
+  },
+  {
+    id: 'transferencia',
+    icon: 'fa-solid fa-building-columns',
+    titulo: 'Transferencia bancaria',
+    desc: 'Te enviamos los datos de cuenta por WhatsApp antes de enviar.',
+  },
+  {
+    id: 'tarjeta',
+    icon: 'fa-solid fa-credit-card',
+    titulo: 'Tarjeta de crédito / débito',
+    desc: 'Coordinamos el cobro con nuestro equipo al confirmar el pedido.',
+  },
+] as const;
+
+type FormaPago = (typeof FORMAS_PAGO)[number]['id'];
+
 export default function CheckoutPage() {
   const { cart, total, clearCart } = useCart();
   const { user } = useAuth();
   const router = useRouter();
 
-  const [notas, setNotas]         = useState('');
-  const [direccion, setDireccion] = useState('');
-  const [enviando, setEnviando]   = useState(false);
-  const [error, setError]         = useState('');
-  const [listo, setListo]         = useState(false);
+  const [notas,      setNotas]      = useState('');
+  const [direccion,  setDireccion]  = useState('');
+  const [pago,       setPago]       = useState<FormaPago | ''>('');
+  const [enviando,   setEnviando]   = useState(false);
+  const [error,      setError]      = useState('');
+  const [listo,      setListo]      = useState(false);
 
   // Esperar hidratación del localStorage antes de verificar
-  useEffect(() => {
-    setListo(true);
-  }, []);
+  useEffect(() => { setListo(true); }, []);
 
   useEffect(() => {
     if (!listo) return;
-    if (!user) {
-      router.replace('/login?next=/checkout');
-    } else if (cart.length === 0) {
-      router.replace('/');
-    }
+    if (!user)            router.replace('/login?next=/checkout');
+    else if (cart.length === 0) router.replace('/');
   }, [listo, user, cart.length, router]);
 
   if (!listo || !user || cart.length === 0) {
@@ -47,6 +66,10 @@ export default function CheckoutPage() {
   }
 
   const handleConfirmar = async () => {
+    if (!pago) {
+      setError('Selecciona una forma de pago antes de continuar.');
+      return;
+    }
     setError('');
     setEnviando(true);
     try {
@@ -54,10 +77,11 @@ export default function CheckoutPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          usuario_id: user.id,
-          items: cart,
-          notas: notas.trim() || undefined,
-          direccion: direccion.trim() || undefined,
+          usuario_id:   user.id,
+          items:        cart,
+          notas:        notas.trim()     || undefined,
+          direccion:    direccion.trim() || undefined,
+          metodo_pago:  pago,
         }),
       });
       const data = await res.json();
@@ -81,9 +105,7 @@ export default function CheckoutPage() {
         {/* ── Encabezado ── */}
         <div className={styles.header}>
           <p className={styles.breadcrumb}>
-            <Link href="/">Inicio</Link>
-            {' › '}
-            Confirmar pedido
+            <Link href="/">Inicio</Link>{' › '}Confirmar pedido
           </p>
           <h1 className={styles.titulo}>Confirmar pedido</h1>
         </div>
@@ -127,14 +149,16 @@ export default function CheckoutPage() {
             </ul>
           </div>
 
-          {/* ── Panel derecho: resumen + notas + confirmar ── */}
+          {/* ── Panel derecho: resumen + pago + datos + confirmar ── */}
           <div className={styles.panelResumen}>
             <p className={styles.resumenTitulo}>Resumen del pedido</p>
 
             {/* Desglose */}
             {cart.map((item) => (
               <div key={item.id} className={styles.resumenFila}>
-                <span>{item.nombre}{item.cantidad > 1 ? ` ×${item.cantidad}` : ''}</span>
+                <span style={{ flex: 1, marginRight: 8 }}>
+                  {item.nombre}{item.cantidad > 1 ? ` ×${item.cantidad}` : ''}
+                </span>
                 <span>${(item.precio * item.cantidad).toFixed(2)}</span>
               </div>
             ))}
@@ -142,6 +166,38 @@ export default function CheckoutPage() {
             <div className={styles.resumenFilaTotal}>
               <span>Total</span>
               <span className={styles.resumenMonto}>${total.toFixed(2)}</span>
+            </div>
+
+            {/* Formas de pago */}
+            <div>
+              <label className={styles.campoLabel}>Forma de pago</label>
+              <div className={styles.pagoGrid}>
+                {FORMAS_PAGO.map((fp) => {
+                  const activo = pago === fp.id;
+                  return (
+                    <div
+                      key={fp.id}
+                      className={`${styles.pagoCard} ${activo ? styles.pagoCardActivo : ''}`}
+                      onClick={() => setPago(fp.id)}
+                      role="radio"
+                      aria-checked={activo}
+                      tabIndex={0}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setPago(fp.id); }}
+                    >
+                      <div className={`${styles.pagoCardIcono} ${activo ? styles.pagoCardIconoActivo : ''}`}>
+                        <i className={fp.icon} />
+                      </div>
+                      <div className={styles.pagoCardTexto}>
+                        <p className={styles.pagoCardTitulo}>{fp.titulo}</p>
+                        <p className={styles.pagoCardDesc}>{fp.desc}</p>
+                      </div>
+                      <div className={`${styles.pagoCardCheck} ${activo ? styles.pagoCardCheckActivo : ''}`}>
+                        {activo && <i className="fa-solid fa-check" />}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Dirección de entrega */}

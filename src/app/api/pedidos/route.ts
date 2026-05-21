@@ -16,7 +16,7 @@ import { db } from '@/lib/db';
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { usuario_id, items, notas, direccion } = body;
+    const { usuario_id, items, notas, direccion, metodo_pago } = body;
 
     if (!usuario_id) {
       return NextResponse.json({ ok: false, error: 'Usuario no autenticado.' }, { status: 401 });
@@ -69,10 +69,13 @@ export async function POST(req: Request) {
       }
 
       // ── 2. Crear el registro de la orden ─────────────────────────
+      const METODOS_VALIDOS = ['efectivo', 'transferencia', 'tarjeta'];
+      const metodoPago = METODOS_VALIDOS.includes(metodo_pago) ? metodo_pago : null;
+
       const [ordenResult]: any = await connection.query(
-        `INSERT INTO ordenes (usuario_id, total, estado, notas, direccion_entrega)
-         VALUES (?, ?, 'pendiente', ?, ?)`,
-        [usuario_id, totalReal, notas?.trim() || null, direccion?.trim() || null]
+        `INSERT INTO ordenes (usuario_id, total, estado, notas, direccion_entrega, metodo_pago)
+         VALUES (?, ?, 'pendiente', ?, ?, ?)`,
+        [usuario_id, totalReal, notas?.trim() || null, direccion?.trim() || null, metodoPago]
       );
       const ordenId: number = ordenResult.insertId;
 

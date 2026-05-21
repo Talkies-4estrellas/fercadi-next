@@ -6,6 +6,12 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import styles from '@/styles/admin.module.css';
 
+const METODO_PAGO_LABEL: Record<string, string> = {
+  efectivo:      '💵 Efectivo contra entrega',
+  transferencia: '🏦 Transferencia bancaria',
+  tarjeta:       '💳 Tarjeta de crédito / débito',
+};
+
 interface OrdenDetalle {
   id: number;
   usuario_id: number;
@@ -15,6 +21,7 @@ interface OrdenDetalle {
   estado: string;
   notas: string | null;
   direccion_entrega: string | null;
+  metodo_pago: string | null;
   created_at: string;
 }
 
@@ -165,6 +172,11 @@ export default function AdminPedidoDetallePage({
             <p className={styles.detalleRow}><strong>Fecha:</strong> {formatFecha(orden.created_at)}</p>
             {orden.direccion_entrega && (
               <p className={styles.detalleRow}><strong>Dirección:</strong> {orden.direccion_entrega}</p>
+            )}
+            {orden.metodo_pago && (
+              <p className={styles.detalleRow}>
+                <strong>Forma de pago:</strong> {METODO_PAGO_LABEL[orden.metodo_pago] ?? orden.metodo_pago}
+              </p>
             )}
             {orden.notas && (
               <p className={styles.detalleRow}><strong>Notas:</strong> {orden.notas}</p>

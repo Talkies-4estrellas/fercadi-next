@@ -1,3 +1,4 @@
+/* ── Botón trigger ───────────────────────────────────────────── */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -24,10 +25,322 @@
   transform: translateY(0);
 }
 
-.btnOk {
-  background: #2ecc71;
+/* ── Overlay ──────────────────────────────────────────────────── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(1,27,79,0.45);
+  backdrop-filter: blur(3px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.15s ease;
 }
 
-.btnOk:hover {
-  background: #27ae60;
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Modal ────────────────────────────────────────────────────── */
+.modal {
+  background: white;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 460px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 24px 64px rgba(1,27,79,0.2);
+  animation: slideUp 0.2s ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* Cabecera */
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modalTitulo {
+  font-size: 1rem;
+  font-weight: 900;
+  color: var(--azul-profundo);
+}
+
+.modalCerrar {
+  background: #f0f3f9;
+  border: none;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--azul-medio);
+  font-size: 0.9rem;
+  padding: 0;
+  margin: 0;
+  transition: background 0.15s;
+}
+
+.modalCerrar:hover {
+  background: #e1e7f5;
+  color: var(--azul-profundo);
+}
+
+/* Producto */
+.modalProducto {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  background: #f8faff;
+  border-radius: 12px;
+  padding: 14px;
+  border: 1px solid rgba(1,27,79,0.07);
+}
+
+.modalImg {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #e8edf7;
+}
+
+.modalImgPlaceholder {
+  width: 80px;
+  height: 80px;
+  border-radius: 10px;
+  background: #e8edf7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #b0bcd6;
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+
+.modalInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.modalNombre {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--azul-profundo);
+  line-height: 1.35;
+  margin: 0;
+}
+
+.modalOpciones {
+  font-size: 0.78rem;
+  color: var(--azul-boton);
+  background: rgba(53,101,197,0.1);
+  border-radius: 6px;
+  padding: 2px 8px;
+  display: inline-block;
+  width: fit-content;
+  margin: 0;
+}
+
+.modalPrecioUnit {
+  font-size: 0.82rem;
+  color: #666;
+  margin: 4px 0 0;
+}
+
+.modalPrecioUnit strong {
+  color: var(--azul-profundo);
+}
+
+/* Selector de cantidad */
+.cantidadWrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cantidadLabel {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--azul-medio);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.cantidadCtrl {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border: 1px solid rgba(1,27,79,0.18);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.cantidadBtn {
+  width: 40px;
+  height: 40px;
+  background: #f0f3f9;
+  border: none;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--azul-profundo);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  transition: background 0.15s;
+  border-radius: 0;
+  font-family: inherit;
+}
+
+.cantidadBtn:hover:not(:disabled) {
+  background: #dce4f5;
+}
+
+.cantidadBtn:disabled {
+  color: #bbb;
+  cursor: not-allowed;
+}
+
+.cantidadInput {
+  width: 52px;
+  height: 40px;
+  text-align: center;
+  border: none;
+  border-left: 1px solid rgba(1,27,79,0.12);
+  border-right: 1px solid rgba(1,27,79,0.12);
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--azul-profundo) !important;
+  background: white;
+  outline: none;
+  font-family: inherit;
+  -moz-appearance: textfield;
+}
+
+.cantidadInput::-webkit-outer-spin-button,
+.cantidadInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+/* Subtotal */
+.subtotalRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #f0f3fa;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--azul-profundo);
+}
+
+.subtotalMonto {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: var(--azul-oscuro);
+}
+
+/* Aviso */
+.aviso {
+  font-size: 0.8rem;
+  color: #777;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.aviso i {
+  color: var(--azul-boton);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* Acciones */
+.modalAcciones {
+  display: flex;
+  gap: 10px;
+}
+
+.btnCancelar {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid rgba(1,27,79,0.18);
+  border-radius: 12px;
+  background: white;
+  color: var(--azul-medio);
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+  margin: 0;
+}
+
+.btnCancelar:hover {
+  border-color: var(--azul-boton);
+  color: var(--azul-boton);
+  background: white;
+}
+
+.btnConfirmar {
+  flex: 2;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  background: var(--azul-boton);
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.2s;
+  margin: 0;
+}
+
+.btnConfirmar:hover:not(:disabled) {
+  background: var(--azul-oscuro);
+}
+
+.btnConfirmar:disabled {
+  cursor: default;
+}
+
+.btnConfirmadoOk {
+  background: #2ecc71 !important;
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 520px) {
+  .modal {
+    padding: 20px 18px;
+    gap: 16px;
+  }
+  .modalAcciones {
+    flex-direction: column;
+  }
 }

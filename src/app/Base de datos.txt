@@ -115,6 +115,7 @@ CREATE TABLE IF NOT EXISTS ordenes (
                                     NOT NULL DEFAULT 'pendiente',
     notas             TEXT,
     direccion_entrega TEXT,
+    metodo_pago       VARCHAR(50)   NULL,
     created_at        TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
     updated_at        TIMESTAMP     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_usuario (usuario_id),
@@ -172,6 +173,7 @@ CREATE TABLE IF NOT EXISTS ordenes (
                                     NOT NULL DEFAULT 'pendiente',
     notas             TEXT,
     direccion_entrega TEXT,
+    metodo_pago       VARCHAR(50)   NULL,
     created_at        TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
     updated_at        TIMESTAMP     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_usuario (usuario_id),
@@ -183,6 +185,10 @@ CREATE TABLE IF NOT EXISTS ordenes (
 ALTER TABLE pedidos
   ADD COLUMN IF NOT EXISTS orden_id INT NULL AFTER usuario_id,
   ADD INDEX  IF NOT EXISTS idx_orden_id (orden_id);
+
+-- ordenes: columna metodo_pago (forma de pago elegida en checkout)
+ALTER TABLE ordenes
+  ADD COLUMN IF NOT EXISTS metodo_pago VARCHAR(50) NULL AFTER direccion_entrega;
 
 -- Para convertir un usuario existente en admin (reemplazar 1 con el id real):
 -- UPDATE usuarios SET rol = 'admin' WHERE id = 1;
