@@ -182,9 +182,13 @@ export async function POST(request: Request) {
     if (filas.length === 0) continue;
 
     // 32 columnas: 11 base + 2 públicas nuevas + 19 comerciales
-    const marcadores = filas.map(() =>
-      '(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
-    ).join(',');
+    // Generar ($1,$2,...),($33,$34,...) para cada fila
+    const COLS = 32;
+    const marcadores = filas.map((_, rowIdx) => {
+      const start = rowIdx * COLS + 1;
+      const nums  = Array.from({ length: COLS }, (__, c) => `$${start + c}`);
+      return `(${nums.join(',')})`;
+    }).join(',');
 
     try {
       await db.query(
@@ -200,32 +204,32 @@ export async function POST(request: Request) {
             codigo_sat, descripcion_sat,
             peso_kg, volumen_cm3)
          VALUES ${marcadores}
-         ON DUPLICATE KEY UPDATE
-           nombre                       = VALUES(nombre),
-           descripcion                  = VALUES(descripcion),
-           precio                       = VALUES(precio),
-           categoria_nombre             = VALUES(categoria_nombre),
-           marca                        = VALUES(marca),
-           unidad                       = VALUES(unidad),
-           codigo_interno               = VALUES(codigo_interno),
-           ean                          = VALUES(ean),
-           margen                       = VALUES(margen),
-           caja                         = VALUES(caja),
-           master                       = VALUES(master),
-           alta_rotacion                = VALUES(alta_rotacion),
-           precio_minimo                = VALUES(precio_minimo),
-           precio_mayoreo_con_iva       = VALUES(precio_mayoreo_con_iva),
-           precio_distribuidor_con_iva  = VALUES(precio_distribuidor_con_iva),
-           precio_publico_con_iva       = VALUES(precio_publico_con_iva),
-           precio_mayoreo_sin_iva       = VALUES(precio_mayoreo_sin_iva),
-           precio_distribuidor_sin_iva  = VALUES(precio_distribuidor_sin_iva),
-           precio_publico_sin_iva       = VALUES(precio_publico_sin_iva),
-           precio_medio_mayoreo_sin_iva = VALUES(precio_medio_mayoreo_sin_iva),
-           precio_medio_mayoreo_con_iva = VALUES(precio_medio_mayoreo_con_iva),
-           codigo_sat                   = VALUES(codigo_sat),
-           descripcion_sat              = VALUES(descripcion_sat),
-           peso_kg                      = VALUES(peso_kg),
-           volumen_cm3                  = VALUES(volumen_cm3)`,
+         ON CONFLICT (slug, seccion) DO UPDATE SET
+           nombre                       = EXCLUDED.nombre,
+           descripcion                  = EXCLUDED.descripcion,
+           precio                       = EXCLUDED.precio,
+           categoria_nombre             = EXCLUDED.categoria_nombre,
+           marca                        = EXCLUDED.marca,
+           unidad                       = EXCLUDED.unidad,
+           codigo_interno               = EXCLUDED.codigo_interno,
+           ean                          = EXCLUDED.ean,
+           margen                       = EXCLUDED.margen,
+           caja                         = EXCLUDED.caja,
+           master                       = EXCLUDED.master,
+           alta_rotacion                = EXCLUDED.alta_rotacion,
+           precio_minimo                = EXCLUDED.precio_minimo,
+           precio_mayoreo_con_iva       = EXCLUDED.precio_mayoreo_con_iva,
+           precio_distribuidor_con_iva  = EXCLUDED.precio_distribuidor_con_iva,
+           precio_publico_con_iva       = EXCLUDED.precio_publico_con_iva,
+           precio_mayoreo_sin_iva       = EXCLUDED.precio_mayoreo_sin_iva,
+           precio_distribuidor_sin_iva  = EXCLUDED.precio_distribuidor_sin_iva,
+           precio_publico_sin_iva       = EXCLUDED.precio_publico_sin_iva,
+           precio_medio_mayoreo_sin_iva = EXCLUDED.precio_medio_mayoreo_sin_iva,
+           precio_medio_mayoreo_con_iva = EXCLUDED.precio_medio_mayoreo_con_iva,
+           codigo_sat                   = EXCLUDED.codigo_sat,
+           descripcion_sat              = EXCLUDED.descripcion_sat,
+           peso_kg                      = EXCLUDED.peso_kg,
+           volumen_cm3                  = EXCLUDED.volumen_cm3`,
         filas.flat()
       );
       insertados += filas.length;

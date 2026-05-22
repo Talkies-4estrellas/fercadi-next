@@ -14,7 +14,7 @@ Este proyecto usa **Next.js 16.2.4** con **React 19**. Las APIs, convenciones y 
 
 **FERCADI / Josman Texturizados** — Sitio web de catálogo y ventas de materiales de construcción (concretos, acabados texturizados, materiales generales, ferretería con 15k+ productos). Los usuarios pueden explorar el catálogo, buscar, agregar al carrito, confirmar pedidos con forma de pago, ver su historial, cotizar y contactar. Los admins gestionan productos, importan CSV y administran pedidos.
 
-**Stack:** Next.js 16 · React 19 · TypeScript · CSS Modules · MySQL (XAMPP) · bcrypt · mysql2 · Resend (email)
+**Stack:** Next.js 16 · React 19 · TypeScript · CSS Modules · **PostgreSQL (Supabase)** · bcrypt · **pg** · Resend (email)
 
 ---
 
@@ -77,7 +77,7 @@ C:\fercadi-next\
 │   │   │
 │   │   ├── pie-de-pagina/[slug]/page.tsx
 │   │   │
-│   │   ├── Base de datos.txt       # SQL completo: schema + seed + ALTER TABLE (ejecutar en phpMyAdmin)
+│   │   ├── supabase-schema.sql     # Schema PostgreSQL completo listo para Supabase SQL Editor
 │   │   │
 │   │   ├── admin/                  # Backoffice — solo usuarios con rol='admin'
 │   │   │   ├── layout.tsx          # Guard + sidebar (Dashboard, Pedidos, Productos, Nuevo, Importar)
@@ -99,7 +99,7 @@ C:\fercadi-next\
 │   │       ├── pedidos/route.ts            # POST — crea orden + ítems en transacción, guarda metodo_pago
 │   │       ├── perfil/route.ts             # GET  — devuelve órdenes agrupadas/servicios/suscripciones
 │   │       ├── productos/route.ts          # GET  — lista pública (solo campos públicos)
-│   │       ├── search/route.ts             # GET  — búsqueda LIKE en MySQL (debounced, máx 20)
+│   │       ├── search/route.ts             # GET  — búsqueda LIKE en PostgreSQL (debounced, máx 20)
 │   │       └── admin/
 │   │           ├── stats/route.ts          # GET  — COUNT por sección + total/inactivos (dashboard)
 │   │           ├── seed/route.ts           # GET  — puebla la BD con el catálogo completo
@@ -107,6 +107,8 @@ C:\fercadi-next\
 │   │           ├── imagenes/route.ts       # GET  — lista imágenes en /public/productos/
 │   │           ├── productos/route.ts      # GET (paginado) + POST create (requiere admin)
 │   │           ├── productos/[id]/route.ts # GET + PUT + DELETE por id (requiere admin)
+│   │           ├── tips/route.ts           # GET + POST — CRUD de tips (admin)
+│   │           ├── tips/[id]/route.ts      # GET + PUT + DELETE (soft, activo=0) por id
 │   │           ├── pedidos/route.ts        # GET — lista órdenes paginada con info de usuario
 │   │           └── pedidos/[id]/route.ts   # GET detalle + PUT cambiar estado (cascada a pedidos)
 │   │
@@ -114,7 +116,7 @@ C:\fercadi-next\
 │   │   ├── Header.tsx              # Header sticky con nav, buscador, carrito y usuario
 │   │   ├── Footer.tsx
 │   │   ├── ClientProviders.tsx     # Wrapper 'use client': AuthProvider + CartProvider + CartDrawer
-│   │   ├── Buscador.tsx            # Buscador spotlight — debounce 200ms + LIKE en MySQL
+│   │   ├── Buscador.tsx            # Buscador spotlight — debounce 200ms + LIKE en PostgreSQL
 │   │   ├── Cart.tsx                # Drawer lateral — "Finalizar compra" navega a /checkout
 │   │   ├── BtnAgregarCarrito.tsx   # Botón con modal de confirmación + selector de cantidad
 │   │   ├── Paginador.tsx           # Paginador Link-based (recibe baseHref del Server Component)
@@ -141,7 +143,7 @@ C:\fercadi-next\
 │   │   #     Todo el catálogo ahora viene de MySQL.
 │   │
 │   ├── lib/
-│   │   ├── db.ts                   # Pool MySQL (mysql2/promise) → josman_db en XAMPP
+│   │   ├── db.ts                   # Pool PostgreSQL (pg) → Supabase · shim de compatibilidad mysql2
 │   │   ├── productos.ts            # Todas las funciones de consulta al catálogo (ver §2)
 │   │   ├── searchIndex.ts          # Solo exporta la interfaz SearchItem (sin getDynamicSearchIndex)
 │   │   ├── seed.ts                 # seedDatabase() — datos inline, sin dependencias .ts
@@ -203,11 +205,11 @@ export default async function Page({ params }: { params: Params }) {
 
 ---
 
-### 2. Catálogo de productos — 100 % dinámico desde MySQL
+### 2. Catálogo de productos — 100 % dinámico desde PostgreSQL (Supabase)
 
 > Los archivos `src/data/concretos.ts`, `src/data/textucos.ts` y `src/data/materiales.ts` fueron **eliminados**. Todo el catálogo ahora vive en la base de datos.
 
-**Agregar o editar un producto = INSERT/UPDATE en MySQL. No hay código que modificar.**
+**Agregar o editar un producto = INSERT/UPDATE en Supabase. No hay código que modificar.**
 
 #### Funciones disponibles en `src/lib/productos.ts`
 | Función | Descripción |
@@ -221,9 +223,9 @@ export default async function Page({ params }: { params: Params }) {
 | `getFerreteriaMarcas(categoriaSlug?)` | Marcas únicas en ferretería (filtrable por categoría) |
 | `getProductosFerreteria({categoriaSlug?, marca?, page?, limit?})` | Paginación server-side para ferretería |
 
-**Importante:** estas funciones usan `db` directamente → solo llamarlas desde **Server Components** o **API Routes**. Nunca desde Client Components.
+**Importante:** estas funciones usan `db` directamente (PostgreSQL/Supabase) → solo llamarlas desde **Server Components** o **API Routes**. Nunca desde Client Components.
 
-**Importante:** usan `SELECT` con `PUBLIC_COLS` explícitos — nunca `SELECT *` — para no filtrar datos comerciales.
+**Importante:** usan `SELECT` con `PUBLIC_COLS` explícitos — nunca `SELECT *` — para no exponer datos comerciales.
 
 #### Separación público / admin
 - **Usuarios normales:** `lib/productos.ts` y `api/productos/route.ts` usan `PUBLIC_COLS` (13 campos visibles).
@@ -266,13 +268,16 @@ layout.tsx (Server)
 | `/api/registro` | POST | Crea usuario, hashea password |
 | `/api/contacto` | POST | Envía email vía Resend |
 | `/api/cotizacion` | POST | Envía cotización vía Resend |
-| `/api/pedidos` | POST | Crea orden + ítems en transacción MySQL, guarda metodo_pago |
+| `/api/pedidos` | POST | Crea orden + ítems en transacción PostgreSQL, guarda metodo_pago |
 | `/api/perfil` | GET | Órdenes agrupadas + servicios + suscripciones del usuario |
 | `/api/productos` | GET | Lista pública de productos (solo campos públicos) |
-| `/api/search` | GET | `?q=` → LIKE en MySQL, máx 20 resultados, mín 2 chars |
+| `/api/search` | GET | `?q=` → LIKE en PostgreSQL, máx 20 resultados, mín 2 chars |
 | `/api/admin/stats` | GET 🔒 | COUNT por sección + total/inactivos (para dashboard) |
-| `/api/admin/seed` | GET | Puebla la BD con el catálogo completo |
-| `/api/admin/importar` | POST 🔒 | Importa `catalogo_prueba.csv` (15k+ productos, lotes de 500) |
+| `/api/admin/seed` | GET | Puebla la BD con el catálogo completo (concretos, textucos, materiales) |
+| `/api/admin/importar` | POST 🔒 | Importa `catalogo_prueba.csv` (15k+ productos, lotes de 500, placeholders `$n`) |
+| `/api/admin/tips` | GET 🔒 | Listado paginado de tips `?q=` |
+| `/api/admin/tips` | POST 🔒 | Crea tip nuevo |
+| `/api/admin/tips/[id]` | GET / PUT / DELETE 🔒 | CRUD por id (DELETE = soft, activo=0) |
 | `/api/admin/imagenes` | GET 🔒 | Lista imágenes en `/public/productos/` por carpeta |
 | `/api/admin/productos` | GET 🔒 | Listado paginado con filtros `?seccion=&q=&page=&limit=` |
 | `/api/admin/productos` | POST 🔒 | Crea producto nuevo |
@@ -285,7 +290,7 @@ layout.tsx (Server)
 
 #### `POST /api/pedidos` — detalles importantes
 - Body: `{ usuario_id, items: CartItem[], notas?, direccion?, metodo_pago? }`
-- Usa **transacción MySQL** (`getConnection → beginTransaction → commit/rollback → release`).
+- Usa **transacción PostgreSQL** (`getConnection → beginTransaction → commit/rollback → release`).
 - Recalcula precios desde la BD — **no confía en los precios del cliente**.
 - Crea registro en `ordenes` con `metodo_pago` → luego inserta ítems en `pedidos` con `orden_id`.
 - Valida `metodo_pago` contra lista: `['efectivo', 'transferencia', 'tarjeta']`.
@@ -293,72 +298,86 @@ layout.tsx (Server)
 
 ---
 
-### 6. Base de datos (MySQL — XAMPP)
+### 6. Base de datos (PostgreSQL — Supabase)
 
-**Host:** localhost · **Usuario:** root · **Password:** (vacío) · **DB:** `josman_db`
+**URL del proyecto:** `hykrbwzmavpenprwqsqi.supabase.co`  
+**Driver:** `pg` (node-postgres) — **No mysql2**  
+**Conexión:** Session Pooler, puerto 5432 (`DATABASE_URL` en `.env.local`)
 
+#### Shim de compatibilidad (`src/lib/db.ts`)
+`db.ts` convierte automáticamente la sintaxis mysql2 a PostgreSQL:
+- `?` → `$1, $2, $3 …` (placeholders posicionales)
+- `INSERT …` → añade `RETURNING id` automáticamente para exponer `insertId`
+- Devuelve `[rows | metaInsert, fields]` igual que mysql2
+- `db.getConnection()` → cliente dedicado para transacciones (`BEGIN/COMMIT/ROLLBACK`)
+
+#### Tablas
 | Tabla | Propósito |
 |---|---|
-| `usuarios` | Registro con bcrypt. Incluye `rol ENUM('usuario','admin')` |
+| `usuarios` | Registro con bcrypt. Incluye `rol VARCHAR CHECK ('usuario','admin')` |
 | `productos` | Catálogo completo: concretos, acabados, ferretería. 32+ columnas |
-| `materiales_categorias` | Categorías de materiales con marcas en JSON |
+| `materiales_categorias` | Categorías de materiales con marcas en `JSONB` |
 | `ordenes` | Una fila por carrito confirmado. Contiene total, estado, notas, dirección, metodo_pago |
-| `pedidos` | Ítems individuales vinculados a una orden via `orden_id`. Estado se sincroniza con la orden |
+| `pedidos` | Ítems individuales vinculados a una orden via `orden_id` |
 | `servicios_contratados` | Servicios contratados por usuario |
 | `suscripciones` | Planes de suscripción con fecha inicio/fin |
+| `tips` | Tutoriales y consejos gestionados desde el admin |
 
-**SQL completo:** `src/app/Base de datos.txt` — schema + seed + ALTER TABLE. Ejecutar desde phpMyAdmin.
+**Schema completo:** `src/app/supabase-schema.sql` — ejecutar en Supabase → SQL Editor → New Query → Run.
 
 #### Esquema de `ordenes`
 | Columna | Tipo | Notas |
 |---|---|---|
-| `id` | INT AUTO_INCREMENT PK | |
+| `id` | SERIAL PK | |
 | `usuario_id` | INT | FK → usuarios |
-| `total` | DECIMAL(10,2) | Calculado en servidor, no del cliente |
-| `estado` | ENUM | `pendiente` \| `confirmado` \| `en_preparacion` \| `enviado` \| `entregado` \| `cancelado` |
+| `total` | NUMERIC(10,2) | Calculado en servidor, no del cliente |
+| `estado` | VARCHAR CHECK | `pendiente` \| `confirmado` \| `en_preparacion` \| `enviado` \| `entregado` \| `cancelado` |
 | `notas` | TEXT | Instrucciones del cliente |
 | `direccion_entrega` | TEXT | |
 | `metodo_pago` | VARCHAR(50) | `efectivo` \| `transferencia` \| `tarjeta` |
-| `created_at` | TIMESTAMP | |
-| `updated_at` | TIMESTAMP | ON UPDATE CURRENT_TIMESTAMP |
+| `created_at` | TIMESTAMPTZ | |
+| `updated_at` | TIMESTAMPTZ | Actualizado por trigger automático |
 
 #### Esquema de `pedidos` (ítems)
 | Columna | Tipo | Notas |
 |---|---|---|
-| `id` | INT AUTO_INCREMENT PK | |
-| `orden_id` | INT NULL | FK → ordenes.id (NULL en filas antiguas sin orden) |
+| `id` | SERIAL PK | |
+| `orden_id` | INT NULL | FK → ordenes.id |
 | `usuario_id` | INT | |
 | `producto` | VARCHAR(255) | Nombre del producto al momento de la compra |
 | `opciones` | VARCHAR(255) | Variante elegida (ej: "50 kg", "Azul Rey") |
 | `cantidad` | INT | |
-| `precio_unitario` | DECIMAL(10,2) | Precio real validado desde la BD |
-| `total` | DECIMAL(10,2) | precio_unitario × cantidad |
-| `estado` | ENUM | Se sincroniza cuando el admin cambia el estado de la orden |
-| `fecha` | TIMESTAMP | |
+| `precio_unitario` | NUMERIC(10,2) | Precio real validado desde la BD |
+| `total` | NUMERIC(10,2) | precio_unitario × cantidad |
+| `estado` | VARCHAR CHECK | Se sincroniza cuando el admin cambia el estado de la orden |
+| `fecha` | TIMESTAMPTZ | |
 
-#### ALTER TABLE para BD existente (ejecutar solo si la tabla ya existía)
-```sql
--- Crear tabla ordenes (si no existe)
-CREATE TABLE IF NOT EXISTS ordenes (
-    id INT AUTO_INCREMENT PRIMARY KEY, usuario_id INT NOT NULL,
-    total DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-    estado ENUM('pendiente','confirmado','en_preparacion','enviado','entregado','cancelado') NOT NULL DEFAULT 'pendiente',
-    notas TEXT, direccion_entrega TEXT, metodo_pago VARCHAR(50) NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_usuario (usuario_id), INDEX idx_estado (estado),
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+#### Diferencias clave MySQL → PostgreSQL (para queries futuras)
+| MySQL | PostgreSQL |
+|---|---|
+| `?` placeholder | `$1, $2, $3` (el shim lo convierte automáticamente) |
+| `INT AUTO_INCREMENT` | `SERIAL` |
+| `TINYINT(1)` | `SMALLINT` |
+| `ENUM(...)` | `VARCHAR CHECK (col IN (...))` |
+| `JSON` | `JSONB` |
+| `ON DUPLICATE KEY UPDATE col=VALUES(col)` | `ON CONFLICT (...) DO UPDATE SET col=EXCLUDED.col` |
+| `LIMIT ?, ?` (offset, limit) | `LIMIT $n OFFSET $m` |
+| `CURRENT_TIMESTAMP ON UPDATE` | trigger `trigger_set_updated_at()` |
 
--- Agregar orden_id a pedidos
-ALTER TABLE pedidos
-  ADD COLUMN IF NOT EXISTS orden_id INT NULL AFTER usuario_id,
-  ADD INDEX IF NOT EXISTS idx_orden_id (orden_id);
-
--- Agregar metodo_pago a ordenes (si la tabla ya existía sin esa columna)
-ALTER TABLE ordenes
-  ADD COLUMN IF NOT EXISTS metodo_pago VARCHAR(50) NULL AFTER direccion_entrega;
+#### Variables de entorno (`.env.local`)
+```env
+DATABASE_URL=postgresql://postgres.hykrbwzmavpenprwqsqi:[PASSWORD]@aws-0-us-west-1.pooler.supabase.com:5432/postgres
+RESEND_API_KEY=re_xxxxx
+CONTACTO_EMAIL=contacto@josmantexturizados.com
 ```
+Password en Supabase → Settings → Database → Connection string → Session pooler.
+
+#### Para activar el primer admin
+```sql
+-- En Supabase → SQL Editor
+UPDATE usuarios SET rol = 'admin' WHERE correo = 'tu@correo.com';
+```
+(Luego cerrar sesión y volver a iniciar para actualizar el localStorage.)
 
 ---
 
@@ -423,17 +442,17 @@ const baseHref = `/ferreteria/${categoria}?${marca ? `marca=${marca}&` : ''}page
 
 ### 9. Buscador (debounced, real-time)
 
-`Buscador.tsx` hace consultas SQL al escribir, **no** descarga un índice completo:
+`Buscador.tsx` hace consultas PostgreSQL al escribir, **no** descarga un índice completo:
 
 ```
 Keystroke → debounce 200ms → fetch /api/search?q=...
-→ LIKE '%q%' en nombre, categoria_nombre, marca
+→ ILIKE '%q%' en nombre, categoria_nombre, marca (PostgreSQL: case-insensitive)
 → ORDER BY: primero los que empiezan por q, luego por longitud
 → máx 20 resultados
 → AbortController cancela fetch anterior si el usuario sigue escribiendo
 ```
 
-`src/lib/searchIndex.ts` — ahora solo exporta la interfaz `SearchItem`. La lógica de consulta vive en `api/search/route.ts`.
+`src/lib/searchIndex.ts` — solo exporta la interfaz `SearchItem`. La lógica vive en `api/search/route.ts`.
 
 **Mínimo 2 caracteres** para disparar la consulta.
 
@@ -451,9 +470,11 @@ Keystroke → debounce 200ms → fetch /api/search?q=...
 - Productos → `/admin/productos`
 - Nuevo producto → `/admin/productos/nuevo`
 - Importar CSV → `/admin/importar`
+- Tips → `/admin/tips`
 
 **Para activar el primer admin:**
 ```sql
+-- En Supabase → SQL Editor
 UPDATE usuarios SET rol = 'admin' WHERE correo = 'tu@correo.com';
 ```
 (Luego cerrar sesión y volver a iniciar para actualizar el localStorage.)
@@ -480,7 +501,35 @@ Para usarlo en otras secciones: importar y pasar los 4-5 props.
 
 ---
 
-### 12. Paginador (`components/Paginador.tsx`)
+### 12. Sistema de Tips y Tutoriales (`/tips`)
+
+**Páginas públicas:**
+- `/tips` — Grid de artículos desde `lib/tips.ts` → `getTips()` (solo activos). `dynamic = 'force-dynamic'`.
+- `/tips/[slug]` — Detalle con renderizado de markdown básico (`**bold**`, párrafos). `dynamic = 'force-dynamic'`.
+
+**Admin:**
+- `/admin/tips` — Listado con búsqueda, botones: ver en sitio, editar, desactivar.
+- `/admin/tips/nuevo` — Formulario 2 columnas: título, slug (auto-generado), descripción, imagen, contenido markdown, toggle activo.
+- `/admin/tips/[id]` — Igual que nuevo pero pre-cargado desde la API.
+
+**Funciones en `src/lib/tips.ts`:**
+| Función | Descripción |
+|---|---|
+| `getTips()` | Lista todos los tips activos para páginas públicas |
+| `getTipBySlug(slug)` | Tip por slug (público) |
+| `getTipSlugs()` | Solo slugs (para fallback de rutas estáticas) |
+
+**Tabla `tips` en PostgreSQL:**
+```sql
+id, slug (UNIQUE), titulo, descripcion, imagen (ruta /productos/tips/...), contenido (TEXT),
+activo (SMALLINT DEFAULT 1), created_at, updated_at (trigger automático)
+```
+
+**Soft delete:** El DELETE del admin pone `activo = 0`, no elimina el registro.
+
+---
+
+### 13. Paginador (`components/Paginador.tsx`)
 
 Recibe `{ page, pages, total, limit, baseHref }` desde un Server Component.
 `baseHref` es el string de URL hasta `page=` (ej: `/ferreteria/p085?marca=truper&page=`).
@@ -488,7 +537,7 @@ Renderiza Links `<a>` sin `useSearchParams`. Muestra ventana de 5 páginas + pri
 
 ---
 
-### 13. Estilos — CSS Modules
+### 14. Estilos — CSS Modules
 
 **Sin Tailwind.** Variables globales en `globals.css`:
 
@@ -527,7 +576,7 @@ El CSV `catalogo_prueba.csv` en la raíz del proyecto contiene **15,756 producto
 
 1. Admin va a `/admin/importar` → clic "Importar catálogo".
 2. `POST /api/admin/importar` (header `x-usuario-id`).
-3. Lee el CSV, procesa en lotes de 500, `INSERT ... ON DUPLICATE KEY UPDATE` por `(slug, seccion)`.
+3. Lee el CSV, procesa en lotes de 500, `INSERT ... ON CONFLICT (slug, seccion) DO UPDATE SET` con placeholders `$n` explícitos.
 4. Todos los productos quedan con `seccion = 'ferreteria'`.
 
 ---
@@ -579,12 +628,19 @@ Header → Buscador trigger → overlay
 
 ## Variables de entorno necesarias
 
+Archivo: `.env.local` (no se sube al repo — ver `.env.example` como plantilla)
+
 ```env
+# Base de datos Supabase (Session Pooler — puerto 5432)
+DATABASE_URL=postgresql://postgres.[REF]:[PASSWORD]@aws-0-us-west-1.pooler.supabase.com:5432/postgres
+
+# Email (Resend)
 RESEND_API_KEY=re_xxxxx           # Para envío de emails (contacto y cotización)
 CONTACTO_EMAIL=email@empresa.com  # Destinatario de formularios (opcional, tiene fallback)
 ```
 
-Sin `RESEND_API_KEY` los formularios responden `ok: true` y loguean en consola.
+Sin `RESEND_API_KEY` los formularios responden `ok: true` y loguean en consola.  
+Sin `DATABASE_URL` la app no puede conectarse a Supabase y lanzará error de conexión.
 
 ---
 
@@ -608,7 +664,34 @@ Sin `RESEND_API_KEY` los formularios responden `ok: true` y loguean en consola.
 
 ## Historial de cambios relevantes
 
-### Sesión actual — Sistema de ventas completo
+### Sesión 3 — Migración a Supabase (PostgreSQL)
+
+**8. Base de datos migrada de MySQL/XAMPP a Supabase/PostgreSQL:**
+- Driver `mysql2` reemplazado por `pg` (node-postgres).
+- `src/lib/db.ts` reescrito: shim de compatibilidad que convierte `?` → `$n`, agrega `RETURNING id` a INSERTs, preserva la API mysql2 (tuplas `[rows, meta]`, transacciones `getConnection`).
+- `src/lib/seed.ts`: 3 `ON DUPLICATE KEY UPDATE` → `ON CONFLICT ... DO UPDATE SET EXCLUDED.col`.
+- `src/app/api/admin/importar/route.ts`: placeholders explícitos `$n` para bulk INSERT + `ON CONFLICT ... DO UPDATE SET`.
+- `.env.local` creado con `DATABASE_URL` apuntando al proyecto Supabase.
+- `.env.example` creado como plantilla de referencia.
+- `src/app/supabase-schema.sql` creado: schema PostgreSQL completo (todas las tablas + índices + triggers + seed de tips) listo para ejecutar en Supabase SQL Editor.
+
+**9. Sistema de Tips y Tutoriales:**
+- Migrado de datos estáticos en `data/tips.ts` a tabla `tips` en PostgreSQL.
+- `src/lib/tips.ts`: funciones `getTips()`, `getTipBySlug()`, `getTipSlugs()`.
+- `src/app/tips/page.tsx`: grid dinámico desde BD (antes estático).
+- `src/app/tips/[slug]/page.tsx`: detalle dinámico con `dynamic = 'force-dynamic'`.
+- `src/app/api/admin/tips/route.ts`: GET paginado + POST crear.
+- `src/app/api/admin/tips/[id]/route.ts`: GET + PUT + DELETE (soft, activo=0).
+- `src/app/admin/tips/page.tsx`: listado con búsqueda, acciones editar/ver/desactivar.
+- `src/app/admin/tips/nuevo/page.tsx`: formulario con auto-slug + preview de imagen + toggle activo.
+- `src/app/admin/tips/[id]/page.tsx`: igual que nuevo, pre-cargado desde API.
+- `src/styles/adminTips.module.css`: layout 2 columnas, sideCard sticky.
+- `src/styles/tips.module.css`: estilos para páginas públicas.
+- `admin/layout.tsx`: enlace "Tips" agregado al sidebar.
+
+---
+
+### Sesión 2 — Sistema de ventas completo
 
 **1. Sistema de pedidos con `ordenes`:**
 - Nueva tabla `ordenes` (agrupa ítems del carrito). `pedidos` ahora tiene `orden_id` (FK).
@@ -644,8 +727,8 @@ Sin `RESEND_API_KEY` los formularios responden `ok: true` y loguean en consola.
 - `data/navigation.ts`: enlace "Ferretería" agregado al menú.
 
 **6. Buscador optimizado:**
-- `Buscador.tsx` reescrito: debounce 200ms + AbortController + LIKE en MySQL. No descarga índice completo.
-- `api/search/route.ts` reescrito: `WHERE nombre LIKE ? OR categoria_nombre LIKE ? OR marca LIKE ? LIMIT 20`.
+- `Buscador.tsx` reescrito: debounce 200ms + AbortController + LIKE en PostgreSQL. No descarga índice completo.
+- `api/search/route.ts` reescrito: `WHERE nombre ILIKE $1 OR categoria_nombre ILIKE $1 OR marca ILIKE $1 LIMIT 20`.
 - `lib/searchIndex.ts` simplificado: solo exporta la interfaz `SearchItem`.
 
 **7. Admin dashboard y productos:**
@@ -658,15 +741,39 @@ Sin `RESEND_API_KEY` los formularios responden `ok: true` y loguean en consola.
 
 ## Tareas pendientes conocidas
 
-1. **Ejecutar ALTER TABLE en phpMyAdmin** — si la BD fue creada antes de esta sesión:
-   ```sql
-   ALTER TABLE ordenes ADD COLUMN IF NOT EXISTS metodo_pago VARCHAR(50) NULL AFTER direccion_entrega;
-   ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS orden_id INT NULL AFTER usuario_id;
-   ALTER TABLE pedidos ADD INDEX IF NOT EXISTS idx_orden_id (orden_id);
-   -- O ejecutar el bloque completo de CREATE TABLE IF NOT EXISTS ordenes del Base de datos.txt
+### Para completar la migración a Supabase (pendiente de acción del usuario):
+
+1. **Obtener password de Supabase** → Settings → Database → Connection string → Session pooler (puerto 5432).
+
+2. **Actualizar `.env.local`** — reemplazar `[TU-PASSWORD]` con el password real:
+   ```
+   DATABASE_URL=postgresql://postgres.hykrbwzmavpenprwqsqi:[PASSWORD]@aws-0-us-west-1.pooler.supabase.com:5432/postgres
    ```
 
-2. **Fix TypeScript en concretos:** `src/app/concretos/[categoria]/[producto]/page.tsx:29` — cambiar `descripcion2={p.descripcion2}` a `descripcion2={p.descripcion2 ?? undefined}`.
+3. **Ejecutar schema en Supabase SQL Editor:**
+   - Abrir `src/app/supabase-schema.sql`
+   - Copiar todo el contenido
+   - Pegar en Supabase → SQL Editor → New Query → Run
 
-3. **`BtnAgregarCarrito` en otras secciones** — actualmente solo en ferretería. Para habilitarlo en concretos/acabados: importar el componente en las páginas de detalle correspondientes y pasar `id={String(p.id)}`, `nombre`, `precio`, `imagen`.
-sas
+4. **Reiniciar el dev server** (`npm run dev`) para que tome el nuevo `DATABASE_URL`.
+
+5. **Poblar la BD:**
+   - Visitar `/api/admin/seed` (GET) para cargar concretos, textucos y materiales.
+   - Ir a `/admin/importar` para importar el CSV de ferretería (15k+ productos).
+
+6. **Activar cuenta admin:**
+   ```sql
+   -- En Supabase → SQL Editor
+   UPDATE usuarios SET rol = 'admin' WHERE correo = 'tu@correo.com';
+   ```
+
+7. **Opcional:** desinstalar mysql2 cuando la migración esté confirmada:
+   ```bash
+   npm uninstall mysql2
+   ```
+
+### Pendientes de código:
+
+8. **Fix TypeScript en concretos:** `src/app/concretos/[categoria]/[producto]/page.tsx:29` — cambiar `descripcion2={p.descripcion2}` a `descripcion2={p.descripcion2 ?? undefined}`.
+
+9. **`BtnAgregarCarrito` en otras secciones** — actualmente solo en ferretería. Para habilitarlo en concretos/acabados: importar el componente en las páginas de detalle correspondientes y pasar `id={String(p.id)}`, `nombre`, `precio`, `imagen`.

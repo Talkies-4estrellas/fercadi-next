@@ -47,8 +47,10 @@ export async function seedDatabase() {
       await db.query(
         `INSERT INTO productos (nombre, slug, descripcion, descripcion2, imagen_url, seccion, categoria_slug, categoria_nombre, activo)
          VALUES (?, ?, ?, ?, ?, 'concretos', ?, ?, 1)
-         ON DUPLICATE KEY UPDATE nombre=VALUES(nombre), descripcion=VALUES(descripcion),
-           descripcion2=VALUES(descripcion2), imagen_url=VALUES(imagen_url), categoria_nombre=VALUES(categoria_nombre)`,
+         ON CONFLICT (slug, seccion) DO UPDATE SET
+           nombre=EXCLUDED.nombre, descripcion=EXCLUDED.descripcion,
+           descripcion2=EXCLUDED.descripcion2, imagen_url=EXCLUDED.imagen_url,
+           categoria_nombre=EXCLUDED.categoria_nombre`,
         [nombre, slug, desc, desc2, img, catSlug, catNombre]
       );
     }
@@ -100,8 +102,9 @@ export async function seedDatabase() {
       await db.query(
         `INSERT INTO productos (nombre, slug, descripcion, imagen_url, seccion, categoria_slug, categoria_nombre, activo)
          VALUES (?, ?, ?, ?, 'textucos', ?, ?, 1)
-         ON DUPLICATE KEY UPDATE nombre=VALUES(nombre), descripcion=VALUES(descripcion),
-           imagen_url=VALUES(imagen_url), categoria_nombre=VALUES(categoria_nombre)`,
+         ON CONFLICT (slug, seccion) DO UPDATE SET
+           nombre=EXCLUDED.nombre, descripcion=EXCLUDED.descripcion,
+           imagen_url=EXCLUDED.imagen_url, categoria_nombre=EXCLUDED.categoria_nombre`,
         [nombre, slug, desc, img, catSlug, catNombre]
       );
     }
@@ -156,7 +159,8 @@ export async function seedDatabase() {
       await db.query(
         `INSERT INTO materiales_categorias (slug, nombre, descripcion, marcas, activo)
          VALUES (?, ?, ?, ?, 1)
-         ON DUPLICATE KEY UPDATE nombre=VALUES(nombre), descripcion=VALUES(descripcion), marcas=VALUES(marcas)`,
+         ON CONFLICT (slug) DO UPDATE SET
+           nombre=EXCLUDED.nombre, descripcion=EXCLUDED.descripcion, marcas=EXCLUDED.marcas`,
         [cat.slug, cat.nombre, cat.descripcion, JSON.stringify(cat.marcas)]
       );
     }
