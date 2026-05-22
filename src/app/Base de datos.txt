@@ -150,7 +150,34 @@ CREATE TABLE IF NOT EXISTS suscripciones (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
--- 8. ALTER TABLE — Columnas añadidas en versiones posteriores
+-- 8. Tips / Tutoriales
+-- ============================================================
+CREATE TABLE IF NOT EXISTS tips (
+    id          INT           AUTO_INCREMENT PRIMARY KEY,
+    slug        VARCHAR(255)  NOT NULL UNIQUE,
+    titulo      VARCHAR(255)  NOT NULL,
+    descripcion TEXT,
+    imagen      VARCHAR(500),
+    contenido   LONGTEXT,
+    activo      TINYINT(1)    NOT NULL DEFAULT 1,
+    created_at  TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_activo (activo)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Seed: tip inicial migrado desde datos estáticos
+INSERT INTO tips (slug, titulo, descripcion, imagen, contenido, activo)
+VALUES (
+  'salitre',
+  'Salitre en Paredes',
+  'El salitre es un depósito de sales minerales que aparece en muros y paredes, causando deterioro estético y estructural. Aprende a identificarlo y eliminarlo.',
+  '/productos/tips/salitre.jpg',
+  'El salitre, también conocido como eflorescencia, es causado por la migración de sales solubles a través del concreto o mampostería.\n\n**¿Por qué aparece?**\n- Humedad excesiva en los muros\n- Materiales de construcción con alto contenido de sales\n- Falta de impermeabilización adecuada\n\n**¿Cómo eliminarlo?**\n1. Cepilla la superficie afectada con un cepillo de cerdas duras\n2. Aplica una solución de agua con vinagre o ácido muriático diluido\n3. Enjuaga con abundante agua limpia\n4. Deja secar completamente\n5. Aplica un sellador o impermeabilizante para prevenir recurrencia\n\n**Recomendación FERCADI:** Usa nuestro sellador Ipermax para una protección duradera contra la humedad y el salitre.',
+  1
+) ON DUPLICATE KEY UPDATE titulo = titulo;
+
+-- ============================================================
+-- 9. ALTER TABLE — Columnas añadidas en versiones posteriores
 --    Si ejecutas este script desde cero, las tablas ya las incluyen.
 --    Sólo ejecuta estas líneas si la tabla fue creada antes de los cambios.
 -- ============================================================

@@ -1,59 +1,66 @@
-import Link from 'next/link'
-import Image from 'next/image'
-import { tips } from '@/data/tips'
-import styles from '@/styles/product.module.css'
+import Link from 'next/link';
+import Image from 'next/image';
+import { getTips } from '@/lib/tips';
+import styles from '@/styles/tips.module.css';
 
-export const metadata = { title: 'Tips de Construcción - FERCADI' }
+export const metadata = { title: 'Tips de Construcción — FERCADI' };
+export const dynamic = 'force-dynamic';
 
-export default function TipsPage() {
+export default async function TipsPage() {
+  const tips = await getTips();
+
   return (
-    <>
-      <div className={styles.breadcrumb}>
-        <Link href="/">Inicio</Link> / Tips
-      </div>
-      <div style={{ padding: '40px', display: 'flex', flexDirection: 'column', gap: '30px' }}>
-        {tips.map((tip) => (
-          <div
-            key={tip.slug}
-            style={{
-              display: 'flex',
-              gap: '30px',
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              overflow: 'hidden',
-              boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
-            }}
-          >
-            <Image
-              src={tip.imagen}
-              alt={tip.titulo}
-              width={300}
-              height={200}
-              style={{ objectFit: 'cover', flexShrink: 0 }}
-            />
-            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <h2 style={{ color: 'var(--azul-oscuro)', fontSize: '1.5rem', fontWeight: 900 }}>
-                {tip.titulo}
-              </h2>
-              <p style={{ color: 'var(--azul-secundario)', lineHeight: 1.6 }}>{tip.descripcion}</p>
-              <Link
-                href={`/tips/${tip.slug}`}
-                style={{
-                  display: 'inline-block',
-                  padding: '10px 24px',
-                  backgroundColor: 'var(--azul-boton)',
-                  color: 'white',
-                  borderRadius: '8px',
-                  fontWeight: 700,
-                  width: 'fit-content',
-                }}
-              >
-                Ver
-              </Link>
-            </div>
+    <div className={styles.page}>
+      <div className={styles.container}>
+
+        <div className={styles.header}>
+          <p className={styles.breadcrumb}>
+            <Link href="/">Inicio</Link> › Tips y Tutoriales
+          </p>
+          <h1 className={styles.titulo}>Tips y Tutoriales</h1>
+          <p className={styles.subtitulo}>
+            Consejos prácticos y guías de construcción del equipo FERCADI.
+          </p>
+        </div>
+
+        {tips.length === 0 ? (
+          <div className={styles.vacio}>
+            <i className="fa-solid fa-lightbulb" />
+            <p>Próximamente nuevos tutoriales.</p>
           </div>
-        ))}
+        ) : (
+          <div className={styles.grid}>
+            {tips.map((tip) => (
+              <article key={tip.slug} className={styles.card}>
+                <div className={styles.cardImg}>
+                  {tip.imagen ? (
+                    <Image
+                      src={tip.imagen}
+                      alt={tip.titulo}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      style={{ objectFit: 'cover' }}
+                    />
+                  ) : (
+                    <div className={styles.cardImgPlaceholder}>
+                      <i className="fa-solid fa-lightbulb" />
+                    </div>
+                  )}
+                </div>
+                <div className={styles.cardBody}>
+                  <h2 className={styles.cardTitulo}>{tip.titulo}</h2>
+                  {tip.descripcion && (
+                    <p className={styles.cardDesc}>{tip.descripcion}</p>
+                  )}
+                  <Link href={`/tips/${tip.slug}`} className={styles.cardBtn}>
+                    Leer tutorial <i className="fa-solid fa-arrow-right" />
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
       </div>
-    </>
-  )
+    </div>
+  );
 }
