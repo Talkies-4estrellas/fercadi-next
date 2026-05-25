@@ -6,9 +6,8 @@ export async function POST(request: Request) {
   try {
     const { correo, password } = await request.json();
 
-    // 1. Buscamos al usuario en la base de datos de XAMPP
-    // Seleccionamos específicamente los campos que necesitamos para la sesión.
-    // `rol` se agrega para que el frontend sepa si puede acceder a /admin.
+    // 1. Buscar usuario en Supabase
+    // `rol` se incluye para que el frontend sepa si puede acceder a /admin.
     const [rows]: any = await db.query(
       'SELECT id, nombre, correo, password, rol FROM usuarios WHERE correo = ?',
       [correo]

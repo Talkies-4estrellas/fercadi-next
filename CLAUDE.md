@@ -664,11 +664,23 @@ Sin `DATABASE_URL` la app no puede conectarse a Supabase y lanzará error de con
 
 ## Historial de cambios relevantes
 
+### Sesión 4 — Correcciones post-migración
+
+**10. Correcciones después de conectar Supabase:**
+- `src/lib/db.ts`: cambiado `RETURNING id` → `RETURNING *` para soportar tablas sin columna `id` (ej: `materiales_categorias` usa `slug` como PK). Se extrae `rows?.[0]?.id ?? null` del resultado.
+- `src/app/registro/page.tsx`: reemplazado por redirect a `/login` — el formulario completo vive en `/login` (tabs Login/Registro con campos: nombre, correo, password, edad, profesión, domicilio, colonia, ciudad, estado, fecha de nacimiento).
+- `src/app/supabase-schema.sql`: tabla `usuarios` actualizada con columnas extra: `edad SMALLINT`, `domicilio VARCHAR(255)`, `colonia VARCHAR(100)`, `ciudad VARCHAR(100)`, `estado VARCHAR(100)`, `fecha_nacimiento DATE`, `profesion VARCHAR(100)` + ALTER TABLE IF NOT EXISTS incluidos.
+- `src/app/api/login/route.ts`: comentario "XAMPP" eliminado.
+- **Pooler URL correcta**: el host del Session Pooler es `aws-1-us-west-1.pooler.supabase.com` (no `aws-0`). La región del proyecto es `us-west-1`.
+- `Base de datos.txt` es el schema MySQL original — **obsoleto**, solo valor histórico. El schema activo es `supabase-schema.sql`.
+
+---
+
 ### Sesión 3 — Migración a Supabase (PostgreSQL)
 
 **8. Base de datos migrada de MySQL/XAMPP a Supabase/PostgreSQL:**
 - Driver `mysql2` reemplazado por `pg` (node-postgres).
-- `src/lib/db.ts` reescrito: shim de compatibilidad que convierte `?` → `$n`, agrega `RETURNING id` a INSERTs, preserva la API mysql2 (tuplas `[rows, meta]`, transacciones `getConnection`).
+- `src/lib/db.ts` reescrito: shim de compatibilidad que convierte `?` → `$n`, agrega `RETURNING *` a INSERTs (no `RETURNING id`), preserva la API mysql2 (tuplas `[rows, meta]`, transacciones `getConnection`).
 - `src/lib/seed.ts`: 3 `ON DUPLICATE KEY UPDATE` → `ON CONFLICT ... DO UPDATE SET EXCLUDED.col`.
 - `src/app/api/admin/importar/route.ts`: placeholders explícitos `$n` para bulk INSERT + `ON CONFLICT ... DO UPDATE SET`.
 - `.env.local` creado con `DATABASE_URL` apuntando al proyecto Supabase.
@@ -739,33 +751,52 @@ Sin `DATABASE_URL` la app no puede conectarse a Supabase y lanzará error de con
 
 ---
 
-## Tareas pendientes conocidas
+## Estado actual del proyecto ✅
 
-### Para completar la migración a Supabase (pendiente de acción del usuario):
+### Migración a Supabase — COMPLETADA
 
-1. **Obtener password de Supabase** → Settings → Database → Connection string → Session pooler (puerto 5432).
+- **Conexión activa**: `aws-1-us-west-1.pooler.supabase.com:5432` (Session Pooler)
+- **Project ID**: `hykrbwzmavpenprwqsqi`
+- **Password BD**: `fercadinext1`
+- **Schema ejecutado**: ✅ (tablas creadas en Supabase)
+- **`/api/admin/seed`**: pendiente de correr tras completar registro + admin
 
-2. **Actualizar `.env.local`** — reemplazar `[TU-PASSWORD]` con el password real:
-   ```
-   DATABASE_URL=postgresql://postgres.hykrbwzmavpenprwqsqi:[PASSWORD]@aws-0-us-west-1.pooler.supabase.com:5432/postgres
-   ```
+### Pasos restantes para dejar 100% operativa:
 
-3. **Ejecutar schema en Supabase SQL Editor:**
-   - Abrir `src/app/supabase-schema.sql`
-   - Copiar todo el contenido
-   - Pegar en Supabase → SQL Editor → New Query → Run
-
-4. **Reiniciar el dev server** (`npm run dev`) para que tome el nuevo `DATABASE_URL`.
-
-5. **Poblar la BD:**
-   - Visitar `/api/admin/seed` (GET) para cargar concretos, textucos y materiales.
-   - Ir a `/admin/importar` para importar el CSV de ferretería (15k+ productos).
-
-6. **Activar cuenta admin:**
+1. **Ejecutar ALTER TABLE usuarios** en Supabase SQL Editor (columnas extra del registro):
    ```sql
-   -- En Supabase → SQL Editor
+   ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS edad             SMALLINT;
+   ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS domicilio        VARCHAR(255);
+   ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS colonia          VARCHAR(100);
+   ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS ciudad           VARCHAR(100);
+   ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS estado           VARCHAR(100);
+   ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS fecha_nacimiento DATE;
+   ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS profesion        VARCHAR(100);
+   ```
+
+2. **Registrar cuenta** en `/registro` (redirige a `/login`) o `/login` tab Registro.
+
+3. **Activar admin** en Supabase SQL Editor:
+   ```sql
    UPDATE usuarios SET rol = 'admin' WHERE correo = 'tu@correo.com';
    ```
+
+4. **Cargar catálogo base**: visitar `GET /api/admin/seed`
+
+5. **Importar ferretería**: ir a `/admin/importar` → "Importar catálogo" (15k+ productos del CSV)
+
+6. **Opcional — desinstalar mysql2**:
+   ```bash
+   npm uninstall mysql2
+   ```
+
+## Tareas pendientes de código
+
+1. **Fix TypeScript en concretos:** `src/app/concretos/[categoria]/[producto]/page.tsx:29` — cambiar `descripcion2={p.descripcion2}` a `descripcion2={p.descripcion2 ?? undefined}`.
+
+2. **`BtnAgregarCarrito` en otras secciones** — actualmente solo en ferretería. Para habilitarlo en concretos/acabados: importar el componente y pasar `id={String(p.id)}`, `nombre`, `precio`, `imagen`.
+
+3. **`Base de datos.txt`** — archivo MySQL obsoleto en `src/app/`. Puede eliminarse; el schema activo es `src/app/supabase-schema.sql`.
 
 7. **Opcional:** desinstalar mysql2 cuando la migración esté confirmada:
    ```bash

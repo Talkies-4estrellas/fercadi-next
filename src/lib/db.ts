@@ -44,10 +44,11 @@ async function run(
 ): Promise<[any, any]> {
   let sql = toPg(rawSql);
 
-  // Para INSERT: añadir RETURNING id si no existe ya
+  // Para INSERT: añadir RETURNING * si no existe ya
+  // Usamos * en lugar de id porque algunas tablas (ej: materiales_categorias)
+  // usan slug como PK y no tienen columna id
   if (isInsert(sql) && !/RETURNING/i.test(sql)) {
-    // Quitamos el posible ';' final antes de añadir RETURNING
-    sql = sql.replace(/;\s*$/, '') + ' RETURNING id';
+    sql = sql.replace(/;\s*$/, '') + ' RETURNING *';
   }
 
   const result = await client.query(sql, params ?? []);

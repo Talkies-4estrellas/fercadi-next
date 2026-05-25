@@ -17,13 +17,29 @@ $$ LANGUAGE plpgsql;
 -- 1. Usuarios
 -- ============================================================
 CREATE TABLE IF NOT EXISTS usuarios (
-    id         SERIAL       PRIMARY KEY,
-    nombre     VARCHAR(100) NOT NULL,
-    correo     VARCHAR(100) NOT NULL UNIQUE,
-    password   VARCHAR(255) NOT NULL,
-    rol        VARCHAR(10)  NOT NULL DEFAULT 'usuario' CHECK (rol IN ('usuario','admin')),
-    created_at TIMESTAMPTZ  DEFAULT NOW()
+    id               SERIAL        PRIMARY KEY,
+    nombre           VARCHAR(100)  NOT NULL,
+    correo           VARCHAR(100)  NOT NULL UNIQUE,
+    password         VARCHAR(255)  NOT NULL,
+    rol              VARCHAR(10)   NOT NULL DEFAULT 'usuario' CHECK (rol IN ('usuario','admin')),
+    edad             SMALLINT,
+    domicilio        VARCHAR(255),
+    colonia          VARCHAR(100),
+    ciudad           VARCHAR(100),
+    estado           VARCHAR(100),
+    fecha_nacimiento DATE,
+    profesion        VARCHAR(100),
+    created_at       TIMESTAMPTZ   DEFAULT NOW()
 );
+
+-- Columnas extra (ejecutar si la tabla ya existía sin ellas):
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS edad             SMALLINT;
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS domicilio        VARCHAR(255);
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS colonia          VARCHAR(100);
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS ciudad           VARCHAR(100);
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS estado           VARCHAR(100);
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS fecha_nacimiento DATE;
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS profesion        VARCHAR(100);
 
 -- ============================================================
 -- 2. Productos (catálogo completo: concretos, textucos, ferretería)
