@@ -205,8 +205,64 @@ VALUES (
 ) ON CONFLICT (slug) DO NOTHING;
 
 -- ============================================================
+-- 10. Tarjetas del inicio (siempre 4 filas fijas)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS home_cards (
+    id          SERIAL        PRIMARY KEY,
+    posicion    SMALLINT      NOT NULL UNIQUE CHECK (posicion BETWEEN 1 AND 4),
+    titulo      VARCHAR(100)  NOT NULL,
+    descripcion TEXT          NOT NULL,
+    btn_texto   VARCHAR(50)   NOT NULL DEFAULT 'Ver',
+    btn_href    VARCHAR(255)  NOT NULL DEFAULT '/'
+);
+
+-- Seed inicial de tarjetas
+INSERT INTO home_cards (posicion, titulo, descripcion, btn_texto, btn_href) VALUES
+(1, 'CONCRETO',
+ 'Empieza tu construcción con el pie derecho. Pregunta por nuestras promociones que tenemos al estar con nosotros desde el inicio de tu obra.',
+ 'Ver', '/concretos'),
+(2, 'RENTA DE EQUIPO',
+ 'Ahorra costos de mano de obra utilizando los equipos adecuados y garantiza la calidad de tu proyecto. Te facilitamos al especialista si lo requieres.',
+ 'Ver', '/concretos/servicios'),
+(3, 'COTIZACIÓN',
+ 'Solicita tu presupuesto personalizado sin costo. Cuéntanos qué necesitas y te respondemos a la brevedad con la mejor opción para tu proyecto.',
+ 'Solicitar', '/cotizacion'),
+(4, 'TEXTURIZADOS Y ADHESIVOS',
+ 'Nuestro compromiso es generar productos de alta calidad y eficiencia en la decoración, protección y eficiencia en el desarrollo de obra.',
+ 'Ver', '/textucos')
+ON CONFLICT (posicion) DO NOTHING;
+
+-- ============================================================
+-- 11. Slides del carrusel
+-- ============================================================
+CREATE TABLE IF NOT EXISTS carousel_slides (
+    id          SERIAL        PRIMARY KEY,
+    orden       SMALLINT      NOT NULL DEFAULT 0,
+    imagen_url  VARCHAR(500)  NOT NULL,
+    alt         VARCHAR(255),
+    titulo      VARCHAR(255),
+    descripcion TEXT,
+    slogan      VARCHAR(255),
+    activo      SMALLINT      NOT NULL DEFAULT 1
+);
+
+CREATE INDEX IF NOT EXISTS idx_carousel_activo ON carousel_slides (activo);
+
+-- Seed inicial del carrusel
+INSERT INTO carousel_slides (orden, imagen_url, alt, titulo, descripcion, slogan, activo) VALUES
+(1, '/images/1.png', 'Solidez en su Obra', 'Solidez en su Obra',
+ 'La calidad es nuestra máxima prioridad. Nuestro cemento es la elección perfecta para satisfacer sus necesidades de construcción, brindando solidez, durabilidad y rendimiento excepcional en cada proyecto.',
+ 'PRESENCIA SEGURA EN TU OBRA', 1),
+(2, '/images/2.png', 'Pega Más Fuerte', 'Solidez en su Obra',
+ 'En Josman Texturizados nos hemos comprometido con aplicaciones de productos de alta calidad que se presenten en productos para la decoración duradera y eficiente en las obras.',
+ 'PEGA MAS FUERTE', 1),
+(3, '/images/3.png', 'Josman Texturizados', NULL, NULL, NULL, 1)
+ON CONFLICT DO NOTHING;
+
+-- ============================================================
 -- Notas de uso:
 --   · Para hacer admin: UPDATE usuarios SET rol = 'admin' WHERE correo = 'tu@correo.com';
 --   · El seed de productos/materiales se hace desde /api/admin/seed
 --   · La importación masiva del CSV se hace desde /admin/importar
+--   · Las tarjetas e imágenes del inicio se gestionan desde /admin/home
 -- ============================================================

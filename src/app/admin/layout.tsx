@@ -41,7 +41,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   const links = [
-    { href: '/admin',             label: 'Dashboard',     icon: 'fa-solid fa-chart-line'       },
+    { href: '/admin',             label: 'Dashboard',      icon: 'fa-solid fa-chart-line'       },
+    { href: '/admin/home',        label: 'Inicio',         icon: 'fa-solid fa-house'            },
     { href: '/admin/pedidos',     label: 'Pedidos',        icon: 'fa-solid fa-bag-shopping'     },
     { href: '/admin/tips',        label: 'Tips',           icon: 'fa-solid fa-lightbulb'        },
     { href: '/admin/productos',   label: 'Productos',      icon: 'fa-solid fa-boxes-stacked'    },

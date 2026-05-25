@@ -1,0 +1,337 @@
+/* ── Secciones ─────────────────────────────────────────── */
+.section {
+  background: white;
+  border-radius: 12px;
+  padding: 28px 32px;
+  margin-bottom: 32px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 8px;
+}
+
+.sectionTitle {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--azul-profundo);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sectionBadge {
+  background: var(--azul-profundo);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.04em;
+}
+
+.sectionDesc {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.sectionDesc code {
+  background: #f0f4ff;
+  color: var(--azul-boton);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.82rem;
+}
+
+/* ── Grid de tarjetas ──────────────────────────────────── */
+.cardsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .cardsGrid { grid-template-columns: 1fr; }
+}
+
+.cardEditor {
+  border: 1.5px solid #e0e7ff;
+  border-radius: 10px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #f8faff;
+}
+
+.cardPos {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--azul-boton);
+  margin-bottom: 4px;
+}
+
+.btnRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.btnField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ── Campos comunes ────────────────────────────────────── */
+.label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #444;
+  margin-top: 4px;
+}
+
+.input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid #d0d8ef;
+  border-radius: 7px;
+  font-size: 0.88rem;
+  color: #1a1a1a !important;
+  background: white;
+  outline: none;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.input:focus { border-color: var(--azul-boton); }
+
+.textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid #d0d8ef;
+  border-radius: 7px;
+  font-size: 0.88rem;
+  color: #1a1a1a !important;
+  background: white;
+  outline: none;
+  font-family: inherit;
+  resize: vertical;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+  line-height: 1.5;
+}
+
+.textarea:focus { border-color: var(--azul-boton); }
+
+/* ── Fila guardar ──────────────────────────────────────── */
+.saveRow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.msg {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.btnGuardar {
+  background: var(--azul-profundo) !important;
+  color: white !important;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border: none;
+  cursor: pointer;
+  margin: 0 !important;
+  transition: opacity 0.2s;
+}
+
+.btnGuardar:disabled { opacity: 0.6; cursor: not-allowed; }
+.btnGuardar:hover:not(:disabled) { opacity: 0.88; }
+
+.btnCancelar {
+  background: #e5e7eb !important;
+  color: #374151 !important;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border: none;
+  cursor: pointer;
+  margin: 0 !important;
+}
+
+.btnNuevo {
+  background: var(--dorado) !important;
+  color: var(--azul-profundo) !important;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  border: none;
+  cursor: pointer;
+  margin: 0 !important;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── Formulario de slide ───────────────────────────────── */
+.slideForm {
+  background: #f0f4ff;
+  border: 1.5px solid #c7d5f7;
+  border-radius: 10px;
+  padding: 22px 24px;
+  margin-bottom: 24px;
+}
+
+.slideFormTitle {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--azul-profundo);
+  margin-bottom: 16px;
+}
+
+.slideFormGrid {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 700px) {
+  .slideFormGrid { grid-template-columns: 1fr; }
+}
+
+.slideFormLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.slideFormRight {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.imgPreview {
+  width: 100%;
+  max-height: 160px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-top: 6px;
+  display: none;
+  border: 1.5px solid #d0d8ef;
+}
+
+.toggleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+/* ── Lista de slides ───────────────────────────────────── */
+.slidesList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.slideRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #f8faff;
+  border: 1.5px solid #e0e7ff;
+  border-radius: 10px;
+  padding: 10px 16px;
+  transition: border-color 0.2s;
+}
+
+.slideInactivo {
+  opacity: 0.55;
+  background: #f3f4f6;
+}
+
+.slideThumb {
+  width: 80px;
+  height: 52px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+  background: #e0e7ff;
+}
+
+.slideInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.slideOrden {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--azul-boton);
+  letter-spacing: 0.06em;
+}
+
+.slideSlogan {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.slideActions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.slideActions button {
+  width: 34px;
+  height: 34px;
+  border-radius: 7px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  margin: 0 !important;
+  transition: opacity 0.2s;
+}
+
+.btnEdit       { background: #e0e7ff !important; color: var(--azul-profundo) !important; }
+.btnToggleOff  { background: #fef3c7 !important; color: #92400e !important; }
+.btnToggleOn   { background: #d1fae5 !important; color: #065f46 !important; }
+.btnDelete     { background: #fee2e2 !important; color: #991b1b !important; }
+
+.slideActions button:hover { opacity: 0.75; }
+
+.empty {
+  color: #888;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 24px;
+}

@@ -1,60 +1,47 @@
 import Link from 'next/link'
 import Carousel from '@/components/Carousel'
 import styles from '@/styles/home.module.css'
+import { getHomeCards, getCarouselSlides } from '@/lib/homeContent'
 
-export default function HomePage() {
+export const dynamic = 'force-dynamic';
+
+export default async function HomePage() {
+  const [cards, slides] = await Promise.all([
+    getHomeCards(),
+    getCarouselSlides(),
+  ]);
+
+  const leftCards  = cards.filter(c => c.posicion <= 2);
+  const rightCards = cards.filter(c => c.posicion >= 3);
+
   return (
     <section className={styles.hero}>
       <div className={styles.sideCards}>
-        <div className={styles.card}>
-          <h3>CONCRETO</h3>
-          <p>
-            Empieza tu construcción con el pie derecho. Pregunta por nuestras promociones
-            que tenemos al estar con nosotros desde el inicio de tu obra.
-          </p>
-          <button>
-            <Link href="/concretos">Ver</Link>
-          </button>
-        </div>
-
-        <div className={styles.card}>
-          <h3>RENTA DE EQUIPO</h3>
-          <p>
-            Ahorra costos de mano de obra utilizando los equipos adecuados y garantiza la
-            calidad de tu proyecto. Te facilitamos al especialista si lo requieres.
-          </p>
-          <button>
-            <Link href="/concretos/servicios">Ver</Link>
-          </button>
-        </div>
+        {leftCards.map(card => (
+          <div key={card.id} className={styles.card}>
+            <h3>{card.titulo}</h3>
+            <p>{card.descripcion}</p>
+            <button>
+              <Link href={card.btn_href}>{card.btn_texto}</Link>
+            </button>
+          </div>
+        ))}
       </div>
 
       <div className={styles.carouselWrapper}>
-        <Carousel />
+        <Carousel slides={slides} />
       </div>
 
       <div className={styles.sideCards}>
-        <div className={styles.card}>
-          <h3>COTIZACIÓN</h3>
-          <p>
-            Solicita tu presupuesto personalizado sin costo. Cuéntanos qué necesitas y
-            te respondemos a la brevedad con la mejor opción para tu proyecto.
-          </p>
-          <button>
-            <Link href="/cotizacion">Solicitar</Link>
-          </button>
-        </div>
-
-        <div className={styles.card}>
-          <h3>TEXTURIZADOS Y ADHESIVOS</h3>
-          <p>
-            Nuestro compromiso es generar productos de alta calidad y eficiencia en la
-            decoración, protección y eficiencia en el desarrollo de obra.
-          </p>
-          <button>
-            <Link href="/textucos">Ver</Link>
-          </button>
-        </div>
+        {rightCards.map(card => (
+          <div key={card.id} className={styles.card}>
+            <h3>{card.titulo}</h3>
+            <p>{card.descripcion}</p>
+            <button>
+              <Link href={card.btn_href}>{card.btn_texto}</Link>
+            </button>
+          </div>
+        ))}
       </div>
     </section>
   )
