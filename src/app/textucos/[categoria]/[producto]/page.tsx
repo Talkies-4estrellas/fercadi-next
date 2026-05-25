@@ -2,6 +2,8 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getProducto } from '@/lib/productos'
 import ProductoDetalle from '@/components/ProductoDetalle'
+import BtnAgregarCarrito from '@/components/BtnAgregarCarrito'
+import pStyles from '@/styles/product.module.css'
 
 export async function generateMetadata({
   params,
@@ -23,17 +25,32 @@ export default async function ProductoPage({
   if (!p) notFound()
 
   return (
-    <ProductoDetalle
-      nombre={p.nombre}
-      descripcion={p.descripcion}
-      imagen={p.imagen_url ?? undefined}
-      categoria={p.categoria_nombre}
-      breadcrumb={
-        <>
-          <Link href="/">Inicio</Link> / <Link href="/textucos">Acabados</Link> /{' '}
-          <Link href={`/textucos/${categoria}`}>{p.categoria_nombre}</Link> / {p.nombre}
-        </>
-      }
-    />
+    <>
+      <ProductoDetalle
+        nombre={p.nombre}
+        descripcion={p.descripcion}
+        descripcion2={p.descripcion2 ?? undefined}
+        imagen={p.imagen_url ?? undefined}
+        categoria={p.categoria_nombre}
+        breadcrumb={
+          <>
+            <Link href="/">Inicio</Link> / <Link href="/textucos">Acabados</Link> /{' '}
+            <Link href={`/textucos/${categoria}`}>{p.categoria_nombre}</Link> / {p.nombre}
+          </>
+        }
+      />
+
+      {/* Botón agregar al carrito */}
+      {Number(p.precio) > 0 && (
+        <section className={pStyles.detalleCarrito}>
+          <BtnAgregarCarrito
+            id={String(p.id)}
+            nombre={p.nombre}
+            precio={Number(p.precio)}
+            imagen={p.imagen_url ?? undefined}
+          />
+        </section>
+      )}
+    </>
   )
 }

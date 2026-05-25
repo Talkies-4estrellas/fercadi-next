@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { getProducto, getFerreteriaCategorias } from '@/lib/productos';
 import ProductoDetalle from '@/components/ProductoDetalle';
 import BtnAgregarCarrito from '@/components/BtnAgregarCarrito';
-import styles from '@/styles/ferreteria.module.css';
+import styles from '@/styles/product.module.css';
 
 type Params = Promise<{ categoria: string; producto: string }>;
 

@@ -4,6 +4,64 @@
   height: auto;
 }
 
+/* ── Sección carrito (compartida entre ferretería, concretos y textucos) ── */
+.detalleCarrito {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 40px 32px;
+}
+
+.detalleExtra {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 40px 48px;
+}
+
+.detalleExtraTitulo {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--azul-profundo);
+  margin: 0 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detalleExtraGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.detalleExtraItem {
+  background: white;
+  border: 1px solid rgba(1,27,79,0.09);
+  border-radius: 10px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.detalleExtraLabel {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--azul-medio);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.detalleExtraValor {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--azul-profundo);
+}
+
+@media (max-width: 600px) {
+  .detalleCarrito { padding: 0 16px 24px; }
+  .detalleExtra   { padding: 20px 16px 32px; }
+}
+
 .etiqueta {
   display: flex;
   align-items: center;
