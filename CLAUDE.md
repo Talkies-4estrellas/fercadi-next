@@ -216,7 +216,7 @@ CONTACTO_EMAIL=contacto@josmantexturizados.com
 # IA — Google Gemini
 # Obtener gratis en: https://aistudio.google.com/app/apikey
 # Modelo: gemini-1.5-flash
-GEMINI_API_KEY=AQ.Ab8RN6I6LXbV1IzpEIyN0SebPAN25qFBketlIu5Baan26zKSVQ
+GEMINI_API_KEY=
 ```
 
 #### Shim de compatibilidad (`src/lib/db.ts`)
