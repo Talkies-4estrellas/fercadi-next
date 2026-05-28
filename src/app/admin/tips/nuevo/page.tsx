@@ -31,9 +31,44 @@ export default function NuevoTipPage() {
   const [guardando,   setGuardando]   = useState(false);
   const [error,       setError]       = useState('');
 
+  // ── Neurona IA ────────────────────────────────────────────────
+  const [temaIa,     setTemaIa]     = useState('');
+  const [cargandoIa, setCargandoIa] = useState(false);
+
   const handleTitulo = (v: string) => {
     setTitulo(v);
     if (!slugManual) setSlug(slugificar(v));
+  };
+
+  const rellenarConIA = async () => {
+    if (!temaIa.trim()) return;
+    if (!user) return;
+    setCargandoIa(true);
+    setError('');
+    try {
+      const res = await fetch('/api/admin/tips/ia', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-usuario-id': String(user.id),
+        },
+        body: JSON.stringify({ tema: temaIa }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setTitulo(data.titulo);
+        setSlug(slugificar(data.titulo));
+        setSlugManual(false);
+        setDescripcion(data.descripcion ?? '');
+        setContenido(data.contenido ?? '');
+      } else {
+        setError(`IA: ${data.error ?? 'Error desconocido'}`);
+      }
+    } catch {
+      setError('No se pudo conectar con el asistente de IA.');
+    } finally {
+      setCargandoIa(false);
+    }
   };
 
   const handleGuardar = async () => {
@@ -68,6 +103,39 @@ export default function NuevoTipPage() {
         <Link href="/admin/tips" className={styles.btnSecondary}>
           <i className="fa-solid fa-arrow-left" /> Volver
         </Link>
+      </div>
+
+      {/* ── Asistente IA ─────────────────────────────────────── */}
+      <div className={tipStyles.neurona}>
+        <p className={tipStyles.neuronaTitulo}>
+          <i className="fa-solid fa-brain" /> Asistente de Contenido IA
+        </p>
+        <p className={tipStyles.neuronaDesc}>
+          Escribe una idea general y el asistente investigará, redactará y estructurará el Markdown por ti.
+          Podrás revisar y editar el resultado antes de publicar.
+        </p>
+        <div className={tipStyles.neuronaRow}>
+          <input
+            type="text"
+            className={tipStyles.neuronaInput}
+            placeholder="Ej: Cómo aplicar estuco veneciano en muros exteriores con humedad"
+            value={temaIa}
+            onChange={(e) => setTemaIa(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && rellenarConIA()}
+            disabled={cargandoIa}
+          />
+          <button
+            type="button"
+            className={tipStyles.neuronaBtn}
+            onClick={rellenarConIA}
+            disabled={cargandoIa || !temaIa.trim()}
+          >
+            {cargandoIa
+              ? <><i className="fa-solid fa-spinner fa-spin" /> Generando…</>
+              : <><i className="fa-solid fa-bolt" /> Rellenar formulario</>
+            }
+          </button>
+        </div>
       </div>
 
       <div className={tipStyles.formWrap}>

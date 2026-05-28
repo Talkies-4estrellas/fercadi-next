@@ -129,6 +129,88 @@
   display: block;
 }
 
+/* ── Neurona / Asistente IA ──────────────────────────────────── */
+.neurona {
+  background: var(--azul-profundo);
+  border: 1.5px solid var(--dorado);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.neuronaTitulo {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--dorado);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.neuronaDesc {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.65);
+  margin: -4px 0 0;
+  line-height: 1.4;
+}
+
+.neuronaRow {
+  display: flex;
+  gap: 10px;
+}
+
+.neuronaInput {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.08);
+  color: white;
+  font-size: 0.88rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.neuronaInput::placeholder {
+  color: rgba(255,255,255,0.35);
+}
+
+.neuronaInput:focus {
+  border-color: var(--dorado);
+  background: rgba(255,255,255,0.12);
+}
+
+.neuronaInput:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.neuronaBtn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  background: var(--dorado) !important;
+  color: var(--azul-profundo) !important;
+  font-weight: 800;
+  font-size: 0.88rem;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  transition: opacity 0.2s;
+  margin: 0 !important;
+}
+
+.neuronaBtn:hover:not(:disabled) { opacity: 0.85; }
+.neuronaBtn:disabled { opacity: 0.55; cursor: not-allowed; }
+
 /* ── Responsive ──────────────────────────────────────────────── */
 @media (max-width: 840px) {
   .formWrap {
