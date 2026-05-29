@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 ﻿import Link from 'next/link'
 import { getMaterialesCategorias } from '@/lib/productos'
 import styles from '@/styles/product.module.css'

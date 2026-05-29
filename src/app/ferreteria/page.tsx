@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import Link from 'next/link';
 import { getFerreteriaCategorias } from '@/lib/productos';
 import styles from '@/styles/ferreteria.module.css';
