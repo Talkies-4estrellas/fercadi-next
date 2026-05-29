@@ -207,16 +207,14 @@ export default async function Page({ params }: { params: Params }) {
 ```env
 # Base de datos Supabase (Session Pooler — puerto 5432)
 # ⚠️ Host correcto: aws-1-us-west-1.pooler.supabase.com (NO aws-0)
-DATABASE_URL=postgresql://postgres.hykrbwzmavpenprwqsqi:fercadinext1@aws-1-us-west-1.pooler.supabase.com:5432/postgres
+DATABASE_URL=postgresql://postgres.[PROJECT_REF]:[PASSWORD]@aws-1-us-west-1.pooler.supabase.com:5432/postgres
 
 # Email (Resend)
 RESEND_API_KEY=re_xxxxx
 CONTACTO_EMAIL=contacto@josmantexturizados.com
 
-# IA — Google Gemini
-# Obtener gratis en: https://aistudio.google.com/app/apikey
-# Modelo: gemini-1.5-flash
-GEMINI_API_KEY=
+# IA — Groq (Llama 3.3 70B) — https://console.groq.com/keys
+
 ```
 
 #### Shim de compatibilidad (`src/lib/db.ts`)
@@ -435,8 +433,7 @@ Producto → BtnAgregarCarrito (modal, selector cantidad)
 
 ### Conexión Supabase — ACTIVA
 - **Host:** `aws-1-us-west-1.pooler.supabase.com:5432` (Session Pooler)
-- **Project ID:** `hykrbwzmavpenprwqsqi`
-- **Password BD:** `fercadinext1`
+- **Project ID:** ver Supabase → Settings → General
 - **Región:** `us-west-1` (West US, North California) — node index `1`, NO `0`
 
 ### Funcionalidades implementadas
