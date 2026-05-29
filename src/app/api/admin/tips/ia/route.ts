@@ -95,7 +95,7 @@ El JSON debe tener exactamente esta estructura:
     // El modelo a veces devuelve saltos de línea reales en vez de \n escapados,
     // lo que rompe JSON.parse. Este regex reemplaza solo dentro de strings "…".
     jsonLimpio = jsonLimpio.replace(
-      /"(?:[^"\\]|\\.)*"/gs,
+      /"(?:[^"\\]|\\.)*"/g,
       (match) => match
         .replace(/\n/g, '\\n')
         .replace(/\r/g, '\\r')
