@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import React, { useState, useCallback } from 'react'
 import styles from '@/styles/calculadora.module.css'
 
 /* ── Tipos ─────────────────────────────────────────────── */
@@ -111,7 +111,7 @@ function nuevaForma(forma: FormaId = 'losa'): FormaState {
 function ShapeIcon({ id, active }: { id: FormaId; active: boolean }) {
   const color = active ? '#fff' : '#3565c5'
   const s = { fill: 'none', stroke: color, strokeWidth: 1.5 }
-  const icons: Record<FormaId, JSX.Element> = {
+  const icons: Record<FormaId, React.ReactElement> = {
     losa: (
       <svg viewBox="0 0 40 40" width="36" height="36">
         <rect x="4" y="14" width="24" height="14" {...s} />
