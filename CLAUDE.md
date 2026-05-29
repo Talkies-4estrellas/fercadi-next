@@ -14,7 +14,7 @@ Este proyecto usa **Next.js 16.2.4** con **React 19**. Las APIs, convenciones y 
 
 **FERCADI / Josman Texturizados** — Sitio web de catálogo y ventas de materiales de construcción (concretos, acabados texturizados, materiales generales, ferretería con 15k+ productos). Los usuarios pueden explorar el catálogo, buscar, agregar al carrito, confirmar pedidos con forma de pago, ver su historial, cotizar y contactar. Los admins gestionan productos, importan CSV, administran pedidos y crean tips con asistente de IA.
 
-**Stack:** Next.js 16 · React 19 · TypeScript · CSS Modules · **PostgreSQL (Supabase)** · bcrypt · **pg** · Resend (email) · **Google Gemini API** (IA para tips)
+**Stack:** Next.js 16 · React 19 · TypeScript · CSS Modules · **PostgreSQL (Supabase)** · bcrypt · **pg** · Resend (email) · **Groq API / Llama 3.3 70B** (IA para tips)
 
 ---
 
@@ -352,7 +352,8 @@ El `Carousel.tsx` acepta `slides: CarouselSlide[]` como prop y renderiza el over
 5. El formulario se rellena automáticamente (titulo, slug auto-generado, descripcion, contenido Markdown)
 6. El admin puede revisar y corregir antes de publicar con "Publicar tip"
 
-**Modelo:** `gemini-1.5-flash` (rápido, nivel gratuito — 1,500 peticiones/día, sin costo)
+**Modelo:** `llama-3.3-70b-versatile` vía **Groq** (free tier real: 14,400 req/día, sin tarjeta)
+**Nota:** Gemini fue descartado — eliminó el free tier para todas sus APIs en 2026 (limit: 0)
 **Configuración:** `temperature: 0.7`, `maxOutputTokens: 2048`
 **Limpieza:** el endpoint elimina bloques ` ```json ``` ` que Gemini a veces inyecta por error
 

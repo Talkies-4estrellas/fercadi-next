@@ -5,11 +5,13 @@ import { requerirAdmin } from '@/lib/admin';
  * POST /api/admin/tips/ia
  * Body: { tema: string }
  *
- * Llama a Gemini 1.5 Flash con un prompt de ingeniería y devuelve
+ * Llama a Groq (Llama 3.3 70B) y devuelve
  * { ok: true, titulo, descripcion, contenido } listos para rellenar
  * el formulario de /admin/tips/nuevo.
  *
- * Requiere: GEMINI_API_KEY en .env.local
+ * Requiere: GROQ_API_KEY en .env.local
+ * Obtener gratis en: https://console.groq.com/keys
+ * Free tier: 30 req/min · 14,400 req/día · sin tarjeta
  */
 export async function POST(req: Request) {
   // ── 1. Verificar que sea administrador ──────────────────────────
@@ -30,72 +32,80 @@ export async function POST(req: Request) {
   }
 
   // ── 3. Verificar API Key ────────────────────────────────────────
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
-      { ok: false, error: 'Falta GEMINI_API_KEY en las variables de entorno del servidor.' },
+      { ok: false, error: 'Falta GROQ_API_KEY en las variables de entorno del servidor.' },
       { status: 500 }
     );
   }
 
-  // ── 4. Prompt de ingeniería ────────────────────────────────────
-  const prompt = `
-Eres un experto técnico de la empresa "FERCADI / Josman Texturizados", dedicada a la venta de concretos, materiales de construcción, acabados texturizados, adhesivos y ferretería en México.
+  // ── 4. Prompt de ingeniería ─────────────────────────────────────
+  const prompt = `Eres un experto técnico de la empresa "FERCADI / Josman Texturizados", dedicada a la venta de concretos, materiales de construcción, acabados texturizados, adhesivos y ferretería en México.
 
 Genera un artículo de tip o tutorial técnico basado en el siguiente tema: "${tema}".
 
-Responde ÚNICAMENTE con un objeto JSON válido, sin bloques de código, sin comentarios, sin texto adicional antes o después.
+Responde ÚNICAMENTE con un objeto JSON válido, sin bloques de código, sin comentarios, sin texto adicional antes o después del JSON.
 El JSON debe tener exactamente esta estructura:
 {
   "titulo": "Título llamativo y profesional, en mayúsculas, máximo 80 caracteres",
   "descripcion": "Descripción corta de 1 a 2 oraciones para la tarjeta de previsualización. Sin markdown.",
   "contenido": "El tutorial completo en Markdown. Usa ### para subtítulos, **negritas** para términos clave, guiones - para listas. Mínimo 250 palabras. Orientado a clientes constructores o albañiles de México."
-}
-`.trim();
+}`;
 
-  // ── 5. Llamada a Gemini ─────────────────────────────────────────
+  // ── 5. Llamada a Groq (compatible con OpenAI) ───────────────────
   try {
-    const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 2048,
-          },
-        }),
-      }
-    );
+    const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.7,
+        max_tokens: 2048,
+      }),
+    });
 
-    if (!geminiRes.ok) {
-      const errData = await geminiRes.json().catch(() => ({}));
-      console.error('[IA Tips] Error de Gemini:', errData);
+    if (!groqRes.ok) {
+      const errData = await groqRes.json().catch(() => ({}));
+      console.error('[IA Tips] Error de Groq:', errData);
       return NextResponse.json(
-        { ok: false, error: `Error de Gemini (${geminiRes.status}): ${(errData as any)?.error?.message ?? 'sin detalle'}` },
+        { ok: false, error: `Error de Groq (${groqRes.status}): ${(errData as any)?.error?.message ?? 'sin detalle'}` },
         { status: 502 }
       );
     }
 
-    const geminiData = await geminiRes.json();
-    const textoRaw: string = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+    const groqData = await groqRes.json();
+    const textoRaw: string = groqData?.choices?.[0]?.message?.content ?? '';
 
     if (!textoRaw) {
-      return NextResponse.json({ ok: false, error: 'Gemini no devolvió contenido.' }, { status: 502 });
+      return NextResponse.json({ ok: false, error: 'El modelo no devolvió contenido.' }, { status: 502 });
     }
 
     // Limpiar posibles bloques de código que el modelo inyecte por error
-    const jsonLimpio = textoRaw
+    let jsonLimpio = textoRaw
       .replace(/^```(?:json)?\s*/i, '')
       .replace(/\s*```$/, '')
       .trim();
 
+    // Sanitizar caracteres de control literales dentro de los strings JSON.
+    // El modelo a veces devuelve saltos de línea reales en vez de \n escapados,
+    // lo que rompe JSON.parse. Este regex reemplaza solo dentro de strings "…".
+    jsonLimpio = jsonLimpio.replace(
+      /"(?:[^"\\]|\\.)*"/gs,
+      (match) => match
+        .replace(/\n/g, '\\n')
+        .replace(/\r/g, '\\r')
+        .replace(/\t/g, '\\t')
+    );
+
     const resultado = JSON.parse(jsonLimpio);
 
     if (!resultado.titulo || !resultado.contenido) {
-      throw new Error('El JSON de Gemini no tiene la estructura esperada.');
+      throw new Error('El JSON no tiene la estructura esperada (faltan titulo o contenido).');
     }
 
     return NextResponse.json({
