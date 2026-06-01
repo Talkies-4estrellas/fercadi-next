@@ -21,9 +21,7 @@ export default async function HomePage() {
           <div key={card.id} className={styles.card}>
             <h3>{card.titulo}</h3>
             <p>{card.descripcion}</p>
-            <button>
-              <Link href={card.btn_href}>{card.btn_texto}</Link>
-            </button>
+            <Link href={card.btn_href} className={styles.cardBtn}>{card.btn_texto}</Link>
           </div>
         ))}
       </div>
@@ -37,9 +35,7 @@ export default async function HomePage() {
           <div key={card.id} className={styles.card}>
             <h3>{card.titulo}</h3>
             <p>{card.descripcion}</p>
-            <button>
-              <Link href={card.btn_href}>{card.btn_texto}</Link>
-            </button>
+            <Link href={card.btn_href} className={styles.cardBtn}>{card.btn_texto}</Link>
           </div>
         ))}
       </div>

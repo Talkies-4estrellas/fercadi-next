@@ -29,7 +29,7 @@ export async function GET(req: Request) {
       params.push(estado);
     }
     if (q) {
-      conditions.push('(u.nombre LIKE ? OR u.correo LIKE ?)');
+      conditions.push('(u.nombre ILIKE ? OR u.correo ILIKE ?)');
       params.push(`%${q}%`, `%${q}%`);
     }
 

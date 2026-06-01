@@ -34,9 +34,9 @@ export async function GET(request: Request) {
               imagen_url AS imagen
          FROM productos
         WHERE activo = 1
-          AND (nombre LIKE ? OR categoria_nombre LIKE ? OR marca LIKE ?)
+          AND (nombre ILIKE ? OR categoria_nombre ILIKE ? OR marca ILIKE ?)
         ORDER BY
-          (nombre LIKE ?) DESC,
+          (nombre ILIKE ?) DESC,
           LENGTH(nombre) ASC,
           nombre ASC
         LIMIT 20`,

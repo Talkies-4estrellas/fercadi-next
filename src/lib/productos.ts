@@ -106,7 +106,7 @@ export async function getMaterialesCategorias(): Promise<CategoriaMaterialDB[]> 
     `SELECT slug, nombre, descripcion, marcas
      FROM materiales_categorias
      WHERE activo = 1
-     ORDER BY id ASC`
+     ORDER BY nombre ASC`
   );
   return (rows as any[]).map((row) => ({
     ...row,

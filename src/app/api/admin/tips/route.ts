@@ -22,7 +22,7 @@ export async function GET(req: Request) {
     const params: (string | number)[] = [];
 
     if (q) {
-      conditions.push('(titulo LIKE ? OR descripcion LIKE ?)');
+      conditions.push('(titulo ILIKE ? OR descripcion ILIKE ?)');
       params.push(`%${q}%`, `%${q}%`);
     }
 

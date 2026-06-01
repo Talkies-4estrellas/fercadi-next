@@ -45,7 +45,9 @@
 }
 
 /* Botón amarillo en todas las tarjetas */
-.card button {
+.card button,
+.cardBtn {
+  display: inline-block;
   margin: 16px auto 0;
   padding: 7px 28px;
   background-color: var(--dorado);
@@ -55,11 +57,14 @@
   font-weight: 700;
   font-size: 0.82rem;
   cursor: pointer;
+  text-decoration: none;
   transition: transform 0.15s, box-shadow 0.15s;
 }
 
-.card button:hover {
+.card button:hover,
+.cardBtn:hover {
   background-color: var(--dorado);
+  color: var(--azul-profundo);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(255, 191, 0, 0.45);
 }

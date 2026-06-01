@@ -43,7 +43,7 @@ export async function GET(request: Request) {
     params.push(categoria);
   }
   if (q) {
-    where.push('(nombre LIKE ? OR slug LIKE ? OR codigo_interno LIKE ?)');
+    where.push('(nombre ILIKE ? OR slug ILIKE ? OR codigo_interno ILIKE ?)');
     params.push(`%${q}%`, `%${q}%`, `%${q}%`);
   }
 

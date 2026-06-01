@@ -164,8 +164,7 @@ export default function AuthPage() {
                 <input
                   name="fecha_nacimiento"
                   type="date"
-                  required
-                  style={{...inputStyle, colorScheme: 'dark'}} 
+                  style={{...inputStyle, colorScheme: 'dark'}}
                   onChange={handleChange}
                 />
               </div>
