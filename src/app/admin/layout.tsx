@@ -34,7 +34,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (!user || !isAdmin) {
     return (
       <div className={styles.guardMessage}>
-        <i className="fa-solid fa-lock" />
+        <i className="fa-solid fa-lock" aria-hidden="true" />
         <p>Verificando permisos…</p>
       </div>
     );
