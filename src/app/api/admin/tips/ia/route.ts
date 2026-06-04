@@ -50,7 +50,7 @@ El JSON debe tener exactamente esta estructura:
 {
   "titulo": "Título llamativo y profesional, en mayúsculas, máximo 80 caracteres",
   "descripcion": "Descripción corta de 1 a 2 oraciones para la tarjeta de previsualización. Sin markdown.",
-  "contenido": "El tutorial completo en Markdown. Usa ### para subtítulos, **negritas** para términos clave, guiones - para listas. Mínimo 250 palabras. Orientado a clientes constructores o albañiles de México."
+  "contenido": "REGLAS DE FORMATO OBLIGATORIAS para el campo contenido:\\n1. Usa ### para subtítulos (ejemplo: ### Materiales necesarios)\\n2. Cada ítem de lista debe estar en su PROPIA LÍNEA comenzando con '- ' (guión espacio)\\n3. NUNCA pongas varios ítems de lista en la misma línea separados por guiones\\n4. Usa **palabra** para negritas en términos clave\\n5. Separa cada sección con una línea en blanco\\n6. Mínimo 300 palabras\\n7. Redacta en español mexicano, orientado a constructores y albañiles\\nEjemplo de lista CORRECTA:\\n- Primer elemento\\n- Segundo elemento\\n- Tercer elemento\\nEjemplo INCORRECTO (NO hagas esto): texto. - item1 - item2 - item3"
 }`;
 
   // ── 5. Llamada a Groq (compatible con OpenAI) ───────────────────

@@ -1,3 +1,4 @@
+import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
@@ -18,17 +19,94 @@ export async function generateMetadata({ params }: { params: Params }) {
   };
 }
 
-/** Renderiza **texto** como <strong> y líneas en blanco como saltos de párrafo. */
-function renderContenido(texto: string) {
-  return texto.split('\n\n').map((bloque, i) => {
-    const lineas = bloque.split('\n').map((linea, j) => {
-      // Negrita: **texto**
-      const partes = linea.split(/\*\*(.+?)\*\*/g);
-      const nodos = partes.map((p, k) => k % 2 === 1 ? <strong key={k}>{p}</strong> : p);
-      return <span key={j}>{nodos}{j < bloque.split('\n').length - 1 && <br />}</span>;
-    });
-    return <p key={i} className={styles.contenidoParrafo}>{lineas}</p>;
-  });
+/** Convierte **texto** → <strong> dentro de una línea */
+function parseInline(texto: string): React.ReactNode[] {
+  return texto.split(/\*\*(.+?)\*\*/g).map((p, k) =>
+    k % 2 === 1 ? <strong key={k}>{p}</strong> : p
+  );
+}
+
+/**
+ * Parser Markdown mínimo que convierte el contenido generado por la IA:
+ *  - ### Título   → <h3>
+ *  - ## Título    → <h2>
+ *  - # Título     → <h2>
+ *  - - item       → <ul><li>  (agrupa ítems consecutivos)
+ *  - **negrita**  → <strong>
+ *  - párrafos     → <p>
+ *
+ * También maneja listas inline del estilo "texto. - item1 - item2"
+ * que algunos modelos generan en una sola línea.
+ */
+function renderContenido(texto: string): React.ReactNode[] {
+  // Normalizar: asegurar salto antes de cada "- " de lista inline
+  const normalizado = texto
+    .replace(/ - /g, '\n- ')          // "texto. - item" → líneas separadas
+    .replace(/\n{3,}/g, '\n\n');      // colapsar más de 2 saltos
+
+  const lineas = normalizado.split('\n');
+  const elementos: React.ReactNode[] = [];
+  let listaActual: string[] = [];
+  let parrafoActual: React.ReactNode[] = [];
+  let key = 0;
+
+  const flushLista = () => {
+    if (listaActual.length === 0) return;
+    elementos.push(
+      <ul key={key++} className={styles.contenidoLista}>
+        {listaActual.map((item, i) => <li key={i}>{parseInline(item)}</li>)}
+      </ul>
+    );
+    listaActual = [];
+  };
+
+  const flushParrafo = () => {
+    if (parrafoActual.length === 0) return;
+    elementos.push(
+      <p key={key++} className={styles.contenidoParrafo}>{parrafoActual}</p>
+    );
+    parrafoActual = [];
+  };
+
+  for (const linea of lineas) {
+    const t = linea.trim();
+
+    if (t === '') {
+      flushLista();
+      flushParrafo();
+      continue;
+    }
+
+    // Encabezados
+    if (t.startsWith('### ')) {
+      flushLista(); flushParrafo();
+      elementos.push(<h3 key={key++} className={styles.contenidoH3}>{parseInline(t.slice(4))}</h3>);
+      continue;
+    }
+    if (t.startsWith('## ') || t.startsWith('# ')) {
+      flushLista(); flushParrafo();
+      const nivel = t.startsWith('## ') ? 3 : 2;
+      elementos.push(<h2 key={key++} className={styles.contenidoH2}>{parseInline(t.slice(nivel))}</h2>);
+      continue;
+    }
+
+    // Ítem de lista
+    if (t.startsWith('- ') || t.startsWith('* ')) {
+      flushParrafo();
+      listaActual.push(t.slice(2));
+      continue;
+    }
+
+    // Línea normal → párrafo
+    flushLista();
+    if (parrafoActual.length > 0) parrafoActual.push(<br key={`br-${key++}`} />);
+    parrafoActual.push(...parseInline(t));
+  }
+
+  flushLista();
+  flushParrafo();
+
+  return elementos;
 }
 
 export default async function TipPage({ params }: { params: Params }) {
