@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { getProducto, getFerreteriaCategorias } from '@/lib/productos';
 import ProductoDetalle from '@/components/ProductoDetalle';
 import BtnAgregarCarrito from '@/components/BtnAgregarCarrito';
+import ComentariosProducto from '@/components/ComentariosProducto';
 import styles from '@/styles/product.module.css';
 
 type Params = Promise<{ categoria: string; producto: string }>;
@@ -91,6 +92,9 @@ export default async function FerreteriaProductoPage({
           </div>
         </section>
       )}
+
+      {/* Sección de comentarios */}
+      <ComentariosProducto productoId={p.id} />
     </>
   );
 }

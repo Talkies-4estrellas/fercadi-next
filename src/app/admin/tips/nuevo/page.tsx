@@ -7,6 +7,12 @@ import { useAuth } from '@/context/AuthContext';
 import styles from '@/styles/admin.module.css';
 import tipStyles from '@/styles/adminTips.module.css';
 
+/**
+ * Convierte un título legible en un slug válido para URL.
+ * Pasos: minúsculas → quitar acentos (NFD) → solo alfanumérico/guión
+ * → trim → espacios a guiones → colapsar guiones dobles.
+ * Ej: "Cómo Impermeabilizar Techos" → "como-impermeabilizar-techos"
+ */
 function slugificar(texto: string): string {
   return texto
     .toLowerCase()
@@ -40,6 +46,12 @@ export default function NuevoTipPage() {
     if (!slugManual) setSlug(slugificar(v));
   };
 
+  /**
+   * Llama al endpoint /api/admin/tips/ia con el tema escrito.
+   * Si la IA responde correctamente, rellena automáticamente
+   * los campos título, slug, descripción y contenido del formulario.
+   * El admin puede revisar y editar antes de publicar.
+   */
   const rellenarConIA = async () => {
     if (!temaIa.trim()) return;
     if (!user) return;
@@ -71,6 +83,11 @@ export default function NuevoTipPage() {
     }
   };
 
+  /**
+   * Valida los campos mínimos y hace POST a /api/admin/tips.
+   * Si el slug ya existe en la BD, el servidor devuelve 409 con un mensaje de error.
+   * Tras éxito, redirige al listado de tips.
+   */
   const handleGuardar = async () => {
     if (!user) return;
     if (!titulo.trim()) { setError('El título es requerido.'); return; }

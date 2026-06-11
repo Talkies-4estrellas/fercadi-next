@@ -1,3 +1,16 @@
+/**
+ * ProductoDetalle — layout de dos columnas para la ficha de un producto.
+ *
+ * Columna izquierda: etiqueta de categoría, título, descripción principal
+ * y botones de acción (cotizar / contactar).
+ * Columna derecha: imagen del producto con drop-shadow.
+ * Banda inferior oscura: descripcion2 opcional (datos técnicos, modo de uso).
+ *
+ * Este componente es Server Component — no tiene interactividad propia.
+ * Los botones de carrito se inyectan desde la página padre porque requieren
+ * estado del cliente (CartContext).
+ */
+
 import Image from 'next/image'
 import Link from 'next/link'
 import styles from '@/styles/product.module.css'
@@ -6,9 +19,12 @@ import { resolverImagenProducto } from '@/lib/imagen'
 interface Props {
   nombre: string
   descripcion: string
+  /** Segunda descripción (técnica/instrucciones). Se muestra en banda azul oscura. */
   descripcion2?: string
   imagen?: string | null
+  /** Nombre de la categoría para la etiqueta pill azul. */
   categoria: string
+  /** Nodo breadcrumb renderizado por la página (incluye los Links correctos por sección). */
   breadcrumb: React.ReactNode
 }
 

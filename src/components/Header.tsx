@@ -1,5 +1,19 @@
 'use client'
 
+/**
+ * Header — barra de navegación principal.
+ *
+ * Estado local:
+ *  - `menuOpen`: controla el menú hamburguesa en móvil.
+ *  - `openSubmenu`: slug del ítem con submenú actualmente expandido
+ *    (solo uno a la vez). Se colapsa al navegar.
+ *
+ * Muestra el botón Admin solo si el usuario tiene rol 'admin'.
+ * Muestra el badge del carrito con el conteo total de unidades.
+ * Los items de navegación vienen de `src/data/navigation.ts`
+ * para poder editarlos sin tocar este componente.
+ */
+
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState } from 'react'
@@ -15,14 +29,18 @@ export default function Header() {
   const { user, isAdmin, logout } = useAuth()
   const { itemCount, openCart } = useCart()
 
+  /** Cierra menú hamburguesa y cualquier submenú abierto al navegar. */
   const close = () => {
     setMenuOpen(false)
     setOpenSubmenu(null)
   }
 
+  /** Alterna el submenú del ítem clicado; cierra el anterior si era distinto. */
   const toggleSubmenu = (href: string) =>
     setOpenSubmenu((prev) => (prev === href ? null : href))
 
+  // En móvil el nav se expande con max-height para habilitar el scroll
+  // cuando hay muchos ítems sin desbordarse fuera del viewport.
   const navStyle = menuOpen
     ? { maxHeight: '80vh', overflowY: 'auto' as const, pointerEvents: 'auto' as const }
     : {}

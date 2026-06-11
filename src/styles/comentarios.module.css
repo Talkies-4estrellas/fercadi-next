@@ -1,0 +1,307 @@
+/* ═══════════════════════════════════════════════════════════════
+   Sección de comentarios — páginas de producto
+   ═══════════════════════════════════════════════════════════════ */
+
+.seccion {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 48px 40px 64px;
+  border-top: 2px solid rgba(1, 27, 79, 0.07);
+}
+
+/* ── Encabezado ─────────────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.titulo {
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: var(--azul-profundo);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.titulo i {
+  color: var(--dorado);
+  font-size: 1rem;
+}
+
+.resumenEstrellas {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.promedioNum {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--azul-profundo);
+  line-height: 1;
+}
+
+.promedioStars {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.starsRow {
+  display: flex;
+  gap: 3px;
+}
+
+.starFull  { color: #f5a623; }
+.starHalf  { color: #f5a623; opacity: 0.6; }
+.starEmpty { color: #ccc; }
+
+.promedioTotal {
+  font-size: 0.78rem;
+  color: var(--azul-medio);
+  font-weight: 600;
+}
+
+/* ── Lista de comentarios ───────────────────────────────────── */
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-bottom: 40px;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid rgba(1, 27, 79, 0.08);
+  border-radius: 14px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 1px 6px rgba(1, 27, 79, 0.05);
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.cardAutor {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--azul-profundo);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.nombre {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--azul-profundo);
+  line-height: 1.2;
+}
+
+.fecha {
+  font-size: 0.75rem;
+  color: var(--azul-medio);
+}
+
+.cardStars {
+  display: flex;
+  gap: 3px;
+  font-size: 0.85rem;
+}
+
+.cardTexto {
+  font-size: 0.93rem;
+  color: #444;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* ── Estado vacío ───────────────────────────────────────────── */
+.vacio {
+  text-align: center;
+  padding: 40px 24px;
+  color: var(--azul-medio);
+  font-size: 0.9rem;
+}
+
+.vacio i {
+  font-size: 2.2rem;
+  display: block;
+  margin-bottom: 12px;
+  opacity: 0.35;
+}
+
+/* ── Formulario de nuevo comentario ─────────────────────────── */
+.formBox {
+  background: #f5f7fb;
+  border: 1.5px solid rgba(1, 27, 79, 0.1);
+  border-radius: 16px;
+  padding: 28px 28px 24px;
+}
+
+.formTitulo {
+  font-size: 1rem;
+  font-weight: 900;
+  color: var(--azul-profundo);
+  margin: 0 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.formTitulo i { color: var(--dorado); }
+
+/* Selector de estrellas interactivo */
+.starsSelector {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.starBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.5rem;
+  padding: 0;
+  color: #ddd;
+  transition: color 0.15s, transform 0.12s;
+  line-height: 1;
+}
+
+.starBtn:hover,
+.starBtn.activa {
+  color: #f5a623;
+}
+
+.starBtn:hover {
+  transform: scale(1.2);
+}
+
+.starBtn:focus { outline: none; }
+
+/* Campo de texto */
+.textarea {
+  width: 100%;
+  min-height: 110px;
+  border: 1.5px solid rgba(1, 27, 79, 0.15);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 0.93rem;
+  color: var(--azul-profundo);
+  font-family: inherit;
+  resize: vertical;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+  background: #fff;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--azul-boton);
+}
+
+.textarea::placeholder { color: #aaa; }
+
+/* Pie del formulario */
+.formFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.charCount {
+  font-size: 0.75rem;
+  color: var(--azul-medio);
+}
+
+.btnEnviar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 28px;
+  border-radius: 25px;
+  background: var(--azul-profundo);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.88rem;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+}
+
+.btnEnviar:hover:not(:disabled) { background: var(--azul-oscuro); }
+.btnEnviar:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* Mensaje error / éxito */
+.msgError {
+  font-size: 0.82rem;
+  color: #c0392b;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+.msgOk {
+  font-size: 0.85rem;
+  color: #1a7a4a;
+  font-weight: 700;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── Bloque de login requerido ──────────────────────────────── */
+.loginReq {
+  background: #f5f7fb;
+  border: 1.5px dashed rgba(1, 27, 79, 0.18);
+  border-radius: 14px;
+  padding: 24px 28px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--azul-medio);
+}
+
+.loginReq a {
+  color: var(--azul-boton);
+  font-weight: 700;
+  text-decoration: none;
+  margin: 0 4px;
+}
+
+.loginReq a:hover { color: var(--dorado); }
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .seccion { padding: 36px 20px 48px; }
+  .formBox  { padding: 20px 18px 18px; }
+  .header   { flex-direction: column; align-items: flex-start; }
+}

@@ -1,5 +1,19 @@
 'use client';
 
+/**
+ * BtnAgregarCarrito — botón que abre un modal de confirmación antes de
+ * agregar el producto al carrito global.
+ *
+ * Flujo:
+ *   1. El usuario pulsa el botón principal → se abre el modal.
+ *   2. Ajusta la cantidad (1–99).
+ *   3. Pulsa "Agregar al carrito" → se llama addToCart() en CartContext,
+ *      se muestra el estado "¡Agregado!" y después de 900 ms se cierra
+ *      el modal y se abre el drawer del carrito.
+ *
+ * El modal se cierra también al hacer clic fuera de él (overlay).
+ */
+
 import { useState } from 'react';
 import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
@@ -7,10 +21,12 @@ import { resolverImagenProducto } from '@/lib/imagen';
 import styles from '@/styles/btnAgregarCarrito.module.css';
 
 interface Props {
+  /** ID único del producto (string para compatibilidad con CartContext). */
   id: string;
   nombre: string;
   precio: number;
   imagen?: string;
+  /** Variante seleccionada, ej. "Presentación 20 kg". */
   opciones?: string;
 }
 
@@ -36,6 +52,8 @@ export default function BtnAgregarCarrito({ id, nombre, precio, imagen, opciones
   const confirmar = () => {
     addToCart({ id, nombre, precio, imagen, opciones }, cantidad);
     setConfirmado(true);
+    // Pequeña pausa para que el usuario vea el estado "¡Agregado!" antes
+    // de que el modal se cierre y el drawer del carrito se abra.
     setTimeout(() => {
       cerrar();
       openCart();

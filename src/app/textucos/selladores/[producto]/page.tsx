@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import { getProducto } from '@/lib/productos'
 import ProductoDetalle from '@/components/ProductoDetalle'
 import BtnAgregarCarrito from '@/components/BtnAgregarCarrito'
+import ComentariosProducto from '@/components/ComentariosProducto'
 import pStyles from '@/styles/product.module.css'
 
 const CATEGORIA = 'selladores'
@@ -46,6 +47,8 @@ export default async function ProductoPage({ params }: { params: Promise<{ produ
           />
         </section>
       )}
+
+      <ComentariosProducto productoId={p.id} />
     </>
   )
 }

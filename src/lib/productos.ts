@@ -1,22 +1,23 @@
 import { db } from './db';
 
-/* ── Tipos públicos (lo que ve el usuario) ─────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   Tipos públicos — todo lo que un visitante puede ver.
+   Las columnas comerciales (precio mayoreo, clave SAT, peso, etc.)
+   NUNCA se exponen aquí; solo las devuelve /api/admin/productos
+   para evitar filtrar márgenes o datos internos.
+   ══════════════════════════════════════════════════════════════ */
 
 export interface CategoriaDB {
   slug: string;
   nombre: string;
 }
 
-/**
- * Campos que cualquier visitante puede ver.
- * Las columnas comerciales (precios mayoreo, SAT, peso, etc.)
- * NUNCA se incluyen aquí — solo las devuelve /api/admin/productos.
- */
 export interface ProductoDB {
   id: number;
   nombre: string;
   slug: string;
   descripcion: string;
+  /** Segunda descripción opcional (se muestra en banda oscura bajo el detalle). */
   descripcion2?: string | null;
   precio: number;
   imagen_url?: string | null;
@@ -24,7 +25,6 @@ export interface ProductoDB {
   categoria_slug: string;
   categoria_nombre: string;
   activo: number;
-  // Públicos nuevos (del catálogo CSV)
   marca?: string | null;
   unidad?: string | null;
 }
@@ -38,10 +38,15 @@ export interface CategoriaMaterialDB {
   slug: string;
   nombre: string;
   descripcion: string;
+  /** Array deserializado desde columna JSON de la BD. */
   marcas: MarcaDB[];
 }
 
-/** Columnas que el SELECT público incluye — nunca `*` */
+/**
+ * Columnas incluidas en los SELECTs públicos.
+ * Listar explícitamente en lugar de SELECT * protege contra
+ * que una futura columna sensible quede expuesta por accidente.
+ */
 const PUBLIC_COLS = `
   id, nombre, slug, descripcion, descripcion2,
   precio, imagen_url, seccion,
@@ -49,9 +54,17 @@ const PUBLIC_COLS = `
   marca, unidad
 `.trim();
 
-/* ── Concretos / Acabados / Ferretería ───────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   Concretos · Acabados (Textucos) · Ferretería
+   Todas comparten la tabla `productos` y se distinguen por
+   la columna `seccion`.
+   ══════════════════════════════════════════════════════════════ */
 
-/** Lista de categorías de una sección, en el orden de inserción original */
+/**
+ * Devuelve las categorías activas de una sección ordenadas
+ * por el primer producto insertado (MIN(id)), conservando
+ * el orden manual del catálogo original.
+ */
 export async function getCategorias(seccion: string): Promise<CategoriaDB[]> {
   const [rows]: any = await db.query(
     `SELECT categoria_slug AS slug, MAX(categoria_nombre) AS nombre
@@ -67,7 +80,10 @@ export async function getCategorias(seccion: string): Promise<CategoriaDB[]> {
   }));
 }
 
-/** Todos los productos de una categoría (solo campos públicos) */
+/**
+ * Todos los productos activos de una sección + categoría,
+ * ordenados por id para mantener el orden de carga del CSV.
+ */
 export async function getProductosPorCategoria(
   seccion: string,
   categoriaSlug: string
@@ -82,7 +98,11 @@ export async function getProductosPorCategoria(
   return rows;
 }
 
-/** Un producto por sección + categoría + slug (solo campos públicos) */
+/**
+ * Un único producto por su trío de identificadores.
+ * Devuelve null si no existe o está inactivo (activo = 0),
+ * lo que provoca un notFound() en la página que lo consume.
+ */
 export async function getProducto(
   seccion: string,
   categoriaSlug: string,
@@ -98,9 +118,17 @@ export async function getProducto(
   return (rows as any[])[0] ?? null;
 }
 
-/* ── Materiales ───────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   Materiales
+   Tabla separada: `materiales_categorias`.
+   Su PK es `slug` (texto), NO tiene columna `id`.
+   ══════════════════════════════════════════════════════════════ */
 
-/** Todas las categorías de materiales (con marcas JSON) */
+/**
+ * Todas las categorías de materiales activas.
+ * La columna `marcas` se almacena como JSON en la BD y se
+ * deserializa aquí para que los consumidores reciban un array.
+ */
 export async function getMaterialesCategorias(): Promise<CategoriaMaterialDB[]> {
   const [rows]: any = await db.query(
     `SELECT slug, nombre, descripcion, marcas
@@ -116,9 +144,15 @@ export async function getMaterialesCategorias(): Promise<CategoriaMaterialDB[]> 
   }));
 }
 
-/* ── Ferretería ───────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   Ferretería — funciones adicionales exclusivas de esta sección
+   (paginación, filtros por marca)
+   ══════════════════════════════════════════════════════════════ */
 
-/** Categorías de ferretería con conteo de productos activos */
+/**
+ * Categorías de ferretería ordenadas por volumen de productos
+ * (las más pobladas primero) para priorizar el catálogo principal.
+ */
 export async function getFerreteriaCategorias(): Promise<(CategoriaDB & { total: number })[]> {
   const [rows]: any = await db.query(
     `SELECT categoria_slug AS slug,
@@ -136,7 +170,10 @@ export async function getFerreteriaCategorias(): Promise<(CategoriaDB & { total:
   }));
 }
 
-/** Marcas únicas disponibles en ferretería, opcionalmente filtradas por categoría */
+/**
+ * Marcas únicas disponibles, opcionalmente filtradas por categoría.
+ * Se usa para poblar el filtro de marcas en el listado de ferretería.
+ */
 export async function getFerreteriaMarcas(categoriaSlug?: string): Promise<string[]> {
   const cond = categoriaSlug
     ? "seccion = 'ferreteria' AND activo = 1 AND categoria_slug = ? AND marca IS NOT NULL AND marca <> ''"
@@ -158,9 +195,10 @@ export interface FerreteriaPaginada {
 }
 
 /**
- * Productos de ferretería paginados.
- * Filtra opcionalmente por categoría y/o marca.
- * Ejecuta la query de datos y el COUNT en paralelo.
+ * Productos de ferretería paginados con filtros opcionales.
+ * Ejecuta la query de datos y el COUNT(*) en paralelo con Promise.all
+ * para reducir la latencia total a un solo round-trip.
+ * Límite máximo fijado a 60 para no saturar la respuesta JSON.
  */
 export async function getProductosFerreteria(opts: {
   categoriaSlug?: string;
@@ -204,7 +242,7 @@ export async function getProductosFerreteria(opts: {
   };
 }
 
-/** Una categoría de materiales por slug */
+/** Una categoría de materiales por slug. Devuelve null si no existe o está inactiva. */
 export async function getCategoriaMaterial(
   slug: string
 ): Promise<CategoriaMaterialDB | null> {
