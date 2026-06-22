@@ -30,6 +30,9 @@
   font-size: clamp(10px, 1.4vw, 16px);
   font-weight: 700;
   margin: 8px 0 6px;
+  text-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.9),
+    0 0 8px rgba(0, 0, 0, 0.7);
 }
 
 .switch p {
@@ -37,6 +40,9 @@
   text-align: justify;
   font-size: clamp(9px, 1vw, 13px);
   line-height: 1.55;
+  text-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.9),
+    0 0 8px rgba(0, 0, 0, 0.7);
 }
 
 .switch h1 {
