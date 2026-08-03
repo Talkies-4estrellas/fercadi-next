@@ -54,23 +54,19 @@ button:hover {
   background-color: var(--dorado);
 }
 
-/* --- NUEVAS REGLAS PARA EL COLOR DE LETRA EN FORMULARIOS --- */
-
-/* Cambia el color del texto de ayuda (placeholder) a blanco */
-input::placeholder {
-  color: rgba(255, 255, 255, 0.7) !important;
-  opacity: 1; /* Necesario para Firefox */
+/* --- COLOR DE TEXTO EN FORMULARIOS ---
+   Color oscuro por defecto para inputs sobre fondos claros.
+   Los formularios con fondo oscuro (login, admin sidebar) aplican
+   su propio color con mayor especificidad o inline style.
+*/
+input, textarea, select {
+  color: var(--azul-profundo);
 }
 
-/* Ajusta el campo de fecha para que el texto y el icono sean blancos */
-input[type="date"] {
-  color-scheme: dark;
-  color: white !important;
-}
-
-/* Asegura que cualquier input dentro de las tarjetas tenga texto blanco */
-input {
-  color: white !important;
+input::placeholder,
+textarea::placeholder {
+  color: rgba(1, 27, 79, 0.38);
+  opacity: 1;
 }
 
 /* --- MEDIA QUERIES --- */

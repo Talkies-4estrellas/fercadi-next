@@ -75,7 +75,7 @@ export default function Footer() {
       </div>
 
       <div className={styles.copy}>
-        <small>&copy; 2025 <b>Fercadi</b> — Todos los Derechos Reservados.</small>
+        <small>&copy; 2026 <b>Fercadi</b> — Todos los Derechos Reservados.</small>
       </div>
     </footer>
   )

@@ -63,9 +63,10 @@ export default function AuthPage() {
 
   return (
     <main style={{ display: 'flex', justifyContent: 'center', padding: '60px 20px', color: '#ffffff' }}>
-      <div className={styles.card} style={{ 
-        width: '100%', 
-        maxWidth: isLogin ? '450px' : '650px', 
+      <style>{`#loginWrap input::placeholder { color: rgba(255,255,255,0.45) !important; }`}</style>
+      <div id="loginWrap" className={styles.card} style={{
+        width: '100%',
+        maxWidth: isLogin ? '450px' : '650px',
         padding: '35px', 
         backgroundColor: '#001a3d', 
         borderRadius: '15px',
