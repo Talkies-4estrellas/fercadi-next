@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { requerirAdmin } from '@/lib/admin';
 
+
 /**
  * GET /api/admin/stats
  *
