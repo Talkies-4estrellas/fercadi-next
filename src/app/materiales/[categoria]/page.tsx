@@ -1,7 +1,6 @@
 export const dynamic = 'force-dynamic'
 
 ﻿import Link from 'next/link'
-import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { getCategoriaMaterial } from '@/lib/productos'
 import styles from '@/styles/product.module.css'
@@ -33,12 +32,13 @@ export default async function MaterialCategoriaPage({
         {cat.marcas.length > 0 ? (
           cat.marcas.map((marca) => (
             <div key={marca.nombre} className={styles.marcaCard}>
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src={marca.logo}
                 alt={marca.nombre}
                 width={160}
                 height={80}
-                style={{ objectFit: 'contain' }}
+                style={{ objectFit: 'contain', maxWidth: '100%' }}
               />
             </div>
           ))

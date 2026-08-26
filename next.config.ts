@@ -11,10 +11,9 @@ const nextConfig: NextConfig = {
   // - formats: WebP/AVIF para reducir bytes en producción.
   images: {
     remotePatterns: [
-      // Supabase Storage del proyecto
-      { protocol: 'https', hostname: 'hykrbwzmavpenprwqsqi.supabase.co' },
-      // Permitir cualquier subdominio de supabase.co por si cambia la URL del bucket
-      { protocol: 'https', hostname: '*.supabase.co' },
+      // Las imágenes de productos vienen de dominios externos variados (importadas
+      // desde CSV), por lo que se permite cualquier host HTTPS. HTTP queda bloqueado.
+      { protocol: 'https', hostname: '**' },
     ],
     formats: ['image/avif', 'image/webp'],
   },

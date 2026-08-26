@@ -25,7 +25,7 @@ export default async function TipsPage() {
 
         {tips.length === 0 ? (
           <div className={styles.vacio}>
-            <i className="fa-solid fa-lightbulb" />
+            <i className="fa-solid fa-lightbulb" aria-hidden="true" />
             <p>Próximamente nuevos tutoriales.</p>
           </div>
         ) : (
@@ -43,7 +43,7 @@ export default async function TipsPage() {
                     />
                   ) : (
                     <div className={styles.cardImgPlaceholder}>
-                      <i className="fa-solid fa-lightbulb" />
+                      <i className="fa-solid fa-lightbulb" aria-hidden="true" />
                     </div>
                   )}
                 </div>
@@ -53,7 +53,7 @@ export default async function TipsPage() {
                     <p className={styles.cardDesc}>{tip.descripcion}</p>
                   )}
                   <Link href={`/tips/${tip.slug}`} className={styles.cardBtn}>
-                    Leer tutorial <i className="fa-solid fa-arrow-right" />
+                    Leer tutorial <i className="fa-solid fa-arrow-right" aria-hidden="true" />
                   </Link>
                 </div>
               </article>

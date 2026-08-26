@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import ImageUploader from '@/components/admin/ImageUploader';
 import styles from '@/styles/admin.module.css';
 import sh from '@/styles/adminHome.module.css';
 
@@ -223,9 +224,14 @@ export default function AdminHomePage() {
             <div className={sh.slideFormGrid}>
               <div className={sh.slideFormLeft}>
                 <label className={sh.label}>Ruta de imagen *</label>
+                <ImageUploader
+                  carpeta="home"
+                  onUrl={(url) => setCurrentSlide({ imagen_url: url })}
+                />
                 <input
                   className={sh.input}
-                  placeholder="/images/1.png"
+                  style={{ marginTop: 8 }}
+                  placeholder="URL de imagen o pega una externa"
                   value={currentSlide.imagen_url}
                   onChange={e => setCurrentSlide({ imagen_url: e.target.value })}
                 />

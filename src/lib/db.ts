@@ -18,13 +18,26 @@ if (!process.env.DATABASE_URL) {
   throw new Error('[db] DATABASE_URL no está definida. Revisa .env.local o las variables de entorno en Vercel.');
 }
 
-const pool = new Pool({
+// En desarrollo, Turbopack recarga módulos en cada hot-reload y crearía un
+// nuevo Pool por cada cambio sin cerrar los anteriores, agotando las 15
+// conexiones del session-mode de Supabase. Guardamos el pool en `globalThis`
+// para reutilizarlo entre recargas.
+declare global {
+  // eslint-disable-next-line no-var
+  var __pgPool: Pool | undefined;
+}
+
+const pool: Pool = globalThis.__pgPool ?? new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },   // requerido por Supabase
+  ssl: { rejectUnauthorized: false },
   max: 10,
   idleTimeoutMillis: 30_000,
   connectionTimeoutMillis: 20_000,
 });
+
+if (process.env.NODE_ENV !== 'production') {
+  globalThis.__pgPool = pool;
+}
 
 // ── Helpers ──────────────────────────────────────────────────
 

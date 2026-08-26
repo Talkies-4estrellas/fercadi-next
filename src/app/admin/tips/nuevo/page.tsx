@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import ImageUploader from '@/components/admin/ImageUploader';
 import styles from '@/styles/admin.module.css';
 import tipStyles from '@/styles/adminTips.module.css';
 
@@ -239,10 +240,12 @@ export default function NuevoTipPage() {
           {/* Imagen */}
           <div className={tipStyles.sideCard}>
             <p className={tipStyles.sideCardTitulo}>Imagen de portada</p>
+            <ImageUploader carpeta="tips" onUrl={(url) => setImagen(url)} />
             <input
               type="text"
               className={styles.formInput}
-              placeholder="/productos/tips/nombre.jpg"
+              style={{ marginTop: 8 }}
+              placeholder="URL de imagen o pega una externa"
               value={imagen}
               onChange={(e) => setImagen(e.target.value)}
             />
@@ -252,9 +255,6 @@ export default function NuevoTipPage() {
                 <img src={imagen} alt="preview" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
               </div>
             )}
-            <p className={tipStyles.sideCardHint}>
-              Ruta relativa desde /public o URL externa.
-            </p>
           </div>
 
           {/* Error */}

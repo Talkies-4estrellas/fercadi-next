@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { resolverImagenProducto, construirRutaImagen } from '@/lib/imagen';
+import ImageUploader from '@/components/admin/ImageUploader';
 import styles from '@/styles/admin.module.css';
 
 export interface ProductoFormData {
@@ -48,6 +49,7 @@ interface ImagenItem {
   carpeta: string;
   ruta: string;
   nombre: string;
+  fuente?: 'local' | 'supabase';
 }
 
 const SECCIONES: ProductoFormData['seccion'][] = ['concretos', 'textucos', 'materiales', 'ferreteria'];
@@ -86,6 +88,7 @@ export default function ProductoForm({ inicial, modo }: Props) {
   const [imagenesLoading, setImagenesLoading] = useState(false);
   const [imagenesAbierto, setImagenesAbierto] = useState(false);
   const [filtroCarpeta, setFiltroCarpeta] = useState<string>('');
+
 
   // Auto-generar slug desde el nombre (solo en modo crear).
   useEffect(() => {
@@ -352,12 +355,16 @@ export default function ProductoForm({ inicial, modo }: Props) {
             />
 
             <div className={styles.imagenAcciones}>
+              <ImageUploader
+                carpeta={`productos/${form.seccion}/${form.categoria_slug || 'general'}`}
+                onUrl={(url) => { setForm((f) => ({ ...f, imagen_url: url })); setImagenes([]); }}
+              />
               <button
                 type="button"
                 className={styles.btnSecondary}
                 onClick={abrirSelectorImagenes}
               >
-                <i className="fa-solid fa-folder-open" /> Elegir de la galería
+                <i className="fa-solid fa-folder-open" aria-hidden="true" /> Galería
               </button>
               <button
                 type="button"

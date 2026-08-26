@@ -1,27 +1,19 @@
 import { NextResponse } from 'next/server';
 import { requerirAdmin } from '@/lib/admin';
+import { listFiles } from '@/lib/supabaseStorage';
 import fs from 'fs/promises';
 import path from 'path';
-
-/**
- * GET /api/admin/imagenes
- *   Devuelve un listado de todas las imágenes disponibles en
- *   public/productos/, agrupadas por carpeta. Las rutas vienen relativas
- *   (ej. "/productos/concretos/clase-a/fc150.png") listas para
- *   guardarse en la columna `imagen_url` de la tabla `productos`.
- *
- *   Sólo para administradores.
- */
 
 const EXTENSIONES = new Set(['.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg', '.avif']);
 
 interface NodoImagen {
   carpeta: string;
-  ruta: string;       // ruta lista para guardar en BD
-  nombre: string;     // sólo el nombre del archivo
+  ruta: string;
+  nombre: string;
+  fuente: 'local' | 'supabase';
 }
 
-async function listarImagenesRecursivo(
+async function listarLocales(
   raizAbsoluta: string,
   rutaRelativa: string,
   acumulador: NodoImagen[]
@@ -39,7 +31,7 @@ async function listarImagenesRecursivo(
     const subRelativa = path.posix.join(rutaRelativa, nombreEntrada);
 
     if (entrada.isDirectory()) {
-      await listarImagenesRecursivo(raizAbsoluta, subRelativa, acumulador);
+      await listarLocales(raizAbsoluta, subRelativa, acumulador);
     } else if (entrada.isFile()) {
       const ext = path.extname(nombreEntrada).toLowerCase();
       if (EXTENSIONES.has(ext)) {
@@ -47,6 +39,7 @@ async function listarImagenesRecursivo(
           carpeta: rutaRelativa || '/',
           ruta: `/productos${subRelativa.startsWith('/') ? '' : '/'}${subRelativa}`,
           nombre: nombreEntrada,
+          fuente: 'local',
         });
       }
     }
@@ -57,20 +50,27 @@ export async function GET(request: Request) {
   const auth = await requerirAdmin(request);
   if (!auth.ok) return auth.response;
 
-  const raiz = path.join(process.cwd(), 'public', 'productos');
   const imagenes: NodoImagen[] = [];
 
+  // 1. Imágenes locales en public/productos/
+  const raiz = path.join(process.cwd(), 'public', 'productos');
+  await listarLocales(raiz, '', imagenes);
+
+  // 2. Imágenes en Supabase Storage (si las variables de entorno están definidas)
   try {
-    await listarImagenesRecursivo(raiz, '', imagenes);
-  } catch (error: any) {
-    console.error('[GET /api/admin/imagenes]', error);
-    return NextResponse.json(
-      { ok: false, message: 'No se pudieron listar las imágenes', detalle: error?.message },
-      { status: 500 }
-    );
+    const storageItems = await listFiles('');
+    for (const item of storageItems) {
+      imagenes.push({
+        carpeta: item.carpeta,
+        ruta: item.ruta,
+        nombre: item.nombre,
+        fuente: 'supabase',
+      });
+    }
+  } catch {
+    // Si Supabase no está configurado, continuar solo con locales
   }
 
-  // Agrupar por carpeta
   const porCarpeta: Record<string, NodoImagen[]> = {};
   for (const img of imagenes) {
     const key = img.carpeta || '/';
