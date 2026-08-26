@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 import { resolverImagenProducto } from '@/lib/imagen';
 import styles from '@/styles/admin.module.css';
@@ -41,6 +40,11 @@ export default function AdminProductosPage() {
   const [total,     setTotal]     = useState(0);
   const [pages,     setPages]     = useState(1);
   const abortRef = useRef<AbortController | null>(null);
+
+  // ── Modal de confirmación de desactivar ─────────────────────────
+  const [modal, setModal] = useState<{ abierto: boolean; id: number; nombre: string }>({
+    abierto: false, id: 0, nombre: '',
+  });
 
   // ── Función central de carga ─────────────────────────────────
   const cargar = useCallback((p: number, sec: string, busq: string) => {
@@ -99,15 +103,22 @@ export default function AdminProductosPage() {
   };
 
   // Desactivar producto (soft delete)
-  const eliminar = async (id: number, nombre: string) => {
+  const confirmarEliminar = (id: number, nombre: string) => {
+    setModal({ abierto: true, id, nombre });
+  };
+
+  const ejecutarEliminar = async () => {
     if (!user) return;
-    if (!confirm(`¿Desactivar "${nombre}"?\nEl producto se marcará como inactivo (no se borra del histórico).`)) return;
+    const { id } = modal;
+    setModal((m) => ({ ...m, abierto: false }));
     const res = await fetch(`/api/admin/productos/${id}`, {
       method: 'DELETE',
       headers: { 'x-usuario-id': String(user.id) },
     });
     if (res.ok) {
-      cargar(page, seccion, qActivo);
+      // Quitar de la lista local inmediatamente
+      setProductos((prev) => prev.filter((p) => p.id !== id));
+      setTotal((t) => t - 1);
     } else {
       const err = await res.json().catch(() => ({}));
       alert('Error: ' + (err.message ?? 'no se pudo eliminar'));
@@ -191,7 +202,7 @@ export default function AdminProductosPage() {
                       <td>
                         {img ? (
                           <div className={styles.thumb}>
-                            <Image src={img} alt={p.nombre} fill sizes="48px" style={{ objectFit: 'cover' }} />
+                            <img src={img} alt={p.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                           </div>
                         ) : (
                           <div className={styles.thumbPlaceholder}>
@@ -222,7 +233,7 @@ export default function AdminProductosPage() {
                           <i className="fa-solid fa-pen" />
                         </Link>
                         <button
-                          onClick={() => eliminar(p.id, p.nombre)}
+                          onClick={() => confirmarEliminar(p.id, p.nombre)}
                           className={`${styles.btnIcono} ${styles.btnIconoDanger}`}
                           title="Desactivar"
                         >
@@ -263,6 +274,43 @@ export default function AdminProductosPage() {
             </div>
           )}
         </>
+      )}
+
+      {/* ── Modal de confirmación ── */}
+      {modal.abierto && (
+        <div className={styles.modalOverlay} onClick={() => setModal((m) => ({ ...m, abierto: false }))}>
+          <div className={styles.modal} style={{ maxWidth: 420 }} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h3><i className="fa-solid fa-triangle-exclamation" style={{ color: '#e74c3c', marginRight: 8 }} />Desactivar producto</h3>
+              <button className={styles.modalClose} onClick={() => setModal((m) => ({ ...m, abierto: false }))}>
+                <i className="fa-solid fa-xmark" />
+              </button>
+            </div>
+            <div style={{ padding: '20px 24px' }}>
+              <p style={{ marginBottom: 8 }}>
+                ¿Desactivar <strong>&ldquo;{modal.nombre}&rdquo;</strong>?
+              </p>
+              <p style={{ fontSize: '0.85rem', opacity: 0.65 }}>
+                El producto se marcará como inactivo. No se borra del histórico de pedidos.
+              </p>
+            </div>
+            <div style={{ padding: '0 24px 20px', display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+              <button
+                className={styles.btnSecondary}
+                onClick={() => setModal((m) => ({ ...m, abierto: false }))}
+              >
+                Cancelar
+              </button>
+              <button
+                className={styles.btnPrimary}
+                style={{ background: '#e74c3c', borderColor: '#e74c3c' }}
+                onClick={ejecutarEliminar}
+              >
+                <i className="fa-solid fa-trash-can" /> Desactivar
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );

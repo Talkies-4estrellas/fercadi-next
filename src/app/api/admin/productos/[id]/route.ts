@@ -89,7 +89,8 @@ export async function PUT(request: Request, ctx: { params: Params }) {
   for (const campo of camposActualizables) {
     if (body[campo] !== undefined) {
       sets.push(`${campo} = ?`);
-      params.push(campo === 'activo' ? (body[campo] ? 1 : 0) : body[campo]);
+      const esBool = campo === 'activo' || campo === 'alta_rotacion';
+      params.push(esBool ? (body[campo] ? 1 : 0) : body[campo]);
     }
   }
 

@@ -16,7 +16,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { navItems } from '@/data/navigation'
 import styles from '@/styles/header.module.css'
 import { useAuth } from '@/context/AuthContext'
@@ -26,8 +26,16 @@ import Buscador from '@/components/Buscador'
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null)
+  const [navConfig, setNavConfig] = useState<Record<string, boolean>>({})
   const { user, isAdmin, logout } = useAuth()
   const { itemCount, openCart } = useCart()
+
+  useEffect(() => {
+    fetch('/api/nav-config')
+      .then((r) => r.json())
+      .then((data) => { if (data.config) setNavConfig(data.config) })
+      .catch(() => {})
+  }, [])
 
   /** Cierra menú hamburguesa y cualquier submenú abierto al navegar. */
   const close = () => {
@@ -74,7 +82,7 @@ export default function Header() {
                 </Link>
               </li>
 
-              {navItems.map((item) => (
+              {navItems.filter((item) => navConfig[item.href] !== false).map((item) => (
                 <li
                   key={item.href}
                   className={`${styles.menuItem} ${openSubmenu === item.href ? styles.submenuActive : ''}`}

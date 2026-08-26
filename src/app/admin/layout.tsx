@@ -48,6 +48,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { href: '/admin/productos',   label: 'Productos',      icon: 'fa-solid fa-boxes-stacked'    },
     { href: '/admin/productos/nuevo', label: 'Nuevo producto', icon: 'fa-solid fa-plus'         },
     { href: '/admin/importar',    label: 'Importar CSV',   icon: 'fa-solid fa-file-arrow-up'    },
+    { href: '/admin/ajustes',     label: 'Ajustes',        icon: 'fa-solid fa-gear'             },
   ];
 
   return (

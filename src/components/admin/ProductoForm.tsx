@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -82,12 +82,26 @@ export default function ProductoForm({ inicial, modo }: Props) {
   const [form, setForm] = useState<ProductoFormData>(inicial ?? VACIO);
   const [estado, setEstado] = useState<'idle' | 'enviando' | 'ok' | 'error'>('idle');
   const [mensaje, setMensaje] = useState<string>('');
+  const [confirmarAbierto, setConfirmarAbierto] = useState(false);
 
   // Selector de imagen
   const [imagenes, setImagenes] = useState<ImagenItem[]>([]);
   const [imagenesLoading, setImagenesLoading] = useState(false);
   const [imagenesAbierto, setImagenesAbierto] = useState(false);
   const [filtroCarpeta, setFiltroCarpeta] = useState<string>('');
+
+  // Drag & drop / selección de imagen (preview local, upload al guardar)
+  const [arrastrandoImagen, setArrastrandoImagen] = useState(false);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [previewLocal, setPreviewLocal] = useState<string | null>(null);
+  const [errorSubida, setErrorSubida] = useState<string | null>(null);
+  const dragCounter = useRef(0);
+
+  // Limpiar el blob URL cuando cambia o al desmontar
+  useEffect(() => {
+    return () => { if (previewLocal) URL.revokeObjectURL(previewLocal); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [previewLocal]);
 
 
   // Auto-generar slug desde el nombre (solo en modo crear).
@@ -129,6 +143,33 @@ export default function ProductoForm({ inicial, modo }: Props) {
     setImagenesAbierto(false);
   };
 
+  /** Muestra preview inmediato y encola el archivo para subir al guardar */
+  const handleFileSelected = (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      setErrorSubida('Solo se permiten imágenes (JPG, PNG, WebP, etc.)');
+      return;
+    }
+    if (previewLocal) URL.revokeObjectURL(previewLocal);
+    setPreviewLocal(URL.createObjectURL(file));
+    setPendingFile(file);
+    setErrorSubida(null);
+  };
+
+  // dragCounter evita que handleDragLeave se dispare al pasar sobre elementos hijos
+  const handleDragEnter = (e: React.DragEvent) => { e.preventDefault(); dragCounter.current++; setArrastrandoImagen(true); };
+  const handleDragOver  = (e: React.DragEvent) => { e.preventDefault(); };
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    if (--dragCounter.current <= 0) { dragCounter.current = 0; setArrastrandoImagen(false); }
+  };
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    dragCounter.current = 0;
+    setArrastrandoImagen(false);
+    const file = e.dataTransfer.files[0];
+    if (file) handleFileSelected(file);
+  };
+
   const sugerirRutaImagen = () => {
     if (!form.seccion || !form.categoria_slug || !form.slug) return;
     const candidata = construirRutaImagen(form.seccion, form.categoria_slug, `${form.slug}.png`);
@@ -144,27 +185,59 @@ export default function ProductoForm({ inicial, modo }: Props) {
     ? imagenes.filter((i) => i.carpeta === filtroCarpeta)
     : imagenes;
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    setConfirmarAbierto(true);
+  };
 
+  const guardarConfirmado = async () => {
+    if (!user) return;
+    setConfirmarAbierto(false);
     setEstado('enviando');
     setMensaje('');
 
-    const url =
-      modo === 'crear'
-        ? '/api/admin/productos'
-        : `/api/admin/productos/${form.id}`;
+    // 1. Si hay imagen pendiente, subirla primero
+    let imagenUrl = form.imagen_url;
+    if (pendingFile) {
+      try {
+        setMensaje('Subiendo imagen…');
+        const carpeta = `productos/${form.seccion}/${form.categoria_slug || 'general'}`;
+        const fd = new FormData();
+        fd.append('file', pendingFile);
+        fd.append('path', `${carpeta}/${pendingFile.name.toLowerCase().replace(/\s+/g, '-')}`);
+        const upRes = await fetch('/api/admin/upload', {
+          method: 'POST',
+          headers: { 'x-usuario-id': String(user.id) },
+          body: fd,
+        });
+        const upData = await upRes.json();
+        if (upData.ok) {
+          imagenUrl = upData.url;
+          setPendingFile(null);
+          if (previewLocal) { URL.revokeObjectURL(previewLocal); setPreviewLocal(null); }
+          setForm((f) => ({ ...f, imagen_url: imagenUrl ?? f.imagen_url }));
+        } else {
+          setEstado('error');
+          setMensaje(`Error al subir imagen: ${upData.error ?? 'intenta de nuevo'}`);
+          return;
+        }
+      } catch (err: any) {
+        setEstado('error');
+        setMensaje(`Error al subir imagen: ${err?.message ?? 'error de red'}`);
+        return;
+      }
+    }
+
+    // 2. Guardar producto
+    setMensaje('');
+    const url = modo === 'crear' ? '/api/admin/productos' : `/api/admin/productos/${form.id}`;
     const method = modo === 'crear' ? 'POST' : 'PUT';
 
     try {
       const res = await fetch(url, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-          'x-usuario-id': String(user.id),
-        },
-        body: JSON.stringify(form),
+        headers: { 'Content-Type': 'application/json', 'x-usuario-id': String(user.id) },
+        body: JSON.stringify({ ...form, imagen_url: imagenUrl }),
       });
       const data = await res.json();
       if (res.ok && data.ok) {
@@ -173,7 +246,8 @@ export default function ProductoForm({ inicial, modo }: Props) {
         setTimeout(() => router.push('/admin/productos'), 800);
       } else {
         setEstado('error');
-        setMensaje(data.message ?? 'No se pudo guardar.');
+        const detalle = data.detalle ? ` — ${data.detalle}` : '';
+        setMensaje((data.message ?? 'No se pudo guardar.') + detalle);
       }
     } catch (err: any) {
       setEstado('error');
@@ -181,7 +255,8 @@ export default function ProductoForm({ inicial, modo }: Props) {
     }
   };
 
-  const imagenPrevia = resolverImagenProducto(form.imagen_url ?? undefined);
+  // Blob URL local tiene prioridad; si no, usa la URL guardada en DB
+  const imagenPrevia = previewLocal ?? resolverImagenProducto(form.imagen_url ?? undefined);
 
   return (
     <form onSubmit={handleSubmit} className={styles.form}>
@@ -327,38 +402,45 @@ export default function ProductoForm({ inicial, modo }: Props) {
 
         {/* ── Columna derecha: imagen ── */}
         <div className={styles.formCol}>
-          <label className={styles.formLabel}>Imagen del producto</label>
-          <div className={styles.imagenPanel}>
+          <label className={styles.formLabel}>
+            Imagen del producto
+            {pendingFile && (
+              <span style={{ marginLeft: 8, fontSize: '0.75rem', color: '#b45309', fontWeight: 600 }}>
+                <i className="fa-solid fa-circle-dot" style={{ fontSize: '0.6rem', color: '#f59e0b' }} /> pendiente de subir
+              </span>
+            )}
+          </label>
+          <div
+            className={`${styles.imagenPanel} ${arrastrandoImagen ? styles.imagenPanelArrastrando : ''}`}
+            onDragEnter={handleDragEnter}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
+            {arrastrandoImagen && (
+              <div className={styles.dropOverlay}>
+                <i className="fa-solid fa-cloud-arrow-up" /> Suelta para agregar
+              </div>
+            )}
             {imagenPrevia ? (
               <div className={styles.imagenPreview}>
-                <Image
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
                   src={imagenPrevia}
                   alt={form.nombre || 'Vista previa'}
-                  fill
-                  sizes="300px"
-                  style={{ objectFit: 'contain' }}
+                  style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
                 />
               </div>
             ) : (
               <div className={styles.imagenPlaceholder}>
                 <i className="fa-regular fa-image" />
-                <span>Sin imagen seleccionada</span>
+                <span>Sin imagen</span>
+                <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>Arrastra aquí o usa los botones</span>
               </div>
             )}
 
-            <input
-              type="text"
-              value={form.imagen_url ?? ''}
-              onChange={(e) => handleChange('imagen_url', e.target.value)}
-              placeholder="/productos/{seccion}/{categoria}/archivo.png"
-              className={styles.formInput}
-            />
-
             <div className={styles.imagenAcciones}>
-              <ImageUploader
-                carpeta={`productos/${form.seccion}/${form.categoria_slug || 'general'}`}
-                onUrl={(url) => { setForm((f) => ({ ...f, imagen_url: url })); setImagenes([]); }}
-              />
+              <ImageUploader onFile={handleFileSelected} />
               <button
                 type="button"
                 className={styles.btnSecondary}
@@ -375,6 +457,11 @@ export default function ProductoForm({ inicial, modo }: Props) {
                 Sugerir ruta
               </button>
             </div>
+            {errorSubida && (
+              <p style={{ color: '#c00', fontSize: '0.8rem', margin: '4px 0 0' }}>
+                <i className="fa-solid fa-triangle-exclamation" /> {errorSubida}
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -570,6 +657,60 @@ export default function ProductoForm({ inicial, modo }: Props) {
           )}
         </button>
       </div>
+
+      {/* ── Modal de confirmación ── */}
+      {confirmarAbierto && (
+        <div className={styles.modalOverlay} onClick={() => setConfirmarAbierto(false)}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h3>
+                <i className="fa-solid fa-triangle-exclamation" style={{ color: 'var(--dorado)', marginRight: 8 }} />
+                {modo === 'crear' ? 'Confirmar creación' : 'Confirmar cambios'}
+              </h3>
+              <button
+                type="button"
+                className={styles.modalClose}
+                onClick={() => setConfirmarAbierto(false)}
+                aria-label="Cerrar"
+              >
+                <i className="fa-solid fa-xmark" />
+              </button>
+            </div>
+            <div style={{ padding: '16px 20px' }}>
+              {modo === 'crear' ? (
+                <p style={{ color: '#334' }}>
+                  ¿Crear el producto <strong>{form.nombre || 'sin nombre'}</strong> en la sección <strong>{form.seccion}</strong>?
+                </p>
+              ) : (
+                <>
+                  <p style={{ color: '#334', marginBottom: 12 }}>
+                    ¿Guardar los cambios del producto?
+                  </p>
+                  <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 6, fontSize: '0.88rem', color: '#445' }}>
+                    <li><i className="fa-solid fa-tag" style={{ width: 18, color: 'var(--azul-profundo)' }} /> <strong>{form.nombre}</strong></li>
+                    <li><i className="fa-solid fa-layer-group" style={{ width: 18, color: 'var(--azul-profundo)' }} /> {form.seccion} › {form.categoria_nombre}</li>
+                    {form.imagen_url && (
+                      <li><i className="fa-solid fa-image" style={{ width: 18, color: 'var(--azul-profundo)' }} /> Imagen actualizada</li>
+                    )}
+                    <li>
+                      <i className={`fa-solid ${form.activo ? 'fa-eye' : 'fa-eye-slash'}`} style={{ width: 18, color: form.activo ? '#1a8a3f' : '#c0392b' }} />
+                      {' '}{form.activo ? 'Visible en el sitio' : 'Oculto del sitio'}
+                    </li>
+                  </ul>
+                </>
+              )}
+            </div>
+            <div className={styles.formActions} style={{ padding: '0 20px 20px' }}>
+              <button type="button" className={styles.btnSecondary} onClick={() => setConfirmarAbierto(false)}>
+                Cancelar
+              </button>
+              <button type="button" className={styles.btnPrimary} onClick={guardarConfirmado}>
+                <i className="fa-solid fa-check" /> Confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </form>
   );
 }

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import sharp from 'sharp';
 import { requerirAdmin } from '@/lib/admin';
 import { uploadFile } from '@/lib/supabaseStorage';
 
@@ -46,8 +47,13 @@ export async function POST(request: Request) {
       storagePath = `${seccion}/${categoria}/${nombre}`;
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const url = await uploadFile(storagePath, buffer, file.type || 'image/webp');
+    const raw = Buffer.from(await file.arrayBuffer());
+    // Convertir siempre a WebP para consistencia y menor tamaño
+    const webp = await sharp(raw).webp({ quality: 85 }).toBuffer();
+    // Forzar extensión .webp en la ruta
+    storagePath = storagePath.replace(/\.[^/.]+$/, '.webp');
+
+    const url = await uploadFile(storagePath, webp, 'image/webp');
 
     return NextResponse.json({ ok: true, url, path: storagePath });
   } catch (err: any) {

@@ -45,7 +45,6 @@ export const navItems: NavItem[] = [
       { label: 'Selladores', href: '/textucos/selladores' },
       { label: 'Especializados', href: '/textucos/especializados' },
       { label: 'Pinturas', href: '/textucos/pinturas' },
-      { label: 'Servicios', href: '/textucos/servicios' },
     ],
   },
   {

@@ -613,12 +613,39 @@ textarea.formInput {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  position: relative;
+}
+
+.imagenPanelArrastrando .imagenPreview,
+.imagenPanelArrastrando .imagenPlaceholder {
+  border-color: var(--dorado, #f59e0b);
+  border-style: solid;
+  border-width: 2px;
+}
+
+.dropOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background: rgba(1, 27, 79, 0.72);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.dropOverlay i {
+  font-size: 2.4rem;
 }
 
 .imagenPreview, .imagenPlaceholder {
-  position: relative;
   width: 100%;
-  aspect-ratio: 1;
   border-radius: 10px;
   background: #f0f3f8;
   border: 1px dashed rgba(1, 27, 79, 0.2);
@@ -626,6 +653,7 @@ textarea.formInput {
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 160px;
 }
 
 .imagenPlaceholder {
