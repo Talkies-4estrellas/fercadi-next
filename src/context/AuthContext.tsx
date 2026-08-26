@@ -56,8 +56,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('fercadi_user');
-    // Borrar cookies de sesión para que el middleware de servidor las invalide.
-    document.cookie = 'fercadi_session=; Max-Age=0; path=/';
+    // Llamar al servidor para que borre la cookie httpOnly fercadi_session
+    // (document.cookie no puede tocar cookies httpOnly desde el cliente).
+    fetch('/api/logout', { method: 'POST' }).catch(() => {});
+    // La cookie fercadi_rol no es httpOnly, se puede borrar desde JS.
     document.cookie = 'fercadi_rol=; Max-Age=0; path=/';
   };
 

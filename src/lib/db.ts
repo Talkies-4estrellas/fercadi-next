@@ -14,6 +14,10 @@
 import { Pool, PoolClient } from 'pg';
 
 // ── Pool global ──────────────────────────────────────────────
+if (!process.env.DATABASE_URL) {
+  throw new Error('[db] DATABASE_URL no está definida. Revisa .env.local o las variables de entorno en Vercel.');
+}
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },   // requerido por Supabase

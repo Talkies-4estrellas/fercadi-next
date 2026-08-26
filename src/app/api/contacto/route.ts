@@ -12,8 +12,7 @@ export async function POST(req: Request) {
     const apiKey = process.env.RESEND_API_KEY
 
     if (!apiKey) {
-      // En desarrollo sin API key, simular éxito
-      console.log('Formulario recibido (sin RESEND_API_KEY):', { nombre, email, mensaje })
+      console.warn('[contacto] RESEND_API_KEY no definida — correo no enviado')
       return NextResponse.json({ ok: true })
     }
 

@@ -11,7 +11,7 @@ export async function POST(req: Request) {
     const apiKey = process.env.RESEND_API_KEY
 
     if (!apiKey) {
-      console.log('Cotización recibida (sin RESEND_API_KEY):', { nombre, telefono, email, producto, cantidad, descripcion })
+      console.warn('[cotizacion] RESEND_API_KEY no definida — correo no enviado')
       return NextResponse.json({ ok: true })
     }
 
