@@ -225,8 +225,19 @@ export default function AdminHomePage() {
               <div className={sh.slideFormLeft}>
                 <label className={sh.label}>Ruta de imagen *</label>
                 <ImageUploader
-                  carpeta="home"
-                  onUrl={(url) => setCurrentSlide({ imagen_url: url })}
+                  onFile={async (file) => {
+                    if (!user) return;
+                    const fd = new FormData();
+                    fd.append('file', file);
+                    fd.append('path', `home/${file.name.toLowerCase().replace(/\s+/g, '-')}`);
+                    const r = await fetch('/api/admin/upload', {
+                      method: 'POST',
+                      headers: { 'x-usuario-id': String(user.id) },
+                      body: fd,
+                    });
+                    const data = await r.json();
+                    if (data.ok) setCurrentSlide({ imagen_url: data.url });
+                  }}
                 />
                 <input
                   className={sh.input}

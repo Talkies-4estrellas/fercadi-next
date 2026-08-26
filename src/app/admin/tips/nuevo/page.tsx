@@ -240,7 +240,21 @@ export default function NuevoTipPage() {
           {/* Imagen */}
           <div className={tipStyles.sideCard}>
             <p className={tipStyles.sideCardTitulo}>Imagen de portada</p>
-            <ImageUploader carpeta="tips" onUrl={(url) => setImagen(url)} />
+            <ImageUploader
+                  onFile={async (file) => {
+                    if (!user) return;
+                    const fd = new FormData();
+                    fd.append('file', file);
+                    fd.append('path', `tips/${file.name.toLowerCase().replace(/\s+/g, '-')}`);
+                    const r = await fetch('/api/admin/upload', {
+                      method: 'POST',
+                      headers: { 'x-usuario-id': String(user.id) },
+                      body: fd,
+                    });
+                    const data = await r.json();
+                    if (data.ok) setImagen(data.url);
+                  }}
+                />
             <input
               type="text"
               className={styles.formInput}
