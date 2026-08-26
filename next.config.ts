@@ -10,10 +10,11 @@ const nextConfig: NextConfig = {
   //   nuevo cada vez que la BD empiece a guardar URLs absolutas de un nuevo CDN.
   // - formats: WebP/AVIF para reducir bytes en producción.
   images: {
-    // Acepta imágenes de cualquier dominio externo (Supabase Storage, CDNs, etc.)
     remotePatterns: [
-      { protocol: 'https', hostname: '**' },
-      { protocol: 'http',  hostname: '**' },
+      // Supabase Storage del proyecto
+      { protocol: 'https', hostname: 'hykrbwzmavpenprwqsqi.supabase.co' },
+      // Permitir cualquier subdominio de supabase.co por si cambia la URL del bucket
+      { protocol: 'https', hostname: '*.supabase.co' },
     ],
     formats: ['image/avif', 'image/webp'],
   },

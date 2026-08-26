@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { getProductosPorCategoria } from '@/lib/productos'
 import styles from '@/styles/product.module.css'
+import ColorPicker from '@/components/ColorPicker'
 
 export const metadata = { title: 'Pinturas - FERCADI' }
 
@@ -38,6 +39,7 @@ export default async function Page() {
           </div>
         ))}
       </div>
+      <ColorPicker />
     </>
   )
 }

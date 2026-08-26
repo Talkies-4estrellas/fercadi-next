@@ -22,6 +22,7 @@ export default async function ConcretosPage() {
             <div className={styles.azul}>
               <h3>{(cat.nombre ?? cat.slug).toUpperCase()}</h3>
             </div>
+            <img src={`/categorias/concretos/${cat.slug}.png`} alt={cat.nombre ?? cat.slug} />
             <div className={styles.verBtn}>Ver productos</div>
           </Link>
         ))}

@@ -9,6 +9,10 @@ import { seedDatabase } from '@/lib/seed';
  * Uso: abrir en el navegador → http://localhost:3000/api/admin/seed
  */
 export async function GET() {
+  if (process.env.NODE_ENV !== 'development') {
+    return NextResponse.json({ ok: false, error: 'Solo disponible en desarrollo.' }, { status: 403 });
+  }
+
   const result = await seedDatabase();
 
   if (result.ok) {

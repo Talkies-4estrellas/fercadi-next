@@ -35,17 +35,36 @@ export async function POST(request: Request) {
     }
 
     // 4. Respuesta exitosa
-    // Devolvemos el rol además del nombre para que el frontend pueda
-    // mostrar/ocultar opciones reservadas al admin (entrada /admin, etc.).
-    return NextResponse.json({
+    const rol = usuario.rol ?? 'usuario'
+    const res = NextResponse.json({
       message: 'Inicio de sesión exitoso',
       user: {
         id: usuario.id,
         nombre: usuario.nombre,
         correo: usuario.correo,
-        rol: usuario.rol ?? 'usuario',
+        rol,
       }
     }, { status: 200 });
+
+    // Cookie de sesión para que el middleware pueda proteger /admin/* en el servidor.
+    // httpOnly impide que JS del cliente la lea; secure la envía solo por HTTPS en prod.
+    res.cookies.set('fercadi_session', String(usuario.id), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7, // 7 días
+    });
+    // Cookie legible por el cliente para saber si tiene acceso a /admin.
+    res.cookies.set('fercadi_rol', rol, {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7,
+    });
+
+    return res;
 
   } catch (error) {
     console.error('Login Error:', error);

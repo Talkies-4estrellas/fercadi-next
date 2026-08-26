@@ -160,9 +160,67 @@ export default function ColorPicker() {
       )
     : colores
 
+  const wallColor = colorSeleccionado?.hex ?? '#e2dcd5'
+
   return (
     <div className={styles.wrapper}>
       <h2 className={styles.titulo}>Elige tu color</h2>
+
+      {/* ── Preview de habitación ── */}
+      <div className={styles.muruWrap}>
+        <svg className={styles.muruSvg} viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg">
+          {/* Techo */}
+          <rect x="0" y="0" width="700" height="30" fill="#f2f0ee"/>
+          <rect x="0" y="28" width="700" height="4" fill="#e0dbd4"/>
+          {/* Pared principal */}
+          <rect x="0" y="32" width="700" height="198" fill={wallColor} style={{ transition: 'fill 0.35s ease' }}/>
+          {/* Rodapié */}
+          <rect x="0" y="224" width="700" height="10" fill="#ddd8cc"/>
+          {/* Piso */}
+          <rect x="0" y="234" width="700" height="26" fill="#c4a97a"/>
+          <line x1="0"   y1="245" x2="700" y2="245" stroke="#b89560" strokeWidth="1" strokeOpacity="0.4"/>
+          <line x1="140" y1="234" x2="140" y2="260" stroke="#b89560" strokeWidth="1" strokeOpacity="0.4"/>
+          <line x1="280" y1="234" x2="280" y2="260" stroke="#b89560" strokeWidth="1" strokeOpacity="0.4"/>
+          <line x1="420" y1="234" x2="420" y2="260" stroke="#b89560" strokeWidth="1" strokeOpacity="0.4"/>
+          <line x1="560" y1="234" x2="560" y2="260" stroke="#b89560" strokeWidth="1" strokeOpacity="0.4"/>
+          {/* Ventana */}
+          <rect x="80" y="65" width="165" height="120" rx="2" fill="none" stroke="#c0b8a8" strokeWidth="5"/>
+          <rect x="83" y="68" width="159" height="114" rx="1" fill="#cce8f4" fillOpacity="0.6"/>
+          <rect x="83" y="68" width="159" height="114" rx="1" fill="url(#windowLight)" fillOpacity="0.5"/>
+          <line x1="163" y1="68" x2="163" y2="182" stroke="#c0b8a8" strokeWidth="3"/>
+          <line x1="83"  y1="125" x2="242" y2="125" stroke="#c0b8a8" strokeWidth="3"/>
+          <rect x="76" y="60" width="173" height="12" rx="3" fill="#ddd8cc"/>
+          <rect x="76" y="182" width="173" height="8"  rx="2" fill="rgba(0,0,0,0.06)"/>
+          {/* Puerta */}
+          <rect x="475" y="90" width="130" height="144" rx="2" fill="none" stroke="#c0a880" strokeWidth="5"/>
+          <rect x="478" y="93" width="124" height="138" rx="1" fill="#c8a870" fillOpacity="0.45"/>
+          <rect x="490" y="108" width="45" height="60" rx="2" fill="rgba(0,0,0,0.06)"/>
+          <rect x="553" y="108" width="38" height="60" rx="2" fill="rgba(0,0,0,0.06)"/>
+          <circle cx="508" cy="165" r="7" fill="#c8a040"/>
+          <circle cx="508" cy="165" r="4" fill="#b89030"/>
+          <rect x="468" y="83" width="149" height="14" rx="3" fill="#ddd8cc"/>
+          {/* Cuadro decorativo */}
+          <rect x="310" y="75" width="110" height="80" rx="3" fill="rgba(0,0,0,0.07)" stroke="#c8c0b0" strokeWidth="2"/>
+          <rect x="316" y="81" width="98"  height="68" rx="2" fill="rgba(255,255,255,0.35)"/>
+          <defs>
+            <linearGradient id="windowLight" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="white" stopOpacity="0.5"/>
+              <stop offset="100%" stopColor="white" stopOpacity="0"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        {colorSeleccionado ? (
+          <div className={styles.muruInfo}>
+            <div className={styles.muruChip} style={{ backgroundColor: colorSeleccionado.hex }}/>
+            <div>
+              <p className={styles.muruNombre}>{colorSeleccionado.nombre}</p>
+              <p className={styles.muruHex}>{colorSeleccionado.hex.toUpperCase()}</p>
+            </div>
+          </div>
+        ) : (
+          <div className={styles.muruHint}>Selecciona un color para visualizarlo</div>
+        )}
+      </div>
 
       <div className={styles.layout}>
         {/* Panel izquierdo */}

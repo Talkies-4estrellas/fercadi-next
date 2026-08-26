@@ -56,6 +56,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('fercadi_user');
+    // Borrar cookies de sesión para que el middleware de servidor las invalide.
+    document.cookie = 'fercadi_session=; Max-Age=0; path=/';
+    document.cookie = 'fercadi_rol=; Max-Age=0; path=/';
   };
 
   const isAdmin = user?.rol === 'admin';
