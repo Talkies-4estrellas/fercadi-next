@@ -27,6 +27,7 @@ export const navItems: NavItem[] = [
     label: 'Concretos',
     href: '/concretos',
     submenu: [
+      { label: 'Calculadora de Volumen', href: '/concretos' },
       { label: 'Agregados', href: '/concretos/agregados' },
       { label: 'Concretos Clase A', href: '/concretos/clase-a' },
       { label: 'Concretos MR', href: '/concretos/mr' },
