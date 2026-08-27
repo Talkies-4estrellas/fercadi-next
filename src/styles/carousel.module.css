@@ -108,11 +108,8 @@
   }
 
   .slideImg {
+    width: 100%;
     height: auto;
-    max-height: none;
-    object-fit: contain;
-    object-position: center;
-    background: #000;
   }
 
   /* En móvil los dots salen de absolute para ir debajo de la imagen */
