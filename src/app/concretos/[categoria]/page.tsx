@@ -24,7 +24,7 @@ export default async function CategoriaPage({ params }: { params: Promise<{ cate
         <Link href="/">Inicio</Link> / <Link href="/concretos">Concretos</Link> / {categoriaNombre}
       </div>
       <div className={styles.general}>
-        {productos.map((producto) => (
+        {productos.map((producto, idx) => (
           <Link key={producto.slug} href={`/concretos/${categoria}/${producto.slug}`} className={styles.cuadro}>
             <div className={styles.azul}>
               <h3>{producto.nombre.toUpperCase()}</h3>
@@ -36,6 +36,7 @@ export default async function CategoriaPage({ params }: { params: Promise<{ cate
                 width={280}
                 height={180}
                 style={{ objectFit: 'cover' }}
+                priority={idx < 4}
               />
             )}
             <div className={styles.verBtn}>Ver</div>

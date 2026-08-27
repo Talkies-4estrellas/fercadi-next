@@ -113,7 +113,7 @@ export default async function FerreteriaCategPage({
           ) : (
             <>
               <div className={styles.productosGrid}>
-                {paginada.productos.map((p) => {
+                {paginada.productos.map((p, idx) => {
                   const img = resolverImagenProducto(p.imagen_url ?? undefined);
                   return (
                     <Link
@@ -130,6 +130,7 @@ export default async function FerreteriaCategPage({
                             fill
                             sizes="(max-width: 480px) 50vw, (max-width: 900px) 33vw, 220px"
                             style={{ objectFit: 'contain', padding: '8px' }}
+                            priority={idx < 4}
                           />
                         </div>
                       ) : (
