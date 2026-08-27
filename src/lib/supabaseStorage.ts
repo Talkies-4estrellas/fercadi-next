@@ -32,7 +32,7 @@ export function publicUrl(path: string): string {
  */
 export async function uploadFile(
   path: string,
-  body: Uint8Array | Blob,
+  body: ArrayBuffer | Blob,
   contentType: string
 ): Promise<string> {
   if (!SUPABASE_URL || !SERVICE_KEY) {
@@ -41,9 +41,6 @@ export async function uploadFile(
 
   const url = `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${path}`;
 
-  // Blob es siempre BodyInit válido en cualquier entorno TypeScript/Edge
-  const blob = body instanceof Blob ? body : new Blob([body], { type: contentType });
-
   const res = await fetch(url, {
     method: 'POST',
     headers: {
@@ -51,7 +48,7 @@ export async function uploadFile(
       'Content-Type': contentType,
       'x-upsert': 'true', // sobreescribir si ya existe
     },
-    body: blob,
+    body,
   });
 
   if (!res.ok) {

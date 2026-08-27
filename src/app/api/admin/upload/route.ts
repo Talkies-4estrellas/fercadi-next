@@ -48,8 +48,14 @@ export async function POST(request: Request) {
     }
 
     const raw = await file.arrayBuffer();
-    // Convertir siempre a WebP para consistencia y menor tamaño
-    const webp = new Uint8Array(await sharp(Buffer.from(raw)).webp({ quality: 85 }).toBuffer());
+    // Convertir siempre a WebP para consistencia y menor tamaño.
+    // sharp devuelve Buffer (Uint8Array<ArrayBufferLike>); extraemos un
+    // ArrayBuffer real para que TypeScript lo acepte como BodyInit en fetch.
+    const sharpBuf = await sharp(Buffer.from(raw)).webp({ quality: 85 }).toBuffer();
+    const webp = sharpBuf.buffer.slice(
+      sharpBuf.byteOffset,
+      sharpBuf.byteOffset + sharpBuf.byteLength
+    ) as ArrayBuffer;
     // Forzar extensión .webp en la ruta
     storagePath = storagePath.replace(/\.[^/.]+$/, '.webp');
 
