@@ -1,0 +1,8 @@
+Usuario administrador:
+Correo: admin.test@fercadi.com
+Contraseña: Admin1234!
+
+
+Usuario normal:
+Correo: user.test@fercadi.com
+Contraseña: User1234!
