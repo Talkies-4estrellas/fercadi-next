@@ -427,3 +427,60 @@
     padding: 36px 24px;
   }
 }
+
+@media screen and (max-width: 640px) {
+  /* Grid de productos: 2 columnas en móvil */
+  .general {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    padding: 20px 16px;
+    justify-items: center;
+  }
+
+  .cuadroBlanco {
+    width: 100%;
+  }
+
+  .cuadroBlanco img,
+  .cuadroBlanco :global(img) {
+    height: 160px;
+  }
+
+  /* Breadcrumb y texto con padding reducido */
+  .breadcrumb {
+    padding: 10px 16px;
+  }
+
+  .texto1 {
+    padding: 16px;
+    font-size: 0.9rem;
+  }
+
+  .texto2 {
+    padding: 0 16px 24px;
+    font-size: 0.9rem;
+  }
+
+  /* Detalle producto */
+  .detalle {
+    padding: 20px 16px 32px;
+  }
+
+  .detalleAcciones {
+    padding-left: 0;
+  }
+
+  .detalleDesc {
+    padding-left: 0;
+  }
+
+  .detalleTitulo {
+    font-size: 1.5rem;
+    padding-left: 14px;
+  }
+
+  .detalleSec {
+    padding: 28px 16px;
+  }
+}

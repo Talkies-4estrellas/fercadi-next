@@ -1,7 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import Image from 'next/image'
+import { useState, useEffect, useRef } from 'react'
 import styles from '@/styles/carousel.module.css'
 import type { CarouselSlide } from '@/lib/homeContent'
 
@@ -11,6 +10,7 @@ interface Props {
 
 export default function Carousel({ slides }: Props) {
   const [current, setCurrent] = useState(0)
+  const touchStartX = useRef<number | null>(null)
 
   useEffect(() => {
     if (slides.length === 0) return;
@@ -20,10 +20,29 @@ export default function Carousel({ slides }: Props) {
     return () => clearInterval(interval)
   }, [slides.length])
 
+  const prev = () => setCurrent(c => (c - 1 + slides.length) % slides.length)
+  const next = () => setCurrent(c => (c + 1) % slides.length)
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX
+  }
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return
+    const delta = e.changedTouches[0].clientX - touchStartX.current
+    if (delta > 50) prev()
+    else if (delta < -50) next()
+    touchStartX.current = null
+  }
+
   if (slides.length === 0) return null;
 
   return (
-    <div className={styles.slider}>
+    <div
+      className={styles.slider}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
       <div
         className={styles.slides}
         style={{
@@ -37,13 +56,12 @@ export default function Carousel({ slides }: Props) {
             className={styles.slide}
             style={{ width: `${100 / slides.length}%` }}
           >
-            <Image
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src={slide.imagen_url}
               alt={slide.alt || ''}
-              width={500}
-              height={700}
-              style={{ width: '100%', height: 'auto' }}
-              priority={idx === 0}
+              className={styles.slideImg}
+              loading={idx === 0 ? 'eager' : 'lazy'}
             />
             {(slide.titulo || slide.descripcion || slide.slogan) && (
               <div className={styles.switch}>

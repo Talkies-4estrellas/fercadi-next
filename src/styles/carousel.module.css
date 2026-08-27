@@ -16,6 +16,12 @@
   position: relative;
 }
 
+.slideImg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
 .switch {
   position: absolute;
   inset: 0;
@@ -91,8 +97,39 @@
   display: none;
 }
 
-/* ── Mobile: texto overlay legible ──────────────────────────────────────── */
+/* ── Mobile ──────────────────────────────────────────────────────────────── */
 @media screen and (max-width: 640px) {
+  .slide {
+    overflow: hidden;
+  }
+
+  .slideImg {
+    max-height: 68vw;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  /* En móvil los dots salen de absolute para ir debajo de la imagen */
+  .navigationAuto {
+    position: static;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px 0 4px;
+  }
+
+  .navigationAuto div {
+    width: 12px;
+    height: 12px;
+    background: rgba(1, 27, 79, 0.25);
+    border-color: var(--azul-profundo);
+  }
+
+  .navigationAuto div.active {
+    background: var(--dorado);
+    border-color: var(--dorado);
+  }
+
   .switch {
     padding: 8px 10px;
   }
@@ -109,6 +146,6 @@
 
   .switch h1 {
     font-size: 4.5vw;
-    padding-bottom: 20px;
+    padding-bottom: 16px;
   }
 }
