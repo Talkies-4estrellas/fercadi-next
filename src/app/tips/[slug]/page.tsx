@@ -1,11 +1,11 @@
-import React from 'react';
+﻿import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getTipBySlug } from '@/lib/tips';
 import styles from '@/styles/tips.module.css';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 type Params = Promise<{ slug: string }>;
 

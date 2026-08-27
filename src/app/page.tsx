@@ -1,9 +1,9 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 import Carousel from '@/components/Carousel'
 import styles from '@/styles/home.module.css'
 import { getHomeCards, getCarouselSlides } from '@/lib/homeContent'
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 export default async function HomePage() {
   const [cards, slides] = await Promise.all([

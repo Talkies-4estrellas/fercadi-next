@@ -1,10 +1,10 @@
-import Link from 'next/link';
+﻿import Link from 'next/link';
 import Image from 'next/image';
 import { getTips } from '@/lib/tips';
 import styles from '@/styles/tips.module.css';
 
 export const metadata = { title: 'Tips de Construcción — FERCADI' };
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 export default async function TipsPage() {
   const tips = await getTips();
