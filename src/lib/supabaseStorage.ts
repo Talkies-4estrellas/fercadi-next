@@ -32,7 +32,7 @@ export function publicUrl(path: string): string {
  */
 export async function uploadFile(
   path: string,
-  body: Buffer | Blob,
+  body: Uint8Array | Blob,
   contentType: string
 ): Promise<string> {
   if (!SUPABASE_URL || !SERVICE_KEY) {
@@ -48,7 +48,7 @@ export async function uploadFile(
       'Content-Type': contentType,
       'x-upsert': 'true', // sobreescribir si ya existe
     },
-    body: body instanceof Buffer ? new Uint8Array(body) : body,
+    body,
   });
 
   if (!res.ok) {

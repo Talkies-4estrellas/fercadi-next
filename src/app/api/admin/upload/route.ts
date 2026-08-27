@@ -47,9 +47,9 @@ export async function POST(request: Request) {
       storagePath = `${seccion}/${categoria}/${nombre}`;
     }
 
-    const raw = Buffer.from(await file.arrayBuffer());
+    const raw = await file.arrayBuffer();
     // Convertir siempre a WebP para consistencia y menor tamaño
-    const webp = await sharp(raw).webp({ quality: 85 }).toBuffer();
+    const webp = new Uint8Array(await sharp(Buffer.from(raw)).webp({ quality: 85 }).toBuffer());
     // Forzar extensión .webp en la ruta
     storagePath = storagePath.replace(/\.[^/.]+$/, '.webp');
 
