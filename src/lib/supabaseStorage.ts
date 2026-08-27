@@ -48,7 +48,7 @@ export async function uploadFile(
       'Content-Type': contentType,
       'x-upsert': 'true', // sobreescribir si ya existe
     },
-    body,
+    body: body instanceof Buffer ? new Uint8Array(body) : body,
   });
 
   if (!res.ok) {
