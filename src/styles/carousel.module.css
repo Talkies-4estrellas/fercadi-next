@@ -99,12 +99,17 @@
 
 /* ── Mobile ──────────────────────────────────────────────────────────────── */
 @media screen and (max-width: 640px) {
+  .slider {
+    max-width: 100%;
+  }
+
   .slide {
     overflow: hidden;
   }
 
   .slideImg {
-    max-height: 68vw;
+    height: 56vw;
+    max-height: none;
     object-fit: cover;
     object-position: center;
   }
