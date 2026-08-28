@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 import styles from '@/styles/admin.module.css';
 
@@ -122,10 +123,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         >
           <i className="fa-solid fa-bars" />
         </button>
-        <span className={styles.topbarBrand}>
-          <i className="fa-solid fa-screwdriver-wrench" />
-          Admin · Fercadi
-        </span>
+        <Link href="/" className={styles.topbarBrand}>
+          <Image src="/images/Logo.png" alt="FERCADI" width={90} height={52} priority style={{ objectFit: 'contain' }} />
+        </Link>
         <Link href="/" className={styles.topbarBack} title="Volver al sitio">
           <i className="fa-solid fa-arrow-left" />
         </Link>

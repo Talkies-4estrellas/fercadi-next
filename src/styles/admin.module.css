@@ -871,7 +871,8 @@ details[open] .seccionExtraTitulo::before {
   gap: 12px;
   background: var(--azul-profundo);
   color: white;
-  padding: 12px 16px;
+  padding: 10px 16px;
+  min-height: 64px;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -879,12 +880,9 @@ details[open] .seccionExtraTitulo::before {
 
 .topbarBrand {
   flex: 1;
-  font-weight: 800;
-  font-size: 0.95rem;
-  color: var(--dorado);
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
 }
 
 .topbarBack {
