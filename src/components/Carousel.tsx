@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import Image from 'next/image'
 import styles from '@/styles/carousel.module.css'
 import type { CarouselSlide } from '@/lib/homeContent'
 
@@ -56,12 +57,15 @@ export default function Carousel({ slides }: Props) {
             className={styles.slide}
             style={{ width: `${100 / slides.length}%` }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src={slide.imagen_url}
               alt={slide.alt || ''}
               className={styles.slideImg}
-              loading={idx === 0 ? 'eager' : 'lazy'}
+              width={1920}
+              height={1080}
+              style={{ width: '100%', height: 'auto' }}
+              priority={idx === 0}
+              sizes="100vw"
             />
             {(slide.titulo || slide.descripcion || slide.slogan) && (
               <div className={styles.switch}>
