@@ -1,8 +1,7 @@
 import type { Metadata } from 'next'
 import { Montserrat } from 'next/font/google'
 import './globals.css'
-import Header from '@/components/Header'
-import Footer from '@/components/Footer'
+import SiteShell from '@/components/SiteShell'
 import ClientProviders from '@/components/ClientProviders'
 
 const montserrat = Montserrat({
@@ -33,9 +32,7 @@ export default function RootLayout({
       </head>
       <body suppressHydrationWarning>
         <ClientProviders>
-          <Header />
-          <main>{children}</main>
-          <Footer />
+          <SiteShell>{children}</SiteShell>
         </ClientProviders>
       </body>
     </html>
