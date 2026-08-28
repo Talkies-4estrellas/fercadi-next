@@ -1,3 +1,4 @@
+import { unstable_cache } from 'next/cache';
 import { db } from './db';
 
 export interface HomeCard {
@@ -20,19 +21,27 @@ export interface CarouselSlide {
   activo: number;
 }
 
-export async function getHomeCards(): Promise<HomeCard[]> {
-  const [rows] = await db.query(
-    'SELECT * FROM home_cards ORDER BY posicion ASC'
-  );
-  return rows as HomeCard[];
-}
+export const getHomeCards = unstable_cache(
+  async (): Promise<HomeCard[]> => {
+    const [rows] = await db.query(
+      'SELECT * FROM home_cards ORDER BY posicion ASC'
+    );
+    return rows as HomeCard[];
+  },
+  ['getHomeCards'],
+  { revalidate: 300 }
+);
 
-export async function getCarouselSlides(): Promise<CarouselSlide[]> {
-  const [rows] = await db.query(
-    'SELECT * FROM carousel_slides WHERE activo = 1 ORDER BY orden ASC'
-  );
-  return rows as CarouselSlide[];
-}
+export const getCarouselSlides = unstable_cache(
+  async (): Promise<CarouselSlide[]> => {
+    const [rows] = await db.query(
+      'SELECT * FROM carousel_slides WHERE activo = 1 ORDER BY orden ASC'
+    );
+    return rows as CarouselSlide[];
+  },
+  ['getCarouselSlides'],
+  { revalidate: 300 }
+);
 
 export async function getAllCarouselSlides(): Promise<CarouselSlide[]> {
   const [rows] = await db.query(

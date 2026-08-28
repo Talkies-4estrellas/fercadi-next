@@ -22,16 +22,18 @@ export default async function Page() {
       <div className={styles.general}>
         {productos.map((producto) => (
           <div key={producto.slug} className={styles.cuadroBlanco}>
-            {producto.imagen_url && (
-              <Image
-                src={producto.imagen_url}
-                alt={producto.nombre}
-                width={280}
-                height={220}
-                style={{ objectFit: 'contain', width: '100%', height: '220px' }}
-              />
-            )}
-            <p className={styles.nombreProducto}>{producto.nombre}</p>
+            <Link href={`/textucos/especializados/${producto.slug}`} style={{ display: 'block' }}>
+              {producto.imagen_url && (
+                <Image
+                  src={producto.imagen_url}
+                  alt={producto.nombre}
+                  width={280}
+                  height={220}
+                  style={{ objectFit: 'contain', width: '100%', height: '220px' }}
+                />
+              )}
+              <p className={styles.nombreProducto}>{producto.nombre}</p>
+            </Link>
             <Link href={`/textucos/especializados/${producto.slug}`} className={styles.verMasBtn}>
               Ver más
             </Link>

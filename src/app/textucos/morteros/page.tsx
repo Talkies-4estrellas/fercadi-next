@@ -22,17 +22,19 @@ export default async function Page() {
       <div className={styles.general}>
         {productos.map((producto, idx) => (
           <div key={producto.slug} className={styles.cuadroBlanco}>
-            {producto.imagen_url && (
-              <Image
-                src={producto.imagen_url}
-                alt={producto.nombre}
-                width={280}
-                height={220}
-                style={{ objectFit: 'contain', width: '100%', height: '220px' }}
-                priority={idx < 4}
-              />
-            )}
-            <p className={styles.nombreProducto}>{producto.nombre}</p>
+            <Link href={`/textucos/morteros/${producto.slug}`} style={{ display: 'block' }}>
+              {producto.imagen_url && (
+                <Image
+                  src={producto.imagen_url}
+                  alt={producto.nombre}
+                  width={280}
+                  height={220}
+                  style={{ objectFit: 'contain', width: '100%', height: '220px' }}
+                  priority={idx < 4}
+                />
+              )}
+              <p className={styles.nombreProducto}>{producto.nombre}</p>
+            </Link>
             <Link href={`/textucos/morteros/${producto.slug}`} className={styles.verMasBtn}>
               Ver más
             </Link>

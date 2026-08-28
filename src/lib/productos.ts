@@ -1,3 +1,4 @@
+import { unstable_cache } from 'next/cache';
 import { db } from './db';
 
 /* ══════════════════════════════════════════════════════════════
@@ -65,20 +66,24 @@ const PUBLIC_COLS = `
  * por el primer producto insertado (MIN(id)), conservando
  * el orden manual del catálogo original.
  */
-export async function getCategorias(seccion: string): Promise<CategoriaDB[]> {
-  const [rows]: any = await db.query(
-    `SELECT categoria_slug AS slug, MAX(categoria_nombre) AS nombre
-     FROM productos
-     WHERE seccion = ? AND activo = 1
-     GROUP BY categoria_slug
-     ORDER BY MIN(id) ASC`,
-    [seccion]
-  );
-  return (rows as any[]).map((row) => ({
-    slug: row.slug,
-    nombre: row.nombre ?? row.slug.replace(/-/g, ' '),
-  }));
-}
+export const getCategorias = unstable_cache(
+  async (seccion: string): Promise<CategoriaDB[]> => {
+    const [rows]: any = await db.query(
+      `SELECT categoria_slug AS slug, MAX(categoria_nombre) AS nombre
+       FROM productos
+       WHERE seccion = ? AND activo = 1
+       GROUP BY categoria_slug
+       ORDER BY MIN(id) ASC`,
+      [seccion]
+    );
+    return (rows as any[]).map((row) => ({
+      slug: row.slug,
+      nombre: row.nombre ?? row.slug.replace(/-/g, ' '),
+    }));
+  },
+  ['getCategorias'],
+  { revalidate: 300 }
+);
 
 /**
  * Todos los productos activos de una sección + categoría,
@@ -129,20 +134,24 @@ export async function getProducto(
  * La columna `marcas` se almacena como JSON en la BD y se
  * deserializa aquí para que los consumidores reciban un array.
  */
-export async function getMaterialesCategorias(): Promise<CategoriaMaterialDB[]> {
-  const [rows]: any = await db.query(
-    `SELECT slug, nombre, descripcion, marcas
-     FROM materiales_categorias
-     WHERE activo = 1
-     ORDER BY nombre ASC`
-  );
-  return (rows as any[]).map((row) => ({
-    ...row,
-    marcas: typeof row.marcas === 'string'
-      ? JSON.parse(row.marcas)
-      : (row.marcas ?? []),
-  }));
-}
+export const getMaterialesCategorias = unstable_cache(
+  async (): Promise<CategoriaMaterialDB[]> => {
+    const [rows]: any = await db.query(
+      `SELECT slug, nombre, descripcion, marcas
+       FROM materiales_categorias
+       WHERE activo = 1
+       ORDER BY nombre ASC`
+    );
+    return (rows as any[]).map((row) => ({
+      ...row,
+      marcas: typeof row.marcas === 'string'
+        ? JSON.parse(row.marcas)
+        : (row.marcas ?? []),
+    }));
+  },
+  ['getMaterialesCategorias'],
+  { revalidate: 300 }
+);
 
 /* ══════════════════════════════════════════════════════════════
    Ferretería — funciones adicionales exclusivas de esta sección
@@ -153,22 +162,26 @@ export async function getMaterialesCategorias(): Promise<CategoriaMaterialDB[]> 
  * Categorías de ferretería ordenadas por volumen de productos
  * (las más pobladas primero) para priorizar el catálogo principal.
  */
-export async function getFerreteriaCategorias(): Promise<(CategoriaDB & { total: number })[]> {
-  const [rows]: any = await db.query(
-    `SELECT categoria_slug AS slug,
-            MAX(categoria_nombre) AS nombre,
-            COUNT(*) AS total
-       FROM productos
-      WHERE seccion = 'ferreteria' AND activo = 1
-      GROUP BY categoria_slug
-      ORDER BY COUNT(*) DESC`
-  );
-  return (rows as any[]).map((row) => ({
-    slug:   row.slug,
-    nombre: row.nombre ?? row.slug.replace(/-/g, ' '),
-    total:  Number(row.total),
-  }));
-}
+export const getFerreteriaCategorias = unstable_cache(
+  async (): Promise<(CategoriaDB & { total: number })[]> => {
+    const [rows]: any = await db.query(
+      `SELECT categoria_slug AS slug,
+              MAX(categoria_nombre) AS nombre,
+              COUNT(*) AS total
+         FROM productos
+        WHERE seccion = 'ferreteria' AND activo = 1
+        GROUP BY categoria_slug
+        ORDER BY COUNT(*) DESC`
+    );
+    return (rows as any[]).map((row) => ({
+      slug:   row.slug,
+      nombre: row.nombre ?? row.slug.replace(/-/g, ' '),
+      total:  Number(row.total),
+    }));
+  },
+  ['getFerreteriaCategorias'],
+  { revalidate: 300 }
+);
 
 /**
  * Marcas únicas disponibles, opcionalmente filtradas por categoría.

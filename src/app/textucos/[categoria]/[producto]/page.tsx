@@ -6,6 +6,7 @@ import { getProducto } from '@/lib/productos'
 import ProductoDetalle from '@/components/ProductoDetalle'
 import BtnAgregarCarrito from '@/components/BtnAgregarCarrito'
 import ComentariosProducto from '@/components/ComentariosProducto'
+import ChatProducto from '@/components/ChatProducto'
 import pStyles from '@/styles/product.module.css'
 
 export async function generateMetadata({
@@ -57,6 +58,7 @@ export default async function ProductoPage({
 
       {/* Sección de comentarios */}
       <ComentariosProducto productoId={p.id} />
+      <ChatProducto productoId={p.id} productoNombre={p.nombre} />
     </>
   )
 }

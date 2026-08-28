@@ -20,7 +20,7 @@ export async function GET(req: Request) {
     const [rows]: any = await db.query(
       `SELECT id, nombre, comentario, calificacion, creado_en
        FROM comentarios_productos
-       WHERE producto_id = ?
+       WHERE producto_id = ? AND aprobado = true
        ORDER BY creado_en DESC`,
       [productoId]
     );

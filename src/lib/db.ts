@@ -32,7 +32,7 @@ const pool: Pool = globalThis.__pgPool ?? new Pool({
   ssl: { rejectUnauthorized: false },
   max: 10,
   idleTimeoutMillis: 30_000,
-  connectionTimeoutMillis: 20_000,
+  connectionTimeoutMillis: 5_000,
 });
 
 if (process.env.NODE_ENV !== 'production') {

@@ -26,6 +26,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   isAdmin: boolean;
+  hydrated: boolean;
   /** Guarda el usuario en estado y localStorage tras un login exitoso. */
   login: (userData: User) => void;
   /** Limpia el estado y borra el localStorage. */
@@ -35,17 +36,20 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   isAdmin: false,
+  hydrated: false,
   login: () => {},
   logout: () => {},
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [hydrated, setHydrated] = useState(false);
 
   // Rehidratar desde localStorage en el primer render del cliente.
   useEffect(() => {
     const stored = localStorage.getItem('fercadi_user');
     if (stored) setUser(JSON.parse(stored));
+    setHydrated(true);
   }, []);
 
   const login = (userData: User) => {
@@ -66,7 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const isAdmin = user?.rol === 'admin';
 
   return (
-    <AuthContext.Provider value={{ user, isAdmin, login, logout }}>
+    <AuthContext.Provider value={{ user, isAdmin, hydrated, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

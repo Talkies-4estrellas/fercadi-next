@@ -15,23 +15,20 @@ import styles from '@/styles/admin.module.css';
  * vive en lib/admin.ts > requerirAdmin() que valida cada API call.
  */
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, hydrated } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
-    // Esperamos a que AuthProvider hidrate desde localStorage (1 tick).
-    const t = setTimeout(() => {
-      if (!user) {
-        router.replace('/login');
-      } else if (!isAdmin) {
-        router.replace('/');
-      }
-    }, 50);
-    return () => clearTimeout(t);
-  }, [user, isAdmin, router]);
+    if (!hydrated) return;
+    if (!user) {
+      router.replace('/login');
+    } else if (!isAdmin) {
+      router.replace('/');
+    }
+  }, [user, isAdmin, hydrated, router]);
 
-  if (!user || !isAdmin) {
+  if (!hydrated || !user || !isAdmin) {
     return (
       <div className={styles.guardMessage}>
         <i className="fa-solid fa-lock" aria-hidden="true" />
@@ -48,6 +45,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { href: '/admin/productos',   label: 'Productos',      icon: 'fa-solid fa-boxes-stacked'    },
     { href: '/admin/productos/nuevo', label: 'Nuevo producto', icon: 'fa-solid fa-plus'         },
     { href: '/admin/importar',    label: 'Importar CSV',   icon: 'fa-solid fa-file-arrow-up'    },
+    { href: '/admin/mensajes',    label: 'Mensajes',       icon: 'fa-solid fa-comment-dots'     },
+    { href: '/admin/comentarios', label: 'Comentarios',    icon: 'fa-solid fa-comments'         },
     { href: '/admin/ajustes',     label: 'Ajustes',        icon: 'fa-solid fa-gear'             },
   ];
 
