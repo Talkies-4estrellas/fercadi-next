@@ -75,7 +75,7 @@ export default function ProductoDetalle({
                 priority
               />
             ) : (
-              <div style={{ width: 520, height: 320, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.04)', borderRadius: 12 }}>
+              <div style={{ width: '100%', minHeight: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.04)', borderRadius: 12 }}>
                 <i className="fa-regular fa-image" style={{ fontSize: '3rem', opacity: 0.25 }} />
               </div>
             );
