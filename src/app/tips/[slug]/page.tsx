@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import { getTipBySlug } from '@/lib/tips';
 import styles from '@/styles/tips.module.css';
 
-export const revalidate = 300;
+export const dynamic = 'force-dynamic';
 
 type Params = Promise<{ slug: string }>;
 

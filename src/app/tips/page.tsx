@@ -4,7 +4,7 @@ import { getTips } from '@/lib/tips';
 import styles from '@/styles/tips.module.css';
 
 export const metadata = { title: 'Tips de Construcción — FERCADI' };
-export const revalidate = 300;
+export const dynamic = 'force-dynamic';
 
 export default async function TipsPage() {
   const tips = await getTips();

@@ -3,7 +3,7 @@ import Carousel from '@/components/Carousel'
 import styles from '@/styles/home.module.css'
 import { getHomeCards, getCarouselSlides } from '@/lib/homeContent'
 
-export const revalidate = 300;
+export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
   const [cards, slides] = await Promise.all([
