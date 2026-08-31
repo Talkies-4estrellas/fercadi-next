@@ -296,6 +296,7 @@
   gap: 8px;
   flex: 1;
   min-width: 200px;
+  position: relative;
 }
 
 .filtroBuscar .filtroInput {
@@ -1166,4 +1167,75 @@ details[open] .seccionExtraTitulo::before {
   .mensajesChatOculto {
     display: none;
   }
+}
+
+/* ── Sugerencias flotantes del buscador (solo desktop) ─────────── */
+.sugDropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid rgba(1,27,79,0.12);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  z-index: 200;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .sugDropdown {
+    position: fixed;
+    top: auto;
+    left: 12px;
+    right: 12px;
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.18);
+  }
+}
+
+.sugItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(1,27,79,0.06);
+  cursor: pointer;
+  transition: background 0.15s;
+  text-decoration: none;
+}
+
+.sugItem:hover {
+  background: #f0f4ff;
+}
+
+.sugNombre {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--azul-profundo);
+}
+
+.sugMeta {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.sugVerTodos {
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  text-align: left;
+  background: #f8faff;
+  border: none;
+  border-radius: 0;
+  color: var(--azul-boton);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 0 !important;
+  font-family: inherit;
+}
+
+.sugVerTodos:hover {
+  background: #e8eeff;
 }

@@ -39,7 +39,13 @@ export default function AdminProductosPage() {
   const [page,      setPage]      = useState(1);
   const [total,     setTotal]     = useState(0);
   const [pages,     setPages]     = useState(1);
-  const abortRef = useRef<AbortController | null>(null);
+  const abortRef    = useRef<AbortController | null>(null);
+  const sugAbortRef = useRef<AbortController | null>(null);
+  const sugWrapRef  = useRef<HTMLDivElement>(null);
+
+  const [sugerencias,  setSugerencias]  = useState<Producto[]>([]);
+  const [showSug,      setShowSug]      = useState(false);
+  const [loadingSug,   setLoadingSug]   = useState(false);
 
   // ── Modal de confirmación de desactivar ─────────────────────────
   const [modal, setModal] = useState<{ abierto: boolean; id: number; nombre: string }>({
@@ -87,18 +93,58 @@ export default function AdminProductosPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, page, seccion]);
 
+  // ── Sugerencias flotantes (debounce 300ms) ───────────────────
+  useEffect(() => {
+    if (qInput.trim().length < 2) { setSugerencias([]); setShowSug(false); return; }
+
+    const timer = setTimeout(() => {
+      if (!user) return;
+      sugAbortRef.current?.abort();
+      const ctrl = new AbortController();
+      sugAbortRef.current = ctrl;
+      setLoadingSug(true);
+
+      const p = new URLSearchParams({ q: qInput.trim(), limit: '6' });
+      if (seccion) p.set('seccion', seccion);
+
+      fetch(`/api/admin/productos?${p}`, {
+        headers: { 'x-usuario-id': String(user.id) },
+        signal: ctrl.signal,
+      })
+        .then((r) => r.json())
+        .then((data) => { if (data.ok) { setSugerencias(data.productos ?? []); setShowSug(true); } })
+        .catch((e) => { if (e?.name !== 'AbortError') setSugerencias([]); })
+        .finally(() => { if (!ctrl.signal.aborted) setLoadingSug(false); });
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [qInput, seccion, user]);
+
+  // Cerrar sugerencias al hacer click fuera
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (sugWrapRef.current && !sugWrapRef.current.contains(e.target as Node)) {
+        setShowSug(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
   // Cambiar sección → reiniciar a página 1 y limpiar búsqueda
   const handleSeccion = (val: string) => {
     setSeccion(val);
     setPage(1);
     setQInput('');
     setQActivo('');
+    setShowSug(false);
   };
 
   // Buscar (Enter o botón) → reinicia a página 1
   const handleBuscar = () => {
     setQActivo(qInput);
     setPage(1);
+    setShowSug(false);
     cargar(1, seccion, qInput);
   };
 
@@ -149,18 +195,45 @@ export default function AdminProductosPage() {
           ))}
         </select>
 
-        <div className={styles.filtroBuscar}>
+        <div className={styles.filtroBuscar} ref={sugWrapRef}>
           <input
             type="text"
             placeholder="Nombre, slug o código interno…"
             value={qInput}
             onChange={(e) => setQInput(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') handleBuscar(); }}
+            onKeyDown={(e) => { if (e.key === 'Enter') handleBuscar(); if (e.key === 'Escape') setShowSug(false); }}
+            onFocus={() => { if (sugerencias.length > 0) setShowSug(true); }}
             className={styles.filtroInput}
+            autoComplete="off"
           />
           <button onClick={handleBuscar} className={styles.btnSecondary}>
-            <i className="fa-solid fa-magnifying-glass" />
+            {loadingSug
+              ? <i className="fa-solid fa-spinner fa-spin" />
+              : <i className="fa-solid fa-magnifying-glass" />}
           </button>
+
+          {/* Dropdown sugerencias — solo desktop vía CSS */}
+          {showSug && sugerencias.length > 0 && (
+            <div className={styles.sugDropdown}>
+              {sugerencias.map((p) => (
+                <Link
+                  key={p.id}
+                  href={`/admin/productos/${p.id}`}
+                  className={styles.sugItem}
+                  onClick={() => setShowSug(false)}
+                >
+                  <span className={styles.sugNombre}>{p.nombre}</span>
+                  <span className={styles.sugMeta}>{p.categoria_nombre} · {p.seccion}</span>
+                </Link>
+              ))}
+              <button
+                className={styles.sugVerTodos}
+                onClick={handleBuscar}
+              >
+                Ver todos los resultados para &ldquo;{qInput}&rdquo;
+              </button>
+            </div>
+          )}
         </div>
 
         {!loading && total > 0 && (
