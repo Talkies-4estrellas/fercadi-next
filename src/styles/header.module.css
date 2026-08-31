@@ -495,7 +495,7 @@
   .submenu li a {
     padding: 12px 38px;
     font-size: 0.88rem;
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.75) !important;
   }
 
   .submenu li a:hover {
