@@ -27,6 +27,7 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null)
   const [navConfig, setNavConfig] = useState<Record<string, boolean>>({})
+  const [isMobile, setIsMobile] = useState(false)
   const { user, isAdmin, logout } = useAuth()
   const { itemCount, openCart } = useCart()
 
@@ -35,6 +36,13 @@ export default function Header() {
       .then((r) => r.json())
       .then((data) => { if (data.config) setNavConfig(data.config) })
       .catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= 1160)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
   }, [])
 
   /** Cierra menú hamburguesa y cualquier submenú abierto al navegar. */
@@ -88,7 +96,18 @@ export default function Header() {
                   className={`${styles.menuItem} ${openSubmenu === item.href ? styles.submenuActive : ''}`}
                 >
                   <div className={styles.itemRow}>
-                    <Link href={item.href} className={styles.menuLink} onClick={close}>
+                    <Link
+                      href={item.href}
+                      className={styles.menuLink}
+                      onClick={(e) => {
+                        if (isMobile && item.submenu) {
+                          e.preventDefault()
+                          toggleSubmenu(item.href)
+                        } else {
+                          close()
+                        }
+                      }}
+                    >
                       {item.label}
                     </Link>
                     {item.submenu && (
@@ -106,7 +125,9 @@ export default function Header() {
                   {item.submenu && (
                     <ul
                       className={styles.submenu}
-                      style={openSubmenu === item.href ? { display: 'block' } : {}}
+                      style={openSubmenu === item.href
+                        ? { display: 'block', visibility: 'visible', opacity: 1 }
+                        : {}}
                     >
                       {item.submenu.map((sub) => (
                         <li key={sub.href}>

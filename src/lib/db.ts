@@ -11,17 +11,17 @@
  *   · VALUES(col)  →  EXCLUDED.col  (para ON CONFLICT DO UPDATE)
  */
 
-import { Pool, PoolClient } from 'pg';
+import { Pool, PoolClient, Client } from 'pg';
 
 // ── Pool global ──────────────────────────────────────────────
 if (!process.env.DATABASE_URL) {
   throw new Error('[db] DATABASE_URL no está definida. Revisa .env.local o las variables de entorno en Vercel.');
 }
 
-// En desarrollo, Turbopack recarga módulos en cada hot-reload y crearía un
-// nuevo Pool por cada cambio sin cerrar los anteriores, agotando las 15
-// conexiones del session-mode de Supabase. Guardamos el pool en `globalThis`
-// para reutilizarlo entre recargas.
+const SSL_CONFIG = { rejectUnauthorized: false };
+
+// Si la URL es session mode (puerto 5432) usamos un pool pequeño compartido.
+// Si es transaction mode (puerto 6543, PgBouncer) el pool normal funciona bien.
 declare global {
   // eslint-disable-next-line no-var
   var __pgPool: Pool | undefined;
@@ -29,15 +29,13 @@ declare global {
 
 const pool: Pool = globalThis.__pgPool ?? new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
-  max: 10,
-  idleTimeoutMillis: 30_000,
+  ssl: SSL_CONFIG,
+  max: 3,
+  idleTimeoutMillis: 10_000,
   connectionTimeoutMillis: 5_000,
 });
 
-if (process.env.NODE_ENV !== 'production') {
-  globalThis.__pgPool = pool;
-}
+globalThis.__pgPool = pool;
 
 // ── Helpers ──────────────────────────────────────────────────
 
