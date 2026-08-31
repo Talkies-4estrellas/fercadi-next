@@ -57,6 +57,7 @@
 
 @media (max-width: 768px) {
   .cardsGrid { grid-template-columns: 1fr; }
+  .section { padding: 20px 16px; }
 }
 
 .cardEditor {

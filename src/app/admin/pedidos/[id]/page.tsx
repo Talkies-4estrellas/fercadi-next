@@ -158,7 +158,7 @@ export default function AdminPedidoDetallePage({
         </Link>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '24px', alignItems: 'start' }}>
+      <div className={styles.pedidoGrid}>
 
         {/* ── Panel izquierdo: ítems ── */}
         <div>

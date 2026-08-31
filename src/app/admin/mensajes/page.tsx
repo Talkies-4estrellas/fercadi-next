@@ -50,6 +50,7 @@ export default function AdminMensajesPage() {
   const [texto,          setTexto]          = useState('');
   const [enviando,       setEnviando]       = useState(false);
   const [cargandoConvs,  setCargandoConvs]  = useState(true);
+  const [vistaMovil,     setVistaMovil]     = useState<'lista' | 'chat'>('lista');
   const bottomRef = useRef<HTMLDivElement>(null);
   const pollRef   = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -102,6 +103,11 @@ export default function AdminMensajesPage() {
     setTexto('');
   };
 
+  const seleccionarConv = (id: number) => {
+    seleccionar(id);
+    setVistaMovil('chat');
+  };
+
   /* ── Enviar respuesta ── */
   const enviar = async () => {
     if (!user || !activa || !texto.trim() || enviando) return;
@@ -127,6 +133,15 @@ export default function AdminMensajesPage() {
     <>
       <div className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>
+          {activa && vistaMovil === 'chat' ? (
+            <button
+              onClick={() => setVistaMovil('lista')}
+              className={styles.btnLink}
+              style={{ fontSize: '1rem', marginRight: 8 }}
+            >
+              <i className="fa-solid fa-arrow-left" />
+            </button>
+          ) : null}
           <i className="fa-solid fa-comments" /> Mensajes
           {totalNoLeidos > 0 && (
             <span style={{ marginLeft: 10, background: '#dc2626', color: 'white', borderRadius: 20, fontSize: '0.7rem', padding: '2px 10px', fontWeight: 700, verticalAlign: 'middle' }}>
@@ -139,10 +154,10 @@ export default function AdminMensajesPage() {
         </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: 16, alignItems: 'start' }}>
+      <div className={styles.mensajesGrid}>
 
         {/* ── Lista de conversaciones ── */}
-        <div className={styles.tablaWrap} style={{ overflow: 'hidden' }}>
+        <div className={`${styles.tablaWrap} ${vistaMovil === 'chat' ? styles.mensajesListaOculta : ''}`} style={{ overflow: 'hidden' }}>
           {cargandoConvs ? (
             <p className={styles.emptyText}><i className="fa-solid fa-spinner fa-spin" /></p>
           ) : conversaciones.length === 0 ? (
@@ -152,7 +167,7 @@ export default function AdminMensajesPage() {
               <button
                 key={c.id}
                 type="button"
-                onClick={() => seleccionar(c.id)}
+                onClick={() => seleccionarConv(c.id)}
                 style={{
                   width: '100%', display: 'block', textAlign: 'left',
                   padding: '12px 16px', border: 'none', borderBottom: '1px solid #f3f4f6',
@@ -189,7 +204,7 @@ export default function AdminMensajesPage() {
         </div>
 
         {/* ── Chat ── */}
-        <div>
+        <div className={vistaMovil === 'lista' ? styles.mensajesChatOculto : ''}>
           {!activa ? (
             <div className={styles.tablaWrap} style={{ padding: 40, textAlign: 'center' }}>
               <i className="fa-regular fa-comment-dots" style={{ fontSize: '2.5rem', opacity: 0.2, display: 'block', marginBottom: 12 }} />

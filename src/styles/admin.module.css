@@ -1131,3 +1131,39 @@ details[open] .seccionExtraTitulo::before {
   margin: 0 0 8px;
   line-height: 1.5;
 }
+
+/* ── Pedido detalle — layout responsive ───────────────────────── */
+.pedidoGrid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .pedidoGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Mensajes — layout responsive ─────────────────────────────── */
+.mensajesGrid {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .mensajesGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .mensajesListaOculta {
+    display: none;
+  }
+
+  .mensajesChatOculto {
+    display: none;
+  }
+}
