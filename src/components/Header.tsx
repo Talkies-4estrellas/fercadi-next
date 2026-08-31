@@ -104,7 +104,10 @@ export default function Header() {
                   </div>
 
                   {item.submenu && (
-                    <ul className={styles.submenu}>
+                    <ul
+                      className={styles.submenu}
+                      style={openSubmenu === item.href ? { display: 'block' } : {}}
+                    >
                       {item.submenu.map((sub) => (
                         <li key={sub.href}>
                           <Link href={sub.href} onClick={close}>
