@@ -408,6 +408,35 @@
   text-align: justify;
 }
 
+.secVerMasWrap {
+  max-width: 1200px;
+  margin: 14px auto 0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.secVerMasBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: rgba(255, 255, 255, 0.7);
+  padding: 6px 18px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 0;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.secVerMasBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+  color: white;
+}
+
 /* ── Responsive ────────────────────────────────────────────── */
 @media screen and (max-width: 900px) {
   .detalle {

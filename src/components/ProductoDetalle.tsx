@@ -15,6 +15,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import styles from '@/styles/product.module.css'
 import { resolverImagenProducto } from '@/lib/imagen'
+import DescripcionExpandible from '@/components/DescripcionExpandible'
 
 interface Props {
   nombre: string
@@ -86,7 +87,7 @@ export default function ProductoDetalle({
       {/* ── Segunda descripción ── */}
       {descripcion2 && (
         <div className={styles.detalleSec}>
-          <p className={styles.detalleSecInner}>{descripcion2}</p>
+          <DescripcionExpandible texto={descripcion2} />
         </div>
       )}
     </>

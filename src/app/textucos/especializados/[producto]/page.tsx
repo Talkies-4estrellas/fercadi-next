@@ -9,7 +9,7 @@ import ComentariosProducto from '@/components/ComentariosProducto'
 import ChatProducto from '@/components/ChatProducto'
 import pStyles from '@/styles/product.module.css'
 
-const CATEGORIA = 'especialisados'
+const CATEGORIA = 'especializados'
 
 export async function generateMetadata({ params }: { params: Promise<{ producto: string }> }) {
   const { producto } = await params

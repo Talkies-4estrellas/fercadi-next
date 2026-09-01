@@ -123,7 +123,7 @@ export default function ChatProducto({ productoId, productoNombre }: Props) {
   if (!user) {
     return (
       <div className={styles.loginReq}>
-        <i className="fa-regular fa-comment-dots" />
+        <i className="fa-regular fa-comment-dots" aria-hidden="true" />
         <span>
           <Link href="/login">Inicia sesión</Link> para enviar un mensaje al administrador sobre este producto.
         </span>

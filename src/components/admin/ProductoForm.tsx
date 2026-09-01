@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -54,6 +54,8 @@ interface ImagenItem {
 
 const SECCIONES: ProductoFormData['seccion'][] = ['concretos', 'textucos', 'materiales', 'ferreteria'];
 
+interface CategoriaOpcion { slug: string; nombre: string; }
+
 const VACIO: ProductoFormData = {
   nombre: '', slug: '', descripcion: '', descripcion2: '',
   imagen_url: '', seccion: 'concretos',
@@ -83,6 +85,11 @@ export default function ProductoForm({ inicial, modo }: Props) {
   const [estado, setEstado] = useState<'idle' | 'enviando' | 'ok' | 'error'>('idle');
   const [mensaje, setMensaje] = useState<string>('');
   const [confirmarAbierto, setConfirmarAbierto] = useState(false);
+
+  // Selector de categorías dinámico
+  const [categorias, setCategorias] = useState<CategoriaOpcion[]>([]);
+  const [categoriasLoading, setCategoriasLoading] = useState(false);
+  const [catModo, setCatModo] = useState<'selector' | 'nueva'>('selector');
 
   // Selector de imagen
   const [imagenes, setImagenes] = useState<ImagenItem[]>([]);
@@ -120,6 +127,35 @@ export default function ProductoForm({ inicial, modo }: Props) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.nombre]);
+
+  // Carga de categorías: separar carga inicial (sin limpiar) de cambio por el usuario (limpia)
+  const fetchCategorias = useCallback(async (seccion: string, limpiarCategoria: boolean) => {
+    if (!user) return;
+    setCategoriasLoading(true);
+    setCategorias([]);
+    if (limpiarCategoria) {
+      setCatModo('selector');
+      setForm((f) => ({ ...f, categoria_slug: '', categoria_nombre: '' }));
+    }
+    try {
+      const r = await fetch(`/api/admin/categorias?seccion=${seccion}`, {
+        headers: { 'x-usuario-id': String(user.id) },
+      });
+      const d = await r.json();
+      setCategorias(d.ok ? d.categorias : []);
+    } catch {
+      setCategorias([]);
+    } finally {
+      setCategoriasLoading(false);
+    }
+  }, [user]);
+
+  // Carga inicial: se dispara cuando el user queda disponible
+  useEffect(() => {
+    if (!user) return;
+    fetchCategorias(form.seccion, false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   const cargarImagenes = () => {
     if (!user) return;
@@ -268,7 +304,11 @@ export default function ProductoForm({ inicial, modo }: Props) {
             <select
               required
               value={form.seccion}
-              onChange={(e) => handleChange('seccion', e.target.value as ProductoFormData['seccion'])}
+              onChange={(e) => {
+                const s = e.target.value as ProductoFormData['seccion'];
+                handleChange('seccion', s);
+                fetchCategorias(s, true);
+              }}
               className={styles.formInput}
             >
               {SECCIONES.map((s) => (
@@ -280,27 +320,80 @@ export default function ProductoForm({ inicial, modo }: Props) {
           </div>
 
           <div className={styles.formRow}>
-            <label className={styles.formLabel}>Categoría · slug *</label>
-            <input
-              required
-              type="text"
-              value={form.categoria_slug}
-              onChange={(e) => handleChange('categoria_slug', e.target.value)}
-              placeholder="ej. clase-a, adhesivos, especializados"
-              className={styles.formInput}
-            />
-          </div>
-
-          <div className={styles.formRow}>
-            <label className={styles.formLabel}>Categoría · nombre visible *</label>
-            <input
-              required
-              type="text"
-              value={form.categoria_nombre}
-              onChange={(e) => handleChange('categoria_nombre', e.target.value)}
-              placeholder="ej. Concretos Clase A"
-              className={styles.formInput}
-            />
+            <label className={styles.formLabel}>Categoría *</label>
+            {categoriasLoading ? (
+              <p style={{ fontSize: '0.85rem', color: '#666', margin: '6px 0' }}>
+                <i className="fa-solid fa-spinner fa-spin" /> Cargando categorías…
+              </p>
+            ) : catModo === 'selector' ? (
+              <>
+                <select
+                  required={catModo === 'selector'}
+                  value={form.categoria_slug}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === '__nueva__') {
+                      setCatModo('nueva');
+                      setForm((f) => ({ ...f, categoria_slug: '', categoria_nombre: '' }));
+                    } else {
+                      const cat = categorias.find((c) => c.slug === val);
+                      setForm((f) => ({
+                        ...f,
+                        categoria_slug: val,
+                        categoria_nombre: cat?.nombre ?? '',
+                      }));
+                    }
+                  }}
+                  className={styles.formInput}
+                >
+                  <option value="">— Selecciona una categoría —</option>
+                  {categorias.map((c) => (
+                    <option key={c.slug} value={c.slug}>{c.nombre}</option>
+                  ))}
+                  <option value="__nueva__">+ Nueva categoría…</option>
+                </select>
+                {form.categoria_slug && (
+                  <p style={{ fontSize: '0.75rem', color: '#888', marginTop: 4 }}>
+                    slug: <code>{form.categoria_slug}</code>
+                  </p>
+                )}
+              </>
+            ) : (
+              <>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                  <div>
+                    <label className={styles.formLabel} style={{ fontSize: '0.72rem' }}>Slug (sin espacios, minúsculas)</label>
+                    <input
+                      required
+                      type="text"
+                      value={form.categoria_slug}
+                      onChange={(e) => handleChange('categoria_slug', e.target.value.toLowerCase().replace(/\s+/g, '-'))}
+                      placeholder="ej. nueva-categoria"
+                      className={styles.formInput}
+                    />
+                  </div>
+                  <div>
+                    <label className={styles.formLabel} style={{ fontSize: '0.72rem' }}>Nombre visible</label>
+                    <input
+                      required
+                      type="text"
+                      value={form.categoria_nombre}
+                      onChange={(e) => handleChange('categoria_nombre', e.target.value)}
+                      placeholder="ej. Nueva Categoría"
+                      className={styles.formInput}
+                    />
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className={styles.btnLink}
+                  style={{ fontSize: '0.8rem', marginTop: 6 }}
+                  onClick={() => { setCatModo('selector'); setForm((f) => ({ ...f, categoria_slug: '', categoria_nombre: '' })); }}
+                >
+                  ← Elegir existente
+                </button>
+              </>
+            )}
           </div>
 
           {/* Identidad del producto */}
