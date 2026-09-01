@@ -46,8 +46,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { href: '/admin/importar',        label: 'Importar CSV',   icon: 'fa-solid fa-file-arrow-up'    },
     { href: '/admin/mensajes',        label: 'Mensajes',       icon: 'fa-solid fa-comment-dots'     },
     { href: '/admin/comentarios',     label: 'Comentarios',    icon: 'fa-solid fa-comments'         },
-    { href: '/admin/ajustes',         label: 'Ajustes',        icon: 'fa-solid fa-gear'             },
   ];
+
+  const ajustesSubLinks = [
+    { href: '/admin/ajustes/personalizar', label: 'Personalizar', icon: 'fa-solid fa-sliders' },
+    { href: '/admin/ajustes/categorias',   label: 'Categorías',   icon: 'fa-solid fa-layer-group' },
+  ];
+
+  const enAjustes = pathname?.startsWith('/admin/ajustes');
 
   const navLinks = links.map((l) => {
     const activo =
@@ -66,6 +72,35 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     );
   });
 
+  const ajustesGroup = (
+    <div key="ajustes" className={styles.sidebarGroup}>
+      <button
+        className={`${styles.sidebarGroupBtn} ${enAjustes ? styles.sidebarGroupBtnActive : ''}`}
+        onClick={() => {/* always open when in /admin/ajustes, else navigate */}}
+        aria-expanded={enAjustes}
+      >
+        <i className="fa-solid fa-gear" />
+        <span>Ajustes</span>
+        <i className={`fa-solid fa-chevron-right ${styles.sidebarGroupChevron} ${enAjustes ? styles.sidebarGroupChevronOpen : ''}`} />
+      </button>
+      <div className={`${styles.sidebarSubNav} ${enAjustes ? styles.sidebarSubNavOpen : ''}`}>
+        {ajustesSubLinks.map((s) => {
+          const activo = pathname === s.href;
+          return (
+            <Link
+              key={s.href}
+              href={s.href}
+              className={`${styles.sidebarSubLink} ${activo ? styles.sidebarSubLinkActive : ''}`}
+            >
+              <i className={s.icon} />
+              <span>{s.label}</span>
+            </Link>
+          );
+        })}
+      </div>
+    </div>
+  );
+
   return (
     <div className={styles.adminShell}>
       {/* ── Sidebar (desktop) ── */}
@@ -74,7 +109,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <i className="fa-solid fa-screwdriver-wrench" />
           <span>Admin · Fercadi</span>
         </div>
-        <nav className={styles.sidebarNav}>{navLinks}</nav>
+        <nav className={styles.sidebarNav}>{navLinks}{ajustesGroup}</nav>
         <div className={styles.sidebarFoot}>
           <Link href="/" className={styles.sidebarBack}>
             <i className="fa-solid fa-arrow-left" /> Volver al sitio
@@ -105,7 +140,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <i className="fa-solid fa-xmark" />
           </button>
         </div>
-        <nav className={styles.drawerNav}>{navLinks}</nav>
+        <nav className={styles.drawerNav}>{navLinks}{ajustesGroup}</nav>
         <div className={styles.sidebarFoot} style={{ padding: '20px 0 0', marginTop: 'auto' }}>
           <Link href="/" className={styles.sidebarBack}>
             <i className="fa-solid fa-arrow-left" /> Volver al sitio

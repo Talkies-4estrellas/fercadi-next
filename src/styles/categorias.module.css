@@ -1,0 +1,116 @@
+/* ── Tabs de sección ───────────────────────────────────────────── */
+.tabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: 2px solid rgba(1, 27, 79, 0.1);
+  margin-bottom: 20px;
+}
+
+.tab {
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: var(--azul-medio);
+  font-family: inherit;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.tab:hover {
+  color: var(--azul-profundo);
+}
+
+.tabActive {
+  color: var(--azul-boton);
+  border-bottom-color: var(--azul-boton);
+}
+
+/* ── Lista de categorías ───────────────────────────────────────── */
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fila {
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: white;
+  border-radius: 10px;
+  border: 1px solid rgba(1, 27, 79, 0.08);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+  transition: border-color 0.15s;
+}
+
+.fila:hover {
+  border-color: rgba(1, 27, 79, 0.18);
+}
+
+.filaOrden {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: center;
+}
+
+.ordenBtn {
+  width: 22px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  border: 1px solid rgba(1, 27, 79, 0.12);
+  background: white;
+  color: var(--azul-medio);
+  font-size: 0.65rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  padding: 0;
+}
+
+.ordenBtn:hover:not(:disabled) {
+  background: var(--fondo-claro);
+  border-color: var(--azul-boton);
+  color: var(--azul-boton);
+}
+
+.ordenBtn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+.filaInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.nombre {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--azul-profundo);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.slug {
+  font-size: 0.78rem;
+  color: rgba(1, 27, 79, 0.4);
+  font-family: monospace;
+}
+
+.filaAcciones {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
