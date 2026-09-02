@@ -458,6 +458,60 @@
   background: rgba(220, 53, 69, 0.15);
 }
 
+/* ── Buscador de texto (sidebar) ───────────────────────────── */
+.buscadorWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.buscadorWrap > i {
+  position: absolute;
+  left: 10px;
+  font-size: 0.8rem;
+  color: var(--azul-medio);
+  pointer-events: none;
+}
+
+.buscadorInput {
+  width: 100%;
+  padding: 8px 32px 8px 32px;
+  border: 1px solid rgba(1, 27, 79, 0.18);
+  border-radius: 8px;
+  font-size: 0.84rem;
+  font-family: inherit;
+  color: var(--azul-profundo);
+  background: white;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.buscadorInput::placeholder {
+  color: rgba(1, 27, 79, 0.3);
+}
+
+.buscadorInput:focus {
+  border-color: var(--azul-boton);
+  box-shadow: 0 0 0 3px rgba(53, 101, 197, 0.12);
+}
+
+.buscadorClear {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: rgba(1, 27, 79, 0.35);
+  display: flex;
+  align-items: center;
+  transition: color 0.15s;
+}
+
+.buscadorClear:hover {
+  color: #c0392b;
+}
+
 /* ── Área principal de productos ────────────────────────────── */
 .main {
   padding: 24px 0 24px 32px;

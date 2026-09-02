@@ -269,3 +269,45 @@
   cursor: pointer;
   text-decoration: underline;
 }
+
+/* ── Paginación de grupos ──────────────────────────────────────── */
+.paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 16px 0 4px;
+}
+
+.paginacionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: 6px;
+  border: 1px solid rgba(1, 27, 79, 0.2);
+  background: white;
+  color: var(--azul-boton);
+  font-size: 0.85rem;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.paginacionBtn:hover:not(:disabled) {
+  background: rgba(0, 82, 204, 0.07);
+  border-color: var(--azul-boton);
+}
+
+.paginacionBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.paginacionInfo {
+  font-size: 0.83rem;
+  color: rgba(1, 27, 79, 0.5);
+  min-width: 140px;
+  text-align: center;
+}

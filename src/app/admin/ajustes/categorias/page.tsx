@@ -57,6 +57,7 @@ export default function CategoriasPage() {
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [cargando, setCargando] = useState(false);
   const [abiertos, setAbiertos] = useState<Set<number>>(new Set());
+  const [pagina, setPagina] = useState(0);
   const [modal, setModal] = useState<{ modo: 'crear' | 'editar'; cat?: Categoria } | null>(null);
   const [form, setForm] = useState({ nombre: '', slug: '', descripcion: '', parent_id: '' });
   const [guardando, setGuardando] = useState(false);
@@ -76,13 +77,6 @@ export default function CategoriasPage() {
       });
       const d = await r.json();
       setCategorias(d.ok ? d.categorias : []);
-      // Abrir todos los grupos por defecto al cargar Ferretería
-      if (s === 'ferreteria' && d.ok) {
-        const padreIds = (d.categorias as Categoria[])
-          .filter((c) => c.parent_id === null)
-          .map((c) => c.id);
-        setAbiertos(new Set(padreIds));
-      }
     } catch {
       setCategorias([]);
     } finally {
@@ -206,7 +200,7 @@ export default function CategoriasPage() {
           <button
             key={s.key}
             className={`${catStyles.tab} ${seccion === s.key ? catStyles.tabActive : ''}`}
-            onClick={() => setSeccion(s.key)}
+            onClick={() => { setSeccion(s.key); setPagina(0); setAbiertos(new Set()); }}
           >
             {s.label}
           </button>
@@ -224,7 +218,13 @@ export default function CategoriasPage() {
       ) : esArbol ? (
         /* ── Vista árbol para Ferretería ── */
         <div className={catStyles.arbol}>
-          {grupos.map((grupo) => {
+          {(() => {
+            const POR_PAGINA = 10;
+            const totalPaginas = Math.ceil(grupos.length / POR_PAGINA);
+            const gruposPagina = grupos.slice(pagina * POR_PAGINA, (pagina + 1) * POR_PAGINA);
+            return (
+              <>
+                {gruposPagina.map((grupo) => {
             const abierto = abiertos.has(grupo.id);
             return (
               <div key={grupo.slug} className={catStyles.grupoCard}>
@@ -311,7 +311,32 @@ export default function CategoriasPage() {
                 )}
               </div>
             );
-          })}
+                })}
+
+                {totalPaginas > 1 && (
+                  <div className={catStyles.paginacion}>
+                    <button
+                      className={catStyles.paginacionBtn}
+                      disabled={pagina === 0}
+                      onClick={() => setPagina((p) => p - 1)}
+                    >
+                      <i className="fa-solid fa-chevron-left" /> Anterior
+                    </button>
+                    <span className={catStyles.paginacionInfo}>
+                      {pagina * POR_PAGINA + 1}–{Math.min((pagina + 1) * POR_PAGINA, grupos.length)} de {grupos.length} grupos
+                    </span>
+                    <button
+                      className={catStyles.paginacionBtn}
+                      disabled={pagina >= totalPaginas - 1}
+                      onClick={() => setPagina((p) => p + 1)}
+                    >
+                      Siguiente <i className="fa-solid fa-chevron-right" />
+                    </button>
+                  </div>
+                )}
+              </>
+            );
+          })()}
 
           {/* Categorías sin grupo asignado */}
           {huerfanos.length > 0 && (

@@ -248,13 +248,23 @@ export const getFerreteriaCategorias = unstable_cache(
  * Marcas únicas disponibles, opcionalmente filtradas por categoría.
  * Se usa para poblar el filtro de marcas en el listado de ferretería.
  */
-export async function getFerreteriaMarcas(categoriaSlug?: string): Promise<string[]> {
-  const cond = categoriaSlug
-    ? "seccion = 'ferreteria' AND activo = 1 AND categoria_slug = ? AND marca IS NOT NULL AND marca <> ''"
-    : "seccion = 'ferreteria' AND activo = 1 AND marca IS NOT NULL AND marca <> ''";
-  const params = categoriaSlug ? [categoriaSlug] : [];
+export async function getFerreteriaMarcas(
+  categoriaSlug?: string,
+  categoriasSlugs?: string[]
+): Promise<string[]> {
+  const where: string[] = ["seccion = 'ferreteria'", 'activo = 1', "marca IS NOT NULL", "marca <> ''"];
+  const params: any[] = [];
+
+  if (categoriaSlug) {
+    where.push('categoria_slug = ?');
+    params.push(categoriaSlug);
+  } else if (categoriasSlugs && categoriasSlugs.length > 0) {
+    where.push(`categoria_slug IN (${categoriasSlugs.map(() => '?').join(', ')})`);
+    params.push(...categoriasSlugs);
+  }
+
   const [rows]: any = await db.query(
-    `SELECT DISTINCT marca FROM productos WHERE ${cond} ORDER BY marca ASC`,
+    `SELECT DISTINCT marca FROM productos WHERE ${where.join(' AND ')} ORDER BY marca ASC`,
     params
   );
   return (rows as any[]).map((r: any) => r.marca as string);
@@ -275,10 +285,12 @@ export interface FerreteriaPaginada {
  * Límite máximo fijado a 60 para no saturar la respuesta JSON.
  */
 export async function getProductosFerreteria(opts: {
-  categoriaSlug?: string;
-  marca?:         string;
-  page?:          number;
-  limit?:         number;
+  categoriaSlug?:  string;
+  categoriasSlugs?: string[];
+  marca?:          string;
+  q?:              string;
+  page?:           number;
+  limit?:          number;
 }): Promise<FerreteriaPaginada> {
   const page   = Math.max(1, opts.page  ?? 1);
   const limit  = Math.min(60, Math.max(1, opts.limit ?? 24));
@@ -290,10 +302,17 @@ export async function getProductosFerreteria(opts: {
   if (opts.categoriaSlug) {
     where.push('categoria_slug = ?');
     params.push(opts.categoriaSlug);
+  } else if (opts.categoriasSlugs && opts.categoriasSlugs.length > 0) {
+    where.push(`categoria_slug IN (${opts.categoriasSlugs.map(() => '?').join(', ')})`);
+    params.push(...opts.categoriasSlugs);
   }
   if (opts.marca) {
     where.push('marca = ?');
     params.push(opts.marca);
+  }
+  if (opts.q) {
+    where.push('(nombre ILIKE ? OR categoria_nombre ILIKE ?)');
+    params.push(`%${opts.q}%`, `%${opts.q}%`);
   }
 
   const whereClause = 'WHERE ' + where.join(' AND ');

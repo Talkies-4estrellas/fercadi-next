@@ -1,40 +1,73 @@
 export const dynamic = 'force-dynamic';
 
-import Link from 'next/link';
-import { getFerreteriaGrupos } from '@/lib/productos';
+import Image from 'next/image';
+import Link  from 'next/link';
+import { getFerreteriaGrupos, getProductosFerreteria, getFerreteriaMarcas } from '@/lib/productos';
+import { resolverImagenProducto } from '@/lib/imagen';
+import FiltrosFerreteria from '@/components/ferreteria/FiltrosFerreteria';
+import Paginador         from '@/components/Paginador';
 import styles from '@/styles/ferreteria.module.css';
 
 export const metadata = {
   title: 'Ferretería — FERCADI',
-  description: 'Catálogo de ferretería: más de 15,000 productos organizados por familia. Herramientas, materiales, fijaciones y más.',
+  description: 'Búsqueda de herramientas, materiales y accesorios. Más de 15,000 productos de ferretería.',
 };
 
-const GRUPO_ICONOS: Record<string, string> = {
-  'herramientas-manuales':    'fa-solid fa-wrench',
-  'herramientas-de-corte':    'fa-solid fa-scissors',
-  'medicion-y-trazo':         'fa-solid fa-ruler-combined',
-  'maquinas-portatiles':      'fa-solid fa-plug-circle-bolt',
-  'jardin-y-agricultura':     'fa-solid fa-seedling',
-  'accesorios-para-maquinas': 'fa-solid fa-gears',
-  'electricidad':             'fa-solid fa-bolt',
-  'plomeria':                 'fa-solid fa-faucet',
-  'gas-y-calefaccion':        'fa-solid fa-fire-flame-simple',
-  'cerrajeria':               'fa-solid fa-lock',
-  'seguridad-personal':       'fa-solid fa-helmet-safety',
-  'fijaciones-y-amarre':      'fa-solid fa-screwdriver',
-  'pintura-y-acabados':       'fa-solid fa-paint-roller',
-  'almacenaje-y-transporte':  'fa-solid fa-box-open',
-  'hogar-y-bano':             'fa-solid fa-house',
-  'mallas-y-lonas':           'fa-solid fa-grip',
-  'exhibidores':              'fa-solid fa-store',
-  'miscelaneos':              'fa-solid fa-ellipsis',
-};
+type SP = Promise<{ q?: string; grupo?: string; cat?: string; marca?: string; page?: string }>;
 
-export default async function FerreteriaPrincipalPage() {
+const LIMIT = 24;
+
+export default async function FerreteriaPrincipalPage({ searchParams }: { searchParams: SP }) {
+  const sp = await searchParams;
+
+  const q     = sp.q?.trim()     || null;
+  const grupo = sp.grupo?.trim() || null;
+  const cat   = sp.cat?.trim()   || null;
+  const marca = sp.marca?.trim() || null;
+  const page  = Math.max(1, parseInt(sp.page ?? '1', 10));
+
+  // Grupos para el árbol del sidebar (cacheados)
   const grupos = await getFerreteriaGrupos();
 
-  const totalProductos = grupos.reduce((a, g) => a + g.totalProductos, 0);
-  const totalCategorias = grupos.reduce((a, g) => a + g.subcategorias.length, 0);
+  // Slugs de subcategorías del grupo seleccionado (para filtrar por grupo)
+  const grupoObj = grupos.find((g) => g.slug === grupo) ?? null;
+  const categoriasSlugs = grupoObj ? grupoObj.subcategorias.map((sc) => sc.slug) : [];
+
+  // Slug de categoría efectiva: si hay "cat" la usamos; si hay "grupo" usamos el array
+  const catSlug   = cat ?? undefined;
+  const grupoSlugs = !cat && categoriasSlugs.length > 0 ? categoriasSlugs : undefined;
+
+  // Secuenciales para no saturar el pool (getProductosFerreteria ya usa 2 conexiones internas)
+  const paginada = await getProductosFerreteria({
+    categoriaSlug:   catSlug,
+    categoriasSlugs: grupoSlugs,
+    marca:           marca ?? undefined,
+    q:               q ?? undefined,
+    page,
+    limit: LIMIT,
+  });
+  const marcas = await getFerreteriaMarcas(catSlug, grupoSlugs);
+
+  // Construir baseHref para el paginador preservando todos los filtros activos
+  const filtros = new URLSearchParams();
+  if (q)     filtros.set('q',     q);
+  if (grupo) filtros.set('grupo', grupo);
+  if (cat)   filtros.set('cat',   cat);
+  if (marca) filtros.set('marca', marca);
+  const filtroStr = filtros.toString();
+  const baseHref  = `/ferreteria?${filtroStr ? filtroStr + '&' : ''}page=`;
+
+  const totalProductos  = grupos.reduce((a, g) => a + g.totalProductos, 0);
+
+  // Título del área principal
+  let tituloArea = 'Todos los productos';
+  if (cat && grupoObj) {
+    const sc = grupoObj.subcategorias.find((s) => s.slug === cat);
+    tituloArea = sc?.nombre ?? cat;
+  } else if (grupoObj) {
+    tituloArea = grupoObj.nombre;
+  }
+  if (q) tituloArea = `Resultados para "${q}"`;
 
   return (
     <>
@@ -46,7 +79,7 @@ export default async function FerreteriaPrincipalPage() {
           </div>
           <h1 className={styles.heroTitulo}>Catálogo de Ferretería</h1>
           <p className={styles.heroSub}>
-            Encuentra herramientas, materiales y accesorios organizados por familia de producto.
+            Busca entre miles de herramientas, materiales y accesorios.
           </p>
           <div className={styles.heroStats}>
             <div className={styles.heroStat}>
@@ -58,61 +91,117 @@ export default async function FerreteriaPrincipalPage() {
               <span className={styles.heroStatLabel}>Grupos</span>
             </div>
             <div className={styles.heroStat}>
-              <span className={styles.heroStatNum}>{totalCategorias}</span>
+              <span className={styles.heroStatNum}>
+                {grupos.reduce((a, g) => a + g.subcategorias.length, 0)}
+              </span>
               <span className={styles.heroStatLabel}>Familias</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Árbol de grupos */}
-      <div className={styles.arbolWrapper}>
-        <div className={styles.arbolHeader}>
-          <h2>Familias de productos</h2>
-          <span>Haz clic en un grupo para ver sus subcategorías</span>
-        </div>
+      {/* Layout sidebar + productos */}
+      <div className={styles.catLayout}>
 
-        <div className={styles.gruposGrid}>
-          {grupos.map((grupo) => {
-            const icono = GRUPO_ICONOS[grupo.slug] ?? 'fa-solid fa-layer-group';
-            return (
-              <details key={grupo.slug} className={styles.grupoDetalle}>
-                <summary className={styles.grupoResumen}>
-                  <div className={styles.grupoIcono}>
-                    <i className={icono} />
-                  </div>
-                  <div className={styles.grupoTexto}>
-                    <span className={styles.grupoNombre}>{grupo.nombre}</span>
-                    <span className={styles.grupoMeta}>
-                      {grupo.subcategorias.length} familias
-                      {grupo.totalProductos > 0 && (
-                        <> · {grupo.totalProductos.toLocaleString('es-MX')} productos</>
-                      )}
-                    </span>
-                  </div>
-                  <i className={`fa-solid fa-chevron-right ${styles.grupoChevron}`} />
-                </summary>
+        {/* ── Sidebar de filtros (Client Component) ── */}
+        <FiltrosFerreteria
+          grupos={grupos}
+          grupoActual={grupo}
+          catActual={cat}
+          marcas={marcas}
+          marcaActual={marca}
+          qActual={q}
+        />
 
-                <div className={styles.grupoHijos}>
-                  {grupo.subcategorias.map((sub) => (
+        {/* ── Área principal ── */}
+        <main className={styles.main}>
+          <div className={styles.mainHeader}>
+            <div>
+              <h2 className={styles.mainTitulo}>{tituloArea}</h2>
+              <p className={styles.mainSubtitulo}>
+                {paginada.total.toLocaleString('es-MX')} producto{paginada.total !== 1 ? 's' : ''}
+              </p>
+            </div>
+
+            {/* Chips de filtros activos */}
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+              {grupoObj && (
+                <span className={styles.filtroActivo}>
+                  <i className="fa-solid fa-layer-group" /> {grupoObj.nombre}
+                </span>
+              )}
+              {marca && (
+                <span className={styles.filtroActivo}>
+                  <i className="fa-solid fa-tag" /> {marca}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {paginada.total === 0 ? (
+            <div className={styles.emptyState}>
+              <i className="fa-solid fa-box-open" />
+              <p>No hay productos con estos filtros.</p>
+              <Link href="/ferreteria" style={{ color: 'var(--azul-boton)', fontSize: '0.85rem' }}>
+                Ver todos los productos
+              </Link>
+            </div>
+          ) : (
+            <>
+              <div className={styles.productosGrid}>
+                {paginada.productos.map((p) => {
+                  const img = resolverImagenProducto(p.imagen_url);
+                  return (
                     <Link
-                      key={sub.slug}
-                      href={`/ferreteria/${sub.slug}`}
-                      className={styles.subcatLink}
+                      key={p.id}
+                      href={`/ferreteria/${p.categoria_slug}/${p.slug}`}
+                      className={styles.prodCard}
                     >
-                      <span className={styles.subcatNombre}>{sub.nombre}</span>
-                      {sub.total > 0 && (
-                        <span className={styles.subcatTotal}>
-                          {sub.total.toLocaleString('es-MX')}
-                        </span>
+                      {img ? (
+                        <div className={styles.prodCardImg}>
+                          <Image
+                            src={img}
+                            alt={p.nombre}
+                            fill
+                            sizes="(max-width: 600px) 50vw, (max-width: 1024px) 33vw, 200px"
+                            style={{ objectFit: 'contain', padding: 8 }}
+                          />
+                        </div>
+                      ) : (
+                        <div className={styles.prodCardPlaceholder}>
+                          <i className="fa-solid fa-wrench" />
+                        </div>
                       )}
+
+                      <div className={styles.prodCardBody}>
+                        {p.marca && (
+                          <span className={styles.prodCardMarca}>{p.marca}</span>
+                        )}
+                        <span className={styles.prodCardNombre}>{p.nombre}</span>
+                        {p.unidad && (
+                          <span className={styles.prodCardUnidad}>{p.unidad}</span>
+                        )}
+                        <span className={styles.prodCardPrecio}>
+                          ${p.precio.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                        </span>
+                      </div>
+
+                      <span className={styles.prodCardBtn}>Ver producto</span>
                     </Link>
-                  ))}
-                </div>
-              </details>
-            );
-          })}
-        </div>
+                  );
+                })}
+              </div>
+
+              <Paginador
+                page={page}
+                pages={paginada.pages}
+                total={paginada.total}
+                limit={LIMIT}
+                baseHref={baseHref}
+              />
+            </>
+          )}
+        </main>
       </div>
     </>
   );

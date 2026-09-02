@@ -27,12 +27,23 @@ declare global {
   var __pgPool: Pool | undefined;
 }
 
+// Bump this version string whenever pool config changes to force recreation.
+const POOL_VERSION = 'v2-keepalive';
+declare global { var __pgPoolVersion: string | undefined; }
+
+if (globalThis.__pgPoolVersion !== POOL_VERSION) {
+  globalThis.__pgPool = undefined;
+  globalThis.__pgPoolVersion = POOL_VERSION;
+}
+
 const pool: Pool = globalThis.__pgPool ?? new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: SSL_CONFIG,
-  max: 3,
-  idleTimeoutMillis: 10_000,
-  connectionTimeoutMillis: 5_000,
+  max: 8,
+  idleTimeoutMillis: 30_000,
+  connectionTimeoutMillis: 8_000,
+  keepAlive: true,
+  keepAliveInitialDelayMillis: 10_000,
 });
 
 globalThis.__pgPool = pool;
@@ -79,10 +90,20 @@ async function run(
 
 // ── Interfaz pública ─────────────────────────────────────────
 
+const RETRYABLE = ['Connection terminated', 'ECONNRESET', 'ETIMEDOUT'];
+
 export const db = {
-  /** Ejecuta una consulta con el pool. */
+  /** Ejecuta una consulta con el pool; reintenta una vez en errores de conexión. */
   async query(sql: string, params?: any[]): Promise<[any, any]> {
-    return run(pool, sql, params);
+    try {
+      return await run(pool, sql, params);
+    } catch (err: any) {
+      const msg: string = err?.message ?? '';
+      if (RETRYABLE.some((t) => msg.includes(t))) {
+        return run(pool, sql, params);
+      }
+      throw err;
+    }
   },
 
   /**
