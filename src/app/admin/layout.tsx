@@ -76,7 +76,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div key="ajustes" className={styles.sidebarGroup}>
       <button
         className={`${styles.sidebarGroupBtn} ${enAjustes ? styles.sidebarGroupBtnActive : ''}`}
-        onClick={() => {/* always open when in /admin/ajustes, else navigate */}}
+        onClick={() => router.push('/admin/ajustes/personalizar')}
         aria-expanded={enAjustes}
       >
         <i className="fa-solid fa-gear" />
