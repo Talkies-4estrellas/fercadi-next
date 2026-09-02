@@ -1,8 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import ImageUploader from '@/components/admin/ImageUploader';
 import styles from '@/styles/admin.module.css';
 import galeriaStyles from '@/styles/adminGaleria.module.css';
 
@@ -22,12 +21,9 @@ export default function GaleriaPage() {
   const [busqueda,   setBusqueda]   = useState('');
   const [copiado,    setCopiado]    = useState<string | null>(null);
   const [mensaje,    setMensaje]    = useState<{ tipo: 'ok' | 'error'; texto: string } | null>(null);
-  const [subiendo,   setSubiendo]   = useState(false);
-  const [rutaSubida, setRutaSubida] = useState('');
   const [preview,    setPreview]    = useState<ImagenItem | null>(null);
   const [eliminar,   setEliminar]   = useState<ImagenItem | null>(null);
   const [eliminando, setEliminando] = useState(false);
-  const inputRutaRef = useRef<HTMLInputElement>(null);
 
   const mostrarMensaje = (tipo: 'ok' | 'error', texto: string) => {
     setMensaje({ tipo, texto });
@@ -70,37 +66,6 @@ export default function GaleriaPage() {
     }
   };
 
-  const subirImagen = async (file: File) => {
-    if (!user) return;
-    if (!rutaSubida.trim()) {
-      mostrarMensaje('error', 'Escribe la ruta de destino antes de subir');
-      inputRutaRef.current?.focus();
-      return;
-    }
-    setSubiendo(true);
-    try {
-      const fd = new FormData();
-      fd.append('file', file);
-      fd.append('path', rutaSubida.trim());
-      const r = await fetch('/api/admin/upload', {
-        method: 'POST',
-        headers: { 'x-usuario-id': String(user.id) },
-        body: fd,
-      });
-      const d = await r.json();
-      if (d.ok) {
-        mostrarMensaje('ok', `Imagen subida: ${d.url}`);
-        setRutaSubida('');
-        await cargar();
-      } else {
-        mostrarMensaje('error', d.error ?? 'Error al subir imagen');
-      }
-    } catch {
-      mostrarMensaje('error', 'Error de red al subir');
-    } finally {
-      setSubiendo(false);
-    }
-  };
 
   const confirmarEliminar = async () => {
     if (!user || !eliminar) return;
@@ -136,7 +101,7 @@ export default function GaleriaPage() {
             Galería de imágenes
           </h1>
           <p className={styles.pageSubtitle}>
-            Explora, copia y sube imágenes de productos. Total: {imagenes.length} archivos.
+            Explora y administra las imágenes almacenadas en Supabase. Total: {imagenes.length} archivos.
           </p>
         </div>
         <button className={styles.btnSecondary} onClick={cargar} disabled={loading}>
@@ -153,38 +118,6 @@ export default function GaleriaPage() {
           {' '}{mensaje.texto}
         </div>
       )}
-
-      {/* Panel de subida */}
-      <div className={galeriaStyles.uploadPanel}>
-        <h3 className={galeriaStyles.uploadTitle}>
-          <i className="fa-solid fa-cloud-arrow-up" aria-hidden="true" /> Subir imagen
-        </h3>
-        <div className={galeriaStyles.uploadRow}>
-          <div className={galeriaStyles.uploadRutaWrap}>
-            <label className={styles.formLabel}>Ruta de destino</label>
-            <input
-              ref={inputRutaRef}
-              className={styles.formInput}
-              style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}
-              value={rutaSubida}
-              onChange={(e) => setRutaSubida(e.target.value)}
-              placeholder="ej. productos/textucos/servicios/nombre-imagen.webp"
-            />
-            <span className={galeriaStyles.rutaHint}>
-              La imagen se convierte a WebP automáticamente.
-            </span>
-          </div>
-          <div className={galeriaStyles.uploadBtnWrap}>
-            {subiendo ? (
-              <span className={styles.loadingText}>
-                <i className="fa-solid fa-spinner fa-spin" aria-hidden="true" /> Subiendo…
-              </span>
-            ) : (
-              <ImageUploader onFile={subirImagen} />
-            )}
-          </div>
-        </div>
-      </div>
 
       {/* Filtros */}
       <div className={styles.filtros} style={{ marginTop: 24 }}>
