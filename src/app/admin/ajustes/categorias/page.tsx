@@ -5,7 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import styles from '@/styles/admin.module.css';
 import catStyles from '@/styles/categorias.module.css';
 
-type Seccion = 'textucos' | 'concretos' | 'ferreteria';
+type Seccion = 'textucos' | 'concretos' | 'ferreteria' | 'materiales';
 
 interface Categoria {
   id: number;
@@ -24,6 +24,7 @@ const SECCIONES: { key: Seccion; label: string }[] = [
   { key: 'textucos',   label: 'Acabados'   },
   { key: 'concretos',  label: 'Concretos'  },
   { key: 'ferreteria', label: 'Ferretería' },
+  { key: 'materiales', label: 'Materiales' },
 ];
 
 const autoSlug = (nombre: string) =>
