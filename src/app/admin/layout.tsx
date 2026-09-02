@@ -47,6 +47,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { href: '/admin/mensajes',        label: 'Mensajes',       icon: 'fa-solid fa-comment-dots'     },
     { href: '/admin/comentarios',     label: 'Comentarios',    icon: 'fa-solid fa-comments'         },
     { href: '/admin/usuarios',        label: 'Usuarios',       icon: 'fa-solid fa-users'            },
+    { href: '/admin/galeria',         label: 'Galería',        icon: 'fa-solid fa-images'           },
   ];
 
   const ajustesSubLinks = [

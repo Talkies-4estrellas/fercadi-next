@@ -1,0 +1,181 @@
+.uploadPanel {
+  background: #f7f9fc;
+  border: 1px solid rgba(1, 27, 79, 0.1);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 8px;
+}
+
+.uploadTitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--azul-profundo);
+  margin: 0 0 16px;
+}
+
+.uploadRow {
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.uploadRutaWrap {
+  flex: 1;
+  min-width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rutaHint {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.uploadBtnWrap {
+  flex-shrink: 0;
+}
+
+/* ── Grid ── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.card {
+  background: white;
+  border: 1px solid rgba(1, 27, 79, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.15s;
+}
+
+.card:hover {
+  box-shadow: 0 4px 14px rgba(1, 27, 79, 0.1);
+}
+
+.cardImg {
+  width: 100%;
+  height: 130px;
+  background: #f0f2f7;
+  border: none;
+  cursor: zoom-in;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cardBody {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px 4px;
+}
+
+.cardNombre {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--azul-profundo);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.cardRuta {
+  font-size: 0.68rem;
+  color: #888;
+  padding: 0 10px 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: monospace;
+}
+
+.fuenteBadge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 20px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.fuenteSupabase {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.fuenteLocal {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.copiarBtn {
+  width: 100%;
+  padding: 8px 0;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border: none;
+  border-top: 1px solid rgba(1, 27, 79, 0.08);
+  background: transparent;
+  color: var(--azul-profundo);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.copiarBtn:hover {
+  background: rgba(1, 27, 79, 0.05);
+}
+
+.copiarBtnOk {
+  color: #059669;
+  background: rgba(5, 150, 105, 0.06);
+}
+
+/* ── Preview modal ── */
+.previewModal {
+  background: white;
+  border-radius: 14px;
+  max-width: 700px;
+  width: 95vw;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+.previewImgWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f2f7;
+  padding: 24px;
+  min-height: 200px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 10px;
+  }
+
+  .cardImg {
+    height: 100px;
+  }
+
+  .uploadRow {
+    flex-direction: column;
+  }
+}
