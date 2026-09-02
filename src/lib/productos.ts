@@ -158,6 +158,67 @@ export const getMaterialesCategorias = unstable_cache(
    (paginación, filtros por marca)
    ══════════════════════════════════════════════════════════════ */
 
+export interface FerreteriaSubcat {
+  slug: string;
+  nombre: string;
+  total: number;
+}
+
+export interface FerreteriaGrupo {
+  slug: string;
+  nombre: string;
+  totalProductos: number;
+  subcategorias: FerreteriaSubcat[];
+}
+
+/**
+ * Árbol de Ferretería: 18 grupos padre con sus subcategorías y conteo de productos.
+ * Usa la tabla `categorias` (parent_id) cruzada con `productos` para los totales.
+ */
+export const getFerreteriaGrupos = unstable_cache(
+  async (): Promise<FerreteriaGrupo[]> => {
+    const [rows]: any = await db.query(
+      `SELECT
+         g.id        AS grupo_id,
+         g.slug      AS grupo_slug,
+         g.nombre    AS grupo_nombre,
+         g.orden     AS grupo_orden,
+         c.slug      AS cat_slug,
+         c.nombre    AS cat_nombre,
+         COUNT(p.id) AS total
+       FROM categorias g
+       LEFT JOIN categorias c
+         ON c.parent_id = g.id AND c.activo = 1
+       LEFT JOIN productos p
+         ON p.categoria_slug = c.slug AND p.seccion = 'ferreteria' AND p.activo = 1
+       WHERE g.seccion = 'ferreteria' AND g.parent_id IS NULL AND g.activo = 1
+       GROUP BY g.id, g.slug, g.nombre, g.orden, c.slug, c.nombre
+       ORDER BY g.orden ASC, COUNT(p.id) DESC`
+    );
+
+    const gruposMap = new Map<number, FerreteriaGrupo>();
+    for (const row of rows as any[]) {
+      if (!gruposMap.has(row.grupo_id)) {
+        gruposMap.set(row.grupo_id, {
+          slug: row.grupo_slug,
+          nombre: row.grupo_nombre,
+          totalProductos: 0,
+          subcategorias: [],
+        });
+      }
+      const g = gruposMap.get(row.grupo_id)!;
+      if (row.cat_slug) {
+        const total = Number(row.total);
+        g.subcategorias.push({ slug: row.cat_slug, nombre: row.cat_nombre, total });
+        g.totalProductos += total;
+      }
+    }
+    return Array.from(gruposMap.values());
+  },
+  ['getFerreteriaGrupos'],
+  { revalidate: 300 }
+);
+
 /**
  * Categorías de ferretería ordenadas por volumen de productos
  * (las más pobladas primero) para priorizar el catálogo principal.
