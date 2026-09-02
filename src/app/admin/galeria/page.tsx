@@ -24,6 +24,9 @@ export default function GaleriaPage() {
   const [preview,    setPreview]    = useState<ImagenItem | null>(null);
   const [eliminar,   setEliminar]   = useState<ImagenItem | null>(null);
   const [eliminando, setEliminando] = useState(false);
+  const [page,       setPage]       = useState(1);
+
+  const POR_PAGINA = 24;
 
   const mostrarMensaje = (tipo: 'ok' | 'error', texto: string) => {
     setMensaje({ tipo, texto });
@@ -55,6 +58,12 @@ export default function GaleriaPage() {
     const matchBusq    = !busqueda || img.nombre.toLowerCase().includes(busqueda.toLowerCase());
     return matchCarpeta && matchBusq;
   });
+
+  const totalPages    = Math.max(1, Math.ceil(imagenesFiltradas.length / POR_PAGINA));
+  const paginaSegura  = Math.min(page, totalPages);
+  const imagenesPagina = imagenesFiltradas.slice((paginaSegura - 1) * POR_PAGINA, paginaSegura * POR_PAGINA);
+
+  const cambiarFiltro = (fn: () => void) => { fn(); setPage(1); };
 
   const copiar = async (ruta: string) => {
     try {
@@ -123,7 +132,7 @@ export default function GaleriaPage() {
       <div className={styles.filtros} style={{ marginTop: 24 }}>
         <select
           value={carpeta}
-          onChange={(e) => setCarpeta(e.target.value)}
+          onChange={(e) => cambiarFiltro(() => setCarpeta(e.target.value))}
           className={styles.filtroSelect}
         >
           <option value="">Todas las carpetas ({imagenes.length})</option>
@@ -139,11 +148,11 @@ export default function GaleriaPage() {
             type="text"
             placeholder="Buscar por nombre de archivo…"
             value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
+            onChange={(e) => cambiarFiltro(() => setBusqueda(e.target.value))}
             className={styles.filtroInput}
           />
           {busqueda && (
-            <button className={styles.btnSecondary} onClick={() => setBusqueda('')}>
+            <button className={styles.btnSecondary} onClick={() => cambiarFiltro(() => setBusqueda(''))}>
               <i className="fa-solid fa-xmark" aria-hidden="true" />
             </button>
           )}
@@ -167,7 +176,7 @@ export default function GaleriaPage() {
         </p>
       ) : (
         <div className={galeriaStyles.grid}>
-          {imagenesFiltradas.map((img) => {
+          {imagenesPagina.map((img) => {
             const yaCopiada = copiado === img.ruta;
             return (
               <div key={img.ruta} className={galeriaStyles.card}>
@@ -216,6 +225,30 @@ export default function GaleriaPage() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Paginador */}
+      {!loading && totalPages > 1 && (
+        <div className={styles.paginador}>
+          <span className={styles.paginadorInfo}>
+            {(paginaSegura - 1) * POR_PAGINA + 1}–{Math.min(paginaSegura * POR_PAGINA, imagenesFiltradas.length)} de {imagenesFiltradas.length}
+          </span>
+          <div className={styles.paginadorBtns}>
+            <button className={styles.btnSecondary} disabled={paginaSegura === 1} onClick={() => setPage(1)} title="Primera">
+              <i className="fa-solid fa-angles-left" aria-hidden="true" />
+            </button>
+            <button className={styles.btnSecondary} disabled={paginaSegura === 1} onClick={() => setPage((p) => p - 1)} title="Anterior">
+              <i className="fa-solid fa-angle-left" aria-hidden="true" />
+            </button>
+            <span className={styles.paginadorPagina}>Pág. {paginaSegura} / {totalPages}</span>
+            <button className={styles.btnSecondary} disabled={paginaSegura === totalPages} onClick={() => setPage((p) => p + 1)} title="Siguiente">
+              <i className="fa-solid fa-angle-right" aria-hidden="true" />
+            </button>
+            <button className={styles.btnSecondary} disabled={paginaSegura === totalPages} onClick={() => setPage(totalPages)} title="Última">
+              <i className="fa-solid fa-angles-right" aria-hidden="true" />
+            </button>
+          </div>
         </div>
       )}
 
