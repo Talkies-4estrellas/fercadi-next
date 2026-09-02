@@ -4,6 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
+## Instrucciones de flujo de trabajo
+
+- **NO realizar commits** a menos que el usuario lo pida explícitamente.
+- El servidor de desarrollo **siempre corre en `http://localhost:3000`** salvo que el usuario indique lo contrario. Usar esa URL para verificar cambios en el navegador.
+
+---
+
 ## ⚠️ Advertencia de versión
 
 Este proyecto usa **Next.js 16.2.4** con **React 19**. Las APIs, convenciones y estructura de archivos pueden diferir del conocimiento de entrenamiento.
