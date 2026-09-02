@@ -46,6 +46,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { href: '/admin/importar',        label: 'Importar CSV',   icon: 'fa-solid fa-file-arrow-up'    },
     { href: '/admin/mensajes',        label: 'Mensajes',       icon: 'fa-solid fa-comment-dots'     },
     { href: '/admin/comentarios',     label: 'Comentarios',    icon: 'fa-solid fa-comments'         },
+    { href: '/admin/usuarios',        label: 'Usuarios',       icon: 'fa-solid fa-users'            },
   ];
 
   const ajustesSubLinks = [
