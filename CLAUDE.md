@@ -95,8 +95,10 @@ C:\fercadi-next\
 │   │   │   │   └── [id]/page.tsx
 │   │   │   └── tips/
 │   │   │       ├── page.tsx
-│   │   │       ├── nuevo/page.tsx  # ✅ Asistente IA (Gemini) integrado
-│   │   │       └── [id]/page.tsx
+│   │   │       ├── nuevo/page.tsx  # ✅ Asistente IA (Groq) + preview Markdown
+│   │   │       └── [id]/page.tsx   # ✅ Preview Markdown
+│   │   ├── usuarios/page.tsx       # Gestión de roles admin↔usuario
+│   │   ├── galeria/page.tsx        # Galería de imágenes Supabase + locales
 │   │   │
 │   │   └── api/
 │   │       ├── login/route.ts
@@ -139,7 +141,9 @@ C:\fercadi-next\
 │   │   ├── CalculadoraVolumen.tsx
 │   │   ├── ColorPicker.tsx
 │   │   ├── ContactForm.tsx
-│   │   └── admin/ProductoForm.tsx
+│   │   ├── admin/ProductoForm.tsx
+│   │   ├── admin/ImageUploader.tsx  # onFile(file) → sube a /api/admin/upload
+│   │   └── admin/MarkdownPreview.tsx # Parser Markdown → mismo render que tips/[slug]
 │   │
 │   ├── context/
 │   │   ├── AuthContext.tsx         # user, isAdmin, login(), logout() — localStorage
@@ -290,6 +294,11 @@ Luego cerrar sesión y volver a iniciar para que localStorage se actualice.
 | `/api/admin/productos/[id]` | GET / PUT / DELETE 🔒 | CRUD (DELETE = soft activo=0) |
 | `/api/admin/pedidos` | GET 🔒 | Lista órdenes con filtros |
 | `/api/admin/pedidos/[id]` | GET / PUT 🔒 | Detalle + cambiar estado (cascada a pedidos) |
+| `/api/admin/imagenes` | GET 🔒 | Lista imágenes locales + Supabase Storage |
+| `/api/admin/imagenes` | DELETE 🔒 | Elimina imagen de Supabase dado `{ ruta }` (URL pública) |
+| `/api/admin/usuarios` | GET 🔒 | Lista paginada de usuarios con filtro por rol/búsqueda |
+| `/api/admin/usuarios/[id]` | PATCH 🔒 | Cambia rol admin↔usuario (no puede modificarse a sí mismo) |
+| `/api/admin/upload` | POST 🔒 | Sube imagen → convierte a WebP → Supabase Storage |
 
 🔒 = requieren header `x-usuario-id` de admin. Validado por `lib/admin.ts > requerirAdmin(req)`.
 
@@ -386,13 +395,31 @@ El `Carousel.tsx` acepta `slides: CarouselSlide[]` como prop y renderiza el over
 
 ---
 
-### 10. Sistema de Tips (`/tips`)
+### 10. Galería de imágenes admin (`/admin/galeria`)
+
+Administrador de imágenes almacenadas en Supabase Storage y locales en `public/productos/`.
+
+**API:** `GET /api/admin/imagenes` — lista todo; `DELETE /api/admin/imagenes` — elimina de Supabase dado `{ ruta }` (URL pública). Solo acepta URLs del bucket propio.
+
+**UI:** grid con paginación (24/pág), filtro por carpeta, búsqueda por nombre, badge `local`/`supabase`, botón "Copiar URL" con feedback visual, modal de preview en grande, botón papelera (solo Supabase) con modal de confirmación.
+
+**Componentes:** `src/app/admin/galeria/page.tsx`, `src/styles/adminGaleria.module.css`
+
+**Helper:** `deleteFile(path)` añadido a `src/lib/supabaseStorage.ts`.
+
+---
+
+### 11. Sistema de Tips (`/tips`)
 
 - `/tips` — Grid dinámico desde BD, `force-dynamic`.
 - `/tips/[slug]` — Detalle con renderizado básico de Markdown.
 - `/admin/tips` — Listado con búsqueda + acciones editar/ver/desactivar.
-- `/admin/tips/nuevo` — Formulario con **asistente IA** + auto-slug + preview imagen.
-- `/admin/tips/[id]` — Igual que nuevo, pre-cargado.
+- `/admin/tips/nuevo` — Formulario con **asistente IA** + auto-slug + preview imagen + **toggle Editar/Vista previa Markdown**.
+- `/admin/tips/[id]` — Igual que nuevo, pre-cargado, con toggle Editar/Vista previa.
+
+**Componente de preview:** `src/components/admin/MarkdownPreview.tsx` — reutilizable, usa el mismo parser que la página pública (`tips/[slug]/page.tsx`) y los mismos estilos de `tips.module.css`.
+
+**Toggle:** tabs "Editar" / "Vista previa" encima del textarea. En vista previa, el textarea se sustituye por `<MarkdownPreview texto={contenido} />`. Cambiar tab no borra el contenido.
 
 **Soft delete:** `DELETE` pone `activo = 0`, no elimina el registro.
 
@@ -451,10 +478,18 @@ Producto → BtnAgregarCarrito (modal, selector cantidad)
 | Panel de admin con CRUD de productos, pedidos, tips | ✅ |
 | BtnAgregarCarrito en ferretería, concretos y textucos | ✅ |
 | Gestión del inicio (tarjetas + carrusel) desde `/admin/home` | ✅ |
-| Asistente IA para tips (Gemini 1.5 Flash) | ✅ |
+| Asistente IA para tips (Groq Llama 3.3 70B) | ✅ |
 | Buscador debounced con ILIKE PostgreSQL | ✅ |
 | Importación masiva CSV (15,756 productos) | ✅ |
 | Registro con campos completos (10 campos) | ✅ |
+| Hero banner unificado (`SectionHero`) en todas las secciones | ✅ |
+| Filtros dropdown horizontales en ferretería | ✅ |
+| Sección Servicios en Acabados (`/textucos/servicios`) | ✅ |
+| Gestión de categorías admin (concretos, textucos, materiales, ferretería) | ✅ |
+| Filtro de categoría dinámico en `/admin/productos` | ✅ |
+| Gestión de usuarios admin (`/admin/usuarios`) — cambio de rol admin↔usuario | ✅ |
+| Galería de imágenes admin (`/admin/galeria`) — browse, copiar URL, eliminar Supabase | ✅ |
+| Preview Markdown en editor de tips (tabs Editar/Vista previa) | ✅ |
 
 ### Pasos pendientes para dejar 100% operativo
 1. **Registrar cuenta** en `/login` tab Registro
