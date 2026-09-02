@@ -28,12 +28,16 @@ const SECCIONES = [
 
 const LIMIT = 50;
 
+interface CategoriaOpc { slug: string; nombre: string; }
+
 export default function AdminProductosPage() {
   const { user } = useAuth();
 
   const [productos, setProductos] = useState<Producto[]>([]);
   const [loading,   setLoading]   = useState(true);
   const [seccion,   setSeccion]   = useState('');
+  const [categoria, setCategoria] = useState('');
+  const [categorias, setCategorias] = useState<CategoriaOpc[]>([]);
   const [qInput,    setQInput]    = useState('');   // valor del input (sin confirmar)
   const [qActivo,   setQActivo]   = useState('');   // término aplicado al último fetch
   const [page,      setPage]      = useState(1);
@@ -52,8 +56,17 @@ export default function AdminProductosPage() {
     abierto: false, id: 0, nombre: '',
   });
 
+  // Carga categorías cuando cambia la sección
+  useEffect(() => {
+    if (!user || !seccion) { setCategorias([]); return; }
+    fetch(`/api/admin/categorias?seccion=${seccion}`, { headers: { 'x-usuario-id': String(user.id) } })
+      .then((r) => r.json())
+      .then((d) => setCategorias(d.ok ? d.categorias : []))
+      .catch(() => setCategorias([]));
+  }, [user, seccion]);
+
   // ── Función central de carga ─────────────────────────────────
-  const cargar = useCallback((p: number, sec: string, busq: string) => {
+  const cargar = useCallback((p: number, sec: string, busq: string, cat: string) => {
     if (!user) return;
 
     // Cancelar fetch previo si todavía estaba en vuelo
@@ -65,6 +78,7 @@ export default function AdminProductosPage() {
 
     const params = new URLSearchParams();
     if (sec)  params.set('seccion', sec);
+    if (cat)  params.set('categoria', cat);
     if (busq) params.set('q', busq);
     params.set('page',  String(p));
     params.set('limit', String(LIMIT));
@@ -87,11 +101,11 @@ export default function AdminProductosPage() {
       .finally(() => { if (!controller.signal.aborted) setLoading(false); });
   }, [user]);
 
-  // Carga inicial y cuando cambia sección o página
+  // Carga inicial y cuando cambia sección, categoría o página
   useEffect(() => {
-    cargar(page, seccion, qActivo);
+    cargar(page, seccion, qActivo, categoria);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, page, seccion]);
+  }, [user, page, seccion, categoria]);
 
   // ── Sugerencias flotantes (debounce 300ms) ───────────────────
   useEffect(() => {
@@ -131,9 +145,10 @@ export default function AdminProductosPage() {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // Cambiar sección → reiniciar a página 1 y limpiar búsqueda
+  // Cambiar sección → reiniciar a página 1 y limpiar búsqueda y categoría
   const handleSeccion = (val: string) => {
     setSeccion(val);
+    setCategoria('');
     setPage(1);
     setQInput('');
     setQActivo('');
@@ -145,7 +160,7 @@ export default function AdminProductosPage() {
     setQActivo(qInput);
     setPage(1);
     setShowSug(false);
-    cargar(1, seccion, qInput);
+    cargar(1, seccion, qInput, categoria);
   };
 
   // Desactivar producto (soft delete)
@@ -194,6 +209,19 @@ export default function AdminProductosPage() {
             <option key={s.value} value={s.value}>{s.label}</option>
           ))}
         </select>
+
+        {seccion && categorias.length > 0 && (
+          <select
+            value={categoria}
+            onChange={(e) => { setCategoria(e.target.value); setPage(1); }}
+            className={styles.filtroSelect}
+          >
+            <option value="">Todas las categorías</option>
+            {categorias.map((c) => (
+              <option key={c.slug} value={c.slug}>{c.nombre}</option>
+            ))}
+          </select>
+        )}
 
         <div className={styles.filtroBuscar} ref={sugWrapRef}>
           <input
