@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import ImageUploader from '@/components/admin/ImageUploader';
+import MarkdownPreview from '@/components/admin/MarkdownPreview';
 import styles from '@/styles/admin.module.css';
 import tipStyles from '@/styles/adminTips.module.css';
 
@@ -37,6 +38,7 @@ export default function NuevoTipPage() {
   const [slugManual,  setSlugManual]  = useState(false);
   const [guardando,   setGuardando]   = useState(false);
   const [error,       setError]       = useState('');
+  const [tab,         setTab]         = useState<'editar' | 'preview'>('editar');
 
   // ── Neurona IA ────────────────────────────────────────────────
   const [temaIa,     setTemaIa]     = useState('');
@@ -207,13 +209,34 @@ export default function NuevoTipPage() {
             <p className={tipStyles.ayuda}>
               Usa <code>**texto**</code> para negrita, <code>- elemento</code> para listas y líneas en blanco para separar párrafos.
             </p>
-            <textarea
-              className={tipStyles.contenidoTextarea}
-              rows={16}
-              placeholder={'Escribe el contenido del tutorial aquí…\n\n**Sección 1**\nTexto del párrafo.\n\n- Punto 1\n- Punto 2'}
-              value={contenido}
-              onChange={(e) => setContenido(e.target.value)}
-            />
+            <div className={tipStyles.editorTabs}>
+              <button
+                type="button"
+                className={`${tipStyles.editorTab} ${tab === 'editar' ? tipStyles.editorTabActivo : ''}`}
+                onClick={() => setTab('editar')}
+              >
+                <i className="fa-solid fa-code" aria-hidden="true" /> Editar
+              </button>
+              <button
+                type="button"
+                className={`${tipStyles.editorTab} ${tab === 'preview' ? tipStyles.editorTabActivo : ''}`}
+                onClick={() => setTab('preview')}
+              >
+                <i className="fa-regular fa-eye" aria-hidden="true" /> Vista previa
+              </button>
+            </div>
+            {tab === 'editar' ? (
+              <textarea
+                className={tipStyles.contenidoTextarea}
+                style={{ borderTopLeftRadius: 0, borderTopRightRadius: 0, borderTop: 'none' }}
+                rows={16}
+                placeholder={'Escribe el contenido del tutorial aquí…\n\n**Sección 1**\nTexto del párrafo.\n\n- Punto 1\n- Punto 2'}
+                value={contenido}
+                onChange={(e) => setContenido(e.target.value)}
+              />
+            ) : (
+              <MarkdownPreview texto={contenido} />
+            )}
           </div>
         </div>
 
