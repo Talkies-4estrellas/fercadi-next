@@ -8,17 +8,22 @@ import catStyles from '@/styles/categorias.module.css';
 type Seccion = 'textucos' | 'concretos' | 'ferreteria';
 
 interface Categoria {
-  id?: number;
+  id: number;
   slug: string;
   nombre: string;
   descripcion?: string;
   orden?: number;
+  parent_id: number | null;
+}
+
+interface Grupo extends Categoria {
+  hijos: Categoria[];
 }
 
 const SECCIONES: { key: Seccion; label: string }[] = [
-  { key: 'textucos',   label: 'Acabados'    },
-  { key: 'concretos',  label: 'Concretos'   },
-  { key: 'ferreteria', label: 'Ferretería'  },
+  { key: 'textucos',   label: 'Acabados'   },
+  { key: 'concretos',  label: 'Concretos'  },
+  { key: 'ferreteria', label: 'Ferretería' },
 ];
 
 const autoSlug = (nombre: string) =>
@@ -30,13 +35,30 @@ const autoSlug = (nombre: string) =>
     .trim()
     .replace(/\s+/g, '-');
 
+function buildTree(cats: Categoria[]): { grupos: Grupo[]; huerfanos: Categoria[] } {
+  const padres = cats.filter((c) => c.parent_id === null);
+  const hijos  = cats.filter((c) => c.parent_id !== null);
+
+  const grupos: Grupo[] = padres.map((p) => ({
+    ...p,
+    hijos: hijos.filter((h) => h.parent_id === p.id),
+  }));
+
+  // Categorías huérfanas: tienen parent_id pero el padre no está en la lista
+  const padreIds = new Set(padres.map((p) => p.id));
+  const huerfanos = hijos.filter((h) => !padreIds.has(h.parent_id!));
+
+  return { grupos, huerfanos };
+}
+
 export default function CategoriasPage() {
   const { user } = useAuth();
   const [seccion, setSeccion] = useState<Seccion>('textucos');
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [cargando, setCargando] = useState(false);
+  const [abiertos, setAbiertos] = useState<Set<number>>(new Set());
   const [modal, setModal] = useState<{ modo: 'crear' | 'editar'; cat?: Categoria } | null>(null);
-  const [form, setForm] = useState({ nombre: '', slug: '', descripcion: '' });
+  const [form, setForm] = useState({ nombre: '', slug: '', descripcion: '', parent_id: '' });
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState<{ tipo: 'ok' | 'error'; texto: string } | null>(null);
 
@@ -54,6 +76,13 @@ export default function CategoriasPage() {
       });
       const d = await r.json();
       setCategorias(d.ok ? d.categorias : []);
+      // Abrir todos los grupos por defecto al cargar Ferretería
+      if (s === 'ferreteria' && d.ok) {
+        const padreIds = (d.categorias as Categoria[])
+          .filter((c) => c.parent_id === null)
+          .map((c) => c.id);
+        setAbiertos(new Set(padreIds));
+      }
     } catch {
       setCategorias([]);
     } finally {
@@ -65,17 +94,25 @@ export default function CategoriasPage() {
     if (user) cargar(seccion);
   }, [cargar, seccion, user]);
 
-  const cambiarSeccion = (s: Seccion) => {
-    setSeccion(s);
-  };
+  const toggleGrupo = (id: number) =>
+    setAbiertos((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
 
-  const abrirCrear = () => {
-    setForm({ nombre: '', slug: '', descripcion: '' });
+  const abrirCrear = (parentId?: number) => {
+    setForm({ nombre: '', slug: '', descripcion: '', parent_id: parentId ? String(parentId) : '' });
     setModal({ modo: 'crear' });
   };
 
   const abrirEditar = (cat: Categoria) => {
-    setForm({ nombre: cat.nombre, slug: cat.slug, descripcion: cat.descripcion ?? '' });
+    setForm({
+      nombre: cat.nombre,
+      slug: cat.slug,
+      descripcion: cat.descripcion ?? '',
+      parent_id: cat.parent_id ? String(cat.parent_id) : '',
+    });
     setModal({ modo: 'editar', cat });
   };
 
@@ -84,9 +121,10 @@ export default function CategoriasPage() {
     setGuardando(true);
     try {
       const isEdit = modal?.modo === 'editar';
+      const parentIdVal = form.parent_id ? Number(form.parent_id) : null;
       const body = isEdit
-        ? { ...form, seccion, slug_original: modal?.cat?.slug }
-        : { ...form, seccion };
+        ? { nombre: form.nombre, slug: form.slug, descripcion: form.descripcion, parent_id: parentIdVal, seccion, slug_original: modal?.cat?.slug }
+        : { nombre: form.nombre, slug: form.slug, descripcion: form.descripcion, parent_id: parentIdVal, seccion };
 
       const r = await fetch('/api/admin/categorias', {
         method: isEdit ? 'PUT' : 'POST',
@@ -110,7 +148,7 @@ export default function CategoriasPage() {
 
   const eliminar = async (cat: Categoria) => {
     if (!user) return;
-    if (!confirm(`¿Eliminar la categoría "${cat.nombre}"?\n\nEsta acción no se puede deshacer.`)) return;
+    if (!confirm(`¿Eliminar "${cat.nombre}"?\nEsta acción no se puede deshacer.`)) return;
     try {
       const r = await fetch('/api/admin/categorias', {
         method: 'DELETE',
@@ -129,13 +167,9 @@ export default function CategoriasPage() {
     }
   };
 
-  const mover = (i: number, dir: -1 | 1) => {
-    const j = i + dir;
-    if (j < 0 || j >= categorias.length) return;
-    const nueva = [...categorias];
-    [nueva[i], nueva[j]] = [nueva[j], nueva[i]];
-    setCategorias(nueva);
-  };
+  const { grupos, huerfanos } = buildTree(categorias);
+  const padres = categorias.filter((c) => c.parent_id === null);
+  const esArbol = seccion === 'ferreteria';
 
   return (
     <>
@@ -146,11 +180,14 @@ export default function CategoriasPage() {
             Categorías
           </h1>
           <p className={styles.pageSubtitle}>
-            Gestiona las categorías del catálogo de productos por sección.
+            {esArbol
+              ? 'Vista de árbol: grupos padre y sus subcategorías.'
+              : 'Gestiona las categorías del catálogo por sección.'}
           </p>
         </div>
-        <button className={styles.btnPrimary} onClick={abrirCrear}>
-          <i className="fa-solid fa-plus" /> Nueva categoría
+        <button className={styles.btnPrimary} onClick={() => abrirCrear()}>
+          <i className="fa-solid fa-plus" />
+          {esArbol ? ' Nuevo grupo' : ' Nueva categoría'}
         </button>
       </div>
 
@@ -169,7 +206,7 @@ export default function CategoriasPage() {
           <button
             key={s.key}
             className={`${catStyles.tab} ${seccion === s.key ? catStyles.tabActive : ''}`}
-            onClick={() => cambiarSeccion(s.key)}
+            onClick={() => setSeccion(s.key)}
           >
             {s.label}
           </button>
@@ -184,28 +221,139 @@ export default function CategoriasPage() {
         <p className={styles.emptyText}>
           <i className="fa-solid fa-inbox" /> Sin categorías en esta sección
         </p>
-      ) : (
-        <div className={catStyles.lista}>
-          {categorias.map((cat, i) => (
-            <div key={cat.slug} className={catStyles.fila}>
-              <div className={catStyles.filaOrden}>
-                <button
-                  className={catStyles.ordenBtn}
-                  onClick={() => mover(i, -1)}
-                  disabled={i === 0}
-                  aria-label="Subir"
-                >
-                  <i className="fa-solid fa-chevron-up" />
-                </button>
-                <button
-                  className={catStyles.ordenBtn}
-                  onClick={() => mover(i, 1)}
-                  disabled={i === categorias.length - 1}
-                  aria-label="Bajar"
-                >
-                  <i className="fa-solid fa-chevron-down" />
-                </button>
+      ) : esArbol ? (
+        /* ── Vista árbol para Ferretería ── */
+        <div className={catStyles.arbol}>
+          {grupos.map((grupo) => {
+            const abierto = abiertos.has(grupo.id);
+            return (
+              <div key={grupo.slug} className={catStyles.grupoCard}>
+                {/* Cabecera del grupo padre */}
+                <div className={catStyles.grupoHeader}>
+                  <button
+                    className={catStyles.grupoToggle}
+                    onClick={() => toggleGrupo(grupo.id)}
+                    aria-expanded={abierto}
+                  >
+                    <i className={`fa-solid fa-chevron-right ${catStyles.grupoChevron} ${abierto ? catStyles.grupoChevronOpen : ''}`} />
+                  </button>
+                  <div className={catStyles.grupoInfo}>
+                    <span className={catStyles.grupoNombre}>{grupo.nombre}</span>
+                    <span className={catStyles.grupoMeta}>
+                      /{grupo.slug} · {grupo.hijos.length} subcategorías
+                    </span>
+                  </div>
+                  <div className={catStyles.grupoAcciones}>
+                    <button
+                      className={catStyles.btnAgregar}
+                      onClick={() => { toggleGrupo(grupo.id); abrirCrear(grupo.id); }}
+                      title="Agregar subcategoría"
+                    >
+                      <i className="fa-solid fa-plus" /> Agregar
+                    </button>
+                    <button
+                      className={styles.btnIcono}
+                      onClick={() => abrirEditar(grupo)}
+                      aria-label={`Editar ${grupo.nombre}`}
+                    >
+                      <i className="fa-solid fa-pen-to-square" />
+                    </button>
+                    <button
+                      className={`${styles.btnIcono} ${styles.btnIconoDanger}`}
+                      onClick={() => eliminar(grupo)}
+                      aria-label={`Eliminar ${grupo.nombre}`}
+                    >
+                      <i className="fa-solid fa-trash-can" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Subcategorías hijas */}
+                {abierto && (
+                  <div className={catStyles.grupoHijos}>
+                    {grupo.hijos.length === 0 ? (
+                      <div className={catStyles.hijoVacio}>
+                        <i className="fa-solid fa-inbox" /> Sin subcategorías —{' '}
+                        <button
+                          className={catStyles.linkBtn}
+                          onClick={() => abrirCrear(grupo.id)}
+                        >
+                          agregar una
+                        </button>
+                      </div>
+                    ) : (
+                      grupo.hijos.map((hijo) => (
+                        <div key={hijo.slug} className={catStyles.hijoFila}>
+                          <div className={catStyles.hijoInfo}>
+                            <span className={catStyles.hijoNombre}>{hijo.nombre}</span>
+                            <span className={catStyles.hijoSlug}>/{hijo.slug}</span>
+                          </div>
+                          <div className={catStyles.filaAcciones}>
+                            <button
+                              className={styles.btnIcono}
+                              onClick={() => abrirEditar(hijo)}
+                              aria-label={`Editar ${hijo.nombre}`}
+                            >
+                              <i className="fa-solid fa-pen-to-square" />
+                            </button>
+                            <button
+                              className={`${styles.btnIcono} ${styles.btnIconoDanger}`}
+                              onClick={() => eliminar(hijo)}
+                              aria-label={`Eliminar ${hijo.nombre}`}
+                            >
+                              <i className="fa-solid fa-trash-can" />
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
               </div>
+            );
+          })}
+
+          {/* Categorías sin grupo asignado */}
+          {huerfanos.length > 0 && (
+            <div className={catStyles.grupoCard}>
+              <div className={catStyles.grupoHeader} style={{ background: 'rgba(239,68,68,0.06)' }}>
+                <div className={catStyles.grupoInfo}>
+                  <span className={catStyles.grupoNombre} style={{ color: '#b91c1c' }}>
+                    <i className="fa-solid fa-triangle-exclamation" style={{ marginRight: 6 }} />
+                    Sin grupo asignado ({huerfanos.length})
+                  </span>
+                  <span className={catStyles.grupoMeta}>Estas categorías no tienen grupo padre</span>
+                </div>
+              </div>
+              <div className={catStyles.grupoHijos}>
+                {huerfanos.map((h) => (
+                  <div key={h.slug} className={catStyles.hijoFila}>
+                    <div className={catStyles.hijoInfo}>
+                      <span className={catStyles.hijoNombre}>{h.nombre}</span>
+                      <span className={catStyles.hijoSlug}>/{h.slug}</span>
+                    </div>
+                    <div className={catStyles.filaAcciones}>
+                      <button className={styles.btnIcono} onClick={() => abrirEditar(h)}>
+                        <i className="fa-solid fa-pen-to-square" />
+                      </button>
+                      <button
+                        className={`${styles.btnIcono} ${styles.btnIconoDanger}`}
+                        onClick={() => eliminar(h)}
+                      >
+                        <i className="fa-solid fa-trash-can" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      ) : (
+        /* ── Vista plana para Acabados / Concretos ── */
+        <div className={catStyles.lista}>
+          {categorias.map((cat) => (
+            <div key={cat.slug} className={catStyles.fila}>
               <div className={catStyles.filaInfo}>
                 <span className={catStyles.nombre}>{cat.nombre}</span>
                 <span className={catStyles.slug}>/{cat.slug}</span>
@@ -231,6 +379,7 @@ export default function CategoriasPage() {
         </div>
       )}
 
+      {/* ── Modal crear / editar ── */}
       {modal && (
         <div
           className={styles.modalOverlay}
@@ -273,27 +422,44 @@ export default function CategoriasPage() {
                       slug: modal.modo === 'crear' ? autoSlug(v) : f.slug,
                     }));
                   }}
-                  placeholder="ej. Adhesivos"
+                  placeholder="ej. Herramientas manuales"
                   autoFocus
                 />
               </div>
               <div className={styles.formRow}>
                 <label className={styles.formLabel}>
-                  Slug{' '}
-                  <span className={styles.formHint}>(sin espacios · forma la URL)</span>
+                  Slug <span className={styles.formHint}>(sin espacios · forma la URL)</span>
                 </label>
                 <input
                   className={styles.formInput}
                   style={{ fontFamily: 'monospace' }}
                   value={form.slug}
                   onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
-                  placeholder="ej. adhesivos"
+                  placeholder="ej. herramientas-manuales"
                 />
               </div>
+              {esArbol && (
+                <div className={styles.formRow}>
+                  <label className={styles.formLabel}>
+                    Grupo padre <span className={styles.formHint}>(vacío = es un grupo padre)</span>
+                  </label>
+                  <select
+                    className={styles.formInput}
+                    value={form.parent_id}
+                    onChange={(e) => setForm((f) => ({ ...f, parent_id: e.target.value }))}
+                  >
+                    <option value="">— Sin grupo (es un grupo padre) —</option>
+                    {padres
+                      .filter((p) => p.id !== modal.cat?.id)
+                      .map((p) => (
+                        <option key={p.id} value={p.id}>{p.nombre}</option>
+                      ))}
+                  </select>
+                </div>
+              )}
               <div className={styles.formRow}>
                 <label className={styles.formLabel}>
-                  Descripción{' '}
-                  <span className={styles.formHint}>(opcional)</span>
+                  Descripción <span className={styles.formHint}>(opcional)</span>
                 </label>
                 <textarea
                   className={styles.formInput}

@@ -20,16 +20,14 @@
   transition: color 0.15s, border-color 0.15s;
 }
 
-.tab:hover {
-  color: var(--azul-profundo);
-}
+.tab:hover { color: var(--azul-profundo); }
 
 .tabActive {
   color: var(--azul-boton);
   border-bottom-color: var(--azul-boton);
 }
 
-/* ── Lista de categorías ───────────────────────────────────────── */
+/* ── Lista plana (Acabados / Concretos) ────────────────────────── */
 .lista {
   display: flex;
   flex-direction: column;
@@ -38,7 +36,7 @@
 
 .fila {
   display: grid;
-  grid-template-columns: 48px 1fr auto;
+  grid-template-columns: 1fr auto;
   align-items: center;
   gap: 14px;
   padding: 14px 16px;
@@ -49,9 +47,7 @@
   transition: border-color 0.15s;
 }
 
-.fila:hover {
-  border-color: rgba(1, 27, 79, 0.18);
-}
+.fila:hover { border-color: rgba(1, 27, 79, 0.18); }
 
 .filaOrden {
   display: flex;
@@ -82,10 +78,7 @@
   color: var(--azul-boton);
 }
 
-.ordenBtn:disabled {
-  opacity: 0.25;
-  cursor: not-allowed;
-}
+.ordenBtn:disabled { opacity: 0.25; cursor: not-allowed; }
 
 .filaInfo {
   display: flex;
@@ -113,4 +106,166 @@
   display: flex;
   gap: 6px;
   flex-shrink: 0;
+}
+
+/* ── Vista árbol (Ferretería) ──────────────────────────────────── */
+.arbol {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.grupoCard {
+  border-radius: 10px;
+  border: 1px solid rgba(1, 27, 79, 0.1);
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+}
+
+.grupoHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: rgba(1, 27, 79, 0.03);
+  border-bottom: 1px solid rgba(1, 27, 79, 0.06);
+}
+
+.grupoToggle {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: 1px solid rgba(1, 27, 79, 0.14);
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: var(--azul-medio);
+  padding: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.grupoToggle:hover {
+  background: var(--fondo-claro);
+  border-color: var(--azul-boton);
+  color: var(--azul-boton);
+}
+
+.grupoChevron {
+  font-size: 0.7rem;
+  transition: transform 0.2s;
+}
+
+.grupoChevronOpen { transform: rotate(90deg); }
+
+.grupoInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.grupoNombre {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--azul-profundo);
+}
+
+.grupoMeta {
+  font-size: 0.75rem;
+  color: rgba(1, 27, 79, 0.45);
+  font-family: monospace;
+}
+
+.grupoAcciones {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.btnAgregar {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-family: inherit;
+  border-radius: 6px;
+  border: 1px solid rgba(1, 27, 79, 0.15);
+  background: white;
+  color: var(--azul-boton);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.btnAgregar:hover {
+  background: rgba(0, 82, 204, 0.07);
+  border-color: var(--azul-boton);
+}
+
+/* ── Hijos dentro de un grupo ──────────────────────────────────── */
+.grupoHijos {
+  display: flex;
+  flex-direction: column;
+}
+
+.hijoFila {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px 10px 40px;
+  border-bottom: 1px solid rgba(1, 27, 79, 0.05);
+  transition: background 0.12s;
+}
+
+.hijoFila:last-child { border-bottom: none; }
+.hijoFila:hover { background: rgba(1, 27, 79, 0.02); }
+
+.hijoInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.hijoNombre {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--azul-profundo);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hijoSlug {
+  font-size: 0.73rem;
+  color: rgba(1, 27, 79, 0.38);
+  font-family: monospace;
+}
+
+.hijoVacio {
+  padding: 14px 14px 14px 40px;
+  font-size: 0.83rem;
+  color: rgba(1, 27, 79, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.linkBtn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: inherit;
+  color: var(--azul-boton);
+  cursor: pointer;
+  text-decoration: underline;
 }
