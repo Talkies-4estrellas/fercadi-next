@@ -74,7 +74,7 @@ export default async function FerreteriaPrincipalPage({ searchParams }: { search
         <div className={styles.heroInner}>
           <div className={styles.heroTexto}>
             <div className={styles.heroEtiqueta}>
-              <i className="fa-solid fa-wrench" /> Ferretería
+              <i className="fa-solid fa-wrench" aria-hidden="true" /> Ferretería
             </div>
             <h1 className={styles.heroTitulo}>Catálogo de Ferretería</h1>
             <p className={styles.heroSub}>
@@ -107,7 +107,7 @@ export default async function FerreteriaPrincipalPage({ searchParams }: { search
 
           {paginada.total === 0 ? (
             <div className={styles.emptyState}>
-              <i className="fa-solid fa-box-open" />
+              <i className="fa-solid fa-box-open" aria-hidden="true" />
               <p>No hay productos con estos filtros.</p>
               <Link href="/ferreteria" style={{ color: 'var(--azul-boton)', fontSize: '0.85rem' }}>
                 Ver todos los productos
@@ -136,7 +136,7 @@ export default async function FerreteriaPrincipalPage({ searchParams }: { search
                         </div>
                       ) : (
                         <div className={styles.prodCardPlaceholder}>
-                          <i className="fa-solid fa-wrench" />
+                          <i className="fa-solid fa-wrench" aria-hidden="true" />
                         </div>
                       )}
 

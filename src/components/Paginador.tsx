@@ -48,19 +48,19 @@ export default function Paginador({ page, pages, total, limit, baseHref }: Props
         {page > 1 ? (
           <>
             <Link href={`${baseHref}1`} className={styles.paginadorBtn} title="Primera página">
-              <i className="fa-solid fa-angles-left" />
+              <i className="fa-solid fa-angles-left" aria-hidden="true" />
             </Link>
             <Link href={`${baseHref}${page - 1}`} className={styles.paginadorBtn} title="Anterior">
-              <i className="fa-solid fa-angle-left" />
+              <i className="fa-solid fa-angle-left" aria-hidden="true" />
             </Link>
           </>
         ) : (
           <>
             <span className={`${styles.paginadorBtn} ${styles.paginadorBtnDisabled}`}>
-              <i className="fa-solid fa-angles-left" />
+              <i className="fa-solid fa-angles-left" aria-hidden="true" />
             </span>
             <span className={`${styles.paginadorBtn} ${styles.paginadorBtnDisabled}`}>
-              <i className="fa-solid fa-angle-left" />
+              <i className="fa-solid fa-angle-left" aria-hidden="true" />
             </span>
           </>
         )}
@@ -80,19 +80,19 @@ export default function Paginador({ page, pages, total, limit, baseHref }: Props
         {page < pages ? (
           <>
             <Link href={`${baseHref}${page + 1}`} className={styles.paginadorBtn} title="Siguiente">
-              <i className="fa-solid fa-angle-right" />
+              <i className="fa-solid fa-angle-right" aria-hidden="true" />
             </Link>
             <Link href={`${baseHref}${pages}`} className={styles.paginadorBtn} title="Última página">
-              <i className="fa-solid fa-angles-right" />
+              <i className="fa-solid fa-angles-right" aria-hidden="true" />
             </Link>
           </>
         ) : (
           <>
             <span className={`${styles.paginadorBtn} ${styles.paginadorBtnDisabled}`}>
-              <i className="fa-solid fa-angle-right" />
+              <i className="fa-solid fa-angle-right" aria-hidden="true" />
             </span>
             <span className={`${styles.paginadorBtn} ${styles.paginadorBtnDisabled}`}>
-              <i className="fa-solid fa-angles-right" />
+              <i className="fa-solid fa-angles-right" aria-hidden="true" />
             </span>
           </>
         )}

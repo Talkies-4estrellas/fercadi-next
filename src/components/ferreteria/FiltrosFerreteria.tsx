@@ -72,7 +72,7 @@ export default function FiltrosFerreteria({
       {/* Buscador */}
       <div className={styles.filtroItem}>
         <div className={styles.buscadorWrap}>
-          <i className="fa-solid fa-magnifying-glass" />
+          <i className="fa-solid fa-magnifying-glass" aria-hidden="true" />
           <input
             className={styles.buscadorInput}
             value={q}
@@ -81,7 +81,7 @@ export default function FiltrosFerreteria({
           />
           {q && (
             <button className={styles.buscadorClear} onClick={() => onQ('')} aria-label="Borrar">
-              <i className="fa-solid fa-xmark" />
+              <i className="fa-solid fa-xmark" aria-hidden="true" />
             </button>
           )}
         </div>
@@ -136,7 +136,7 @@ export default function FiltrosFerreteria({
       {/* Limpiar */}
       {hayFiltros && (
         <button className={styles.limpiarBtn} onClick={limpiarTodo}>
-          <i className="fa-solid fa-filter-circle-xmark" /> Limpiar
+          <i className="fa-solid fa-filter-circle-xmark" aria-hidden="true" /> Limpiar
         </button>
       )}
     </div>

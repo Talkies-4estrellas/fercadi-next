@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { notFound } from 'next/navigation'
 import { getProductosPorCategoria } from '@/lib/productos'
 import SectionHero from '@/components/SectionHero'
 import styles from '@/styles/product.module.css'
@@ -11,7 +10,6 @@ export const metadata = { title: 'Especializados - FERCADI' }
 
 export default async function Page() {
   const productos = await getProductosPorCategoria('textucos', 'especializados')
-  if (productos.length === 0) notFound()
 
   const categoriaNombre = productos[0]?.categoria_nombre ?? 'Especializados'
 
@@ -23,6 +21,11 @@ export default async function Page() {
         titulo={categoriaNombre}
         subtitulo="Productos especializados para proyectos de acabado de alto rendimiento."
       />
+      {productos.length === 0 && (
+        <p style={{ textAlign: 'center', padding: '48px 24px', color: 'var(--azul-profundo)', opacity: 0.6, fontSize: '1rem' }}>
+          Próximamente más información sobre esta categoría.
+        </p>
+      )}
       <div className={styles.general}>
         {productos.map((producto) => (
           <div key={producto.slug} className={styles.cuadroBlanco}>
