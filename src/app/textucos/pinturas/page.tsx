@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { getProductosPorCategoria } from '@/lib/productos'
+import SectionHero from '@/components/SectionHero'
 import styles from '@/styles/product.module.css'
 import ColorPicker from '@/components/ColorPicker'
 
@@ -17,9 +18,12 @@ export default async function Page() {
 
   return (
     <>
-      <div className={styles.breadcrumb}>
-        <Link href="/">Inicio</Link> / <Link href="/textucos">Acabados</Link> / {categoriaNombre}
-      </div>
+      <SectionHero
+        icono="fa-solid fa-paint-roller"
+        etiqueta="Acabados"
+        titulo={categoriaNombre}
+        subtitulo="Pinturas y recubrimientos para interiores y exteriores de la mejor calidad."
+      />
       <div className={styles.general}>
         {productos.map((producto) => (
           <div key={producto.slug} className={styles.cuadroBlanco}>

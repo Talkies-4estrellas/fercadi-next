@@ -46,16 +46,16 @@ export default function FiltrosFerreteria({
     }, 380);
   }
 
-  function selGrupo(slug: string | null) {
-    router.push(build({ grupo: slug, cat: null, marca: null }));
+  function onGrupo(slug: string) {
+    router.push(build({ grupo: slug || null, cat: null, marca: null }));
   }
 
-  function selCat(slug: string | null) {
-    router.push(build({ cat: slug, marca: null }));
+  function onCat(slug: string) {
+    router.push(build({ cat: slug || null, marca: null }));
   }
 
-  function selMarca(marca: string | null) {
-    router.push(build({ marca }));
+  function onMarca(marca: string) {
+    router.push(build({ marca: marca || null }));
   }
 
   function limpiarTodo() {
@@ -63,113 +63,82 @@ export default function FiltrosFerreteria({
     router.push(pathname);
   }
 
-  const grupoObj = grupos.find((g) => g.slug === grupoActual) ?? null;
+  const grupoObj  = grupos.find((g) => g.slug === grupoActual) ?? null;
   const hayFiltros = !!(grupoActual || catActual || marcaActual || q);
 
   return (
-    <aside className={styles.sidebar}>
-      <p className={styles.sidebarTitulo}>Filtros</p>
+    <div className={styles.filtrosBar}>
 
-      {/* Búsqueda de texto */}
-      <div className={styles.sidebarSeccion}>
-        <p className={styles.sidebarSeccionTitulo}>Buscar</p>
+      {/* Buscador */}
+      <div className={styles.filtroItem}>
         <div className={styles.buscadorWrap}>
           <i className="fa-solid fa-magnifying-glass" />
           <input
             className={styles.buscadorInput}
             value={q}
             onChange={(e) => onQ(e.target.value)}
-            placeholder="Nombre del producto…"
+            placeholder="Buscar producto…"
           />
           {q && (
-            <button className={styles.buscadorClear} onClick={() => onQ('')} aria-label="Borrar búsqueda">
+            <button className={styles.buscadorClear} onClick={() => onQ('')} aria-label="Borrar">
               <i className="fa-solid fa-xmark" />
             </button>
           )}
         </div>
       </div>
 
-      {/* Grupos */}
-      <div className={styles.sidebarSeccion}>
-        <p className={styles.sidebarSeccionTitulo}>Grupo</p>
-        <div className={styles.marcaLista}>
-          <button
-            className={`${styles.marcaBtn} ${!grupoActual ? styles.marcaBtnActivo : ''}`}
-            onClick={() => selGrupo(null)}
-          >
-            Todos los grupos
-          </button>
+      {/* Grupo */}
+      <div className={styles.filtroItem}>
+        <select
+          className={styles.filtroSelect}
+          value={grupoActual ?? ''}
+          onChange={(e) => onGrupo(e.target.value)}
+        >
+          <option value="">Todos los grupos</option>
           {grupos.map((g) => (
-            <button
-              key={g.slug}
-              className={`${styles.marcaBtn} ${grupoActual === g.slug ? styles.marcaBtnActivo : ''}`}
-              onClick={() => selGrupo(grupoActual === g.slug ? null : g.slug)}
-            >
-              {g.nombre}
-            </button>
+            <option key={g.slug} value={g.slug}>{g.nombre}</option>
           ))}
-        </div>
+        </select>
       </div>
 
-      {/* Subcategorías del grupo seleccionado */}
+      {/* Subcategoría */}
       {grupoObj && grupoObj.subcategorias.length > 0 && (
-        <div className={styles.sidebarSeccion}>
-          <p className={styles.sidebarSeccionTitulo}>Subcategoría</p>
-          <div className={styles.marcaLista}>
-            <button
-              className={`${styles.marcaBtn} ${!catActual ? styles.marcaBtnActivo : ''}`}
-              onClick={() => selCat(null)}
-            >
-              Todas
-            </button>
+        <div className={styles.filtroItem}>
+          <select
+            className={styles.filtroSelect}
+            value={catActual ?? ''}
+            onChange={(e) => onCat(e.target.value)}
+          >
+            <option value="">Todas las familias</option>
             {grupoObj.subcategorias.map((sc) => (
-              <button
-                key={sc.slug}
-                className={`${styles.marcaBtn} ${catActual === sc.slug ? styles.marcaBtnActivo : ''}`}
-                onClick={() => selCat(catActual === sc.slug ? null : sc.slug)}
-              >
-                {sc.nombre}
-              </button>
+              <option key={sc.slug} value={sc.slug}>{sc.nombre}</option>
             ))}
-          </div>
+          </select>
         </div>
       )}
 
-      {/* Marcas */}
+      {/* Marca */}
       {marcas.length > 0 && (
-        <div className={styles.sidebarSeccion}>
-          <p className={styles.sidebarSeccionTitulo}>Marca</p>
-          <div className={styles.marcaLista}>
-            <button
-              className={`${styles.marcaBtn} ${!marcaActual ? styles.marcaBtnActivo : ''}`}
-              onClick={() => selMarca(null)}
-            >
-              Todas las marcas
-            </button>
+        <div className={styles.filtroItem}>
+          <select
+            className={styles.filtroSelect}
+            value={marcaActual ?? ''}
+            onChange={(e) => onMarca(e.target.value)}
+          >
+            <option value="">Todas las marcas</option>
             {marcas.map((m) => (
-              <button
-                key={m}
-                className={`${styles.marcaBtn} ${marcaActual === m ? styles.marcaBtnActivo : ''}`}
-                onClick={() => selMarca(marcaActual === m ? null : m)}
-              >
-                {m}
-              </button>
+              <option key={m} value={m}>{m}</option>
             ))}
-          </div>
-          {marcaActual && (
-            <button className={styles.limpiarBtn} onClick={() => selMarca(null)}>
-              <i className="fa-solid fa-xmark" /> Limpiar marca
-            </button>
-          )}
+          </select>
         </div>
       )}
 
-      {/* Limpiar todo */}
+      {/* Limpiar */}
       {hayFiltros && (
         <button className={styles.limpiarBtn} onClick={limpiarTodo}>
-          <i className="fa-solid fa-filter-circle-xmark" /> Limpiar todo
+          <i className="fa-solid fa-filter-circle-xmark" /> Limpiar
         </button>
       )}
-    </aside>
+    </div>
   );
 }

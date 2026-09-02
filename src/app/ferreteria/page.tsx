@@ -57,8 +57,6 @@ export default async function FerreteriaPrincipalPage({ searchParams }: { search
   const filtroStr = filtros.toString();
   const baseHref  = `/ferreteria?${filtroStr ? filtroStr + '&' : ''}page=`;
 
-  const totalProductos  = grupos.reduce((a, g) => a + g.totalProductos, 0);
-
   // Título del área principal
   let tituloArea = 'Todos los productos';
   if (cat && grupoObj) {
@@ -74,69 +72,38 @@ export default async function FerreteriaPrincipalPage({ searchParams }: { search
       {/* Hero */}
       <section className={styles.hero}>
         <div className={styles.heroInner}>
-          <div className={styles.heroEtiqueta}>
-            <i className="fa-solid fa-wrench" /> Ferretería
-          </div>
-          <h1 className={styles.heroTitulo}>Catálogo de Ferretería</h1>
-          <p className={styles.heroSub}>
-            Busca entre miles de herramientas, materiales y accesorios.
-          </p>
-          <div className={styles.heroStats}>
-            <div className={styles.heroStat}>
-              <span className={styles.heroStatNum}>{totalProductos.toLocaleString('es-MX')}</span>
-              <span className={styles.heroStatLabel}>Productos</span>
+          <div className={styles.heroTexto}>
+            <div className={styles.heroEtiqueta}>
+              <i className="fa-solid fa-wrench" /> Ferretería
             </div>
-            <div className={styles.heroStat}>
-              <span className={styles.heroStatNum}>{grupos.length}</span>
-              <span className={styles.heroStatLabel}>Grupos</span>
-            </div>
-            <div className={styles.heroStat}>
-              <span className={styles.heroStatNum}>
-                {grupos.reduce((a, g) => a + g.subcategorias.length, 0)}
-              </span>
-              <span className={styles.heroStatLabel}>Familias</span>
-            </div>
+            <h1 className={styles.heroTitulo}>Catálogo de Ferretería</h1>
+            <p className={styles.heroSub}>
+              Busca entre miles de herramientas, materiales y accesorios.
+            </p>
           </div>
         </div>
       </section>
 
-      {/* Layout sidebar + productos */}
-      <div className={styles.catLayout}>
+      {/* Barra de filtros */}
+      <FiltrosFerreteria
+        grupos={grupos}
+        grupoActual={grupo}
+        catActual={cat}
+        marcas={marcas}
+        marcaActual={marca}
+        qActual={q}
+      />
 
-        {/* ── Sidebar de filtros (Client Component) ── */}
-        <FiltrosFerreteria
-          grupos={grupos}
-          grupoActual={grupo}
-          catActual={cat}
-          marcas={marcas}
-          marcaActual={marca}
-          qActual={q}
-        />
-
-        {/* ── Área principal ── */}
-        <main className={styles.main}>
-          <div className={styles.mainHeader}>
-            <div>
-              <h2 className={styles.mainTitulo}>{tituloArea}</h2>
-              <p className={styles.mainSubtitulo}>
-                {paginada.total.toLocaleString('es-MX')} producto{paginada.total !== 1 ? 's' : ''}
-              </p>
-            </div>
-
-            {/* Chips de filtros activos */}
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-              {grupoObj && (
-                <span className={styles.filtroActivo}>
-                  <i className="fa-solid fa-layer-group" /> {grupoObj.nombre}
-                </span>
-              )}
-              {marca && (
-                <span className={styles.filtroActivo}>
-                  <i className="fa-solid fa-tag" /> {marca}
-                </span>
-              )}
-            </div>
+      {/* Área de productos */}
+      <main className={styles.productoArea}>
+        <div className={styles.mainHeader}>
+          <div>
+            <h2 className={styles.mainTitulo}>{tituloArea}</h2>
+            <p className={styles.mainSubtitulo}>
+              {paginada.total.toLocaleString('es-MX')} producto{paginada.total !== 1 ? 's' : ''}
+            </p>
           </div>
+        </div>
 
           {paginada.total === 0 ? (
             <div className={styles.emptyState}>
@@ -201,8 +168,7 @@ export default async function FerreteriaPrincipalPage({ searchParams }: { search
               />
             </>
           )}
-        </main>
-      </div>
+      </main>
     </>
   );
 }

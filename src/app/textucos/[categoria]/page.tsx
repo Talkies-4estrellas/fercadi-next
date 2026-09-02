@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { getProductosPorCategoria } from '@/lib/productos'
+import SectionHero from '@/components/SectionHero'
 import styles from '@/styles/product.module.css'
 
 export async function generateMetadata({ params }: { params: Promise<{ categoria: string }> }) {
@@ -20,9 +21,12 @@ export default async function CategoriaPage({ params }: { params: Promise<{ cate
 
   return (
     <>
-      <div className={styles.breadcrumb}>
-        <Link href="/">Inicio</Link> / <Link href="/textucos">Acabados</Link> / {categoriaNombre}
-      </div>
+      <SectionHero
+        icono="fa-solid fa-paint-roller"
+        etiqueta="Acabados"
+        titulo={categoriaNombre}
+        subtitulo="Descubre nuestra línea de productos para acabados y terminados de construcción."
+      />
 
       <div className={styles.general}>
         {productos.map((producto) => (

@@ -1,8 +1,8 @@
 ﻿export const dynamic = 'force-dynamic'
 
-﻿import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getCategoriaMaterial } from '@/lib/productos'
+import SectionHero from '@/components/SectionHero'
 import styles from '@/styles/product.module.css'
 
 export async function generateMetadata({ params }: { params: Promise<{ categoria: string }> }) {
@@ -22,12 +22,12 @@ export default async function MaterialCategoriaPage({
 
   return (
     <>
-      <div className={styles.breadcrumb}>
-        <Link href="/">Inicio</Link> / <Link href="/materiales">Materiales</Link> / {cat.nombre}
-      </div>
-      <div style={{ padding: '20px 40px' }}>
-        <p style={{ color: 'var(--azul-secundario)', marginBottom: '30px' }}>{cat.descripcion}</p>
-      </div>
+      <SectionHero
+        icono="fa-solid fa-boxes-stacking"
+        etiqueta="Materiales"
+        titulo={cat.nombre}
+        subtitulo={cat.descripcion || 'Encuentra los mejores materiales de construcción de las marcas líderes.'}
+      />
       <div className={styles.marcasGrid}>
         {cat.marcas.length > 0 ? (
           cat.marcas.map((marca) => (
