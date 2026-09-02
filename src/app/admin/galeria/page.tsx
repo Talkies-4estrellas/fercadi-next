@@ -25,6 +25,8 @@ export default function GaleriaPage() {
   const [subiendo,   setSubiendo]   = useState(false);
   const [rutaSubida, setRutaSubida] = useState('');
   const [preview,    setPreview]    = useState<ImagenItem | null>(null);
+  const [eliminar,   setEliminar]   = useState<ImagenItem | null>(null);
+  const [eliminando, setEliminando] = useState(false);
   const inputRutaRef = useRef<HTMLInputElement>(null);
 
   const mostrarMensaje = (tipo: 'ok' | 'error', texto: string) => {
@@ -97,6 +99,31 @@ export default function GaleriaPage() {
       mostrarMensaje('error', 'Error de red al subir');
     } finally {
       setSubiendo(false);
+    }
+  };
+
+  const confirmarEliminar = async () => {
+    if (!user || !eliminar) return;
+    setEliminando(true);
+    try {
+      const r = await fetch('/api/admin/imagenes', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json', 'x-usuario-id': String(user.id) },
+        body: JSON.stringify({ ruta: eliminar.ruta }),
+      });
+      const d = await r.json();
+      if (d.ok) {
+        setImagenes((prev) => prev.filter((i) => i.ruta !== eliminar.ruta));
+        if (preview?.ruta === eliminar.ruta) setPreview(null);
+        mostrarMensaje('ok', `"${eliminar.nombre}" eliminada de Supabase.`);
+      } else {
+        mostrarMensaje('error', d.message ?? 'Error al eliminar');
+      }
+    } catch {
+      mostrarMensaje('error', 'Error de red al eliminar');
+    } finally {
+      setEliminando(false);
+      setEliminar(null);
     }
   };
 
@@ -235,16 +262,69 @@ export default function GaleriaPage() {
                 <div className={galeriaStyles.cardRuta} title={img.ruta}>
                   {img.ruta}
                 </div>
-                <button
-                  className={`${galeriaStyles.copiarBtn} ${yaCopiada ? galeriaStyles.copiarBtnOk : ''}`}
-                  onClick={() => copiar(img.ruta)}
-                >
-                  <i className={`fa-solid ${yaCopiada ? 'fa-check' : 'fa-copy'}`} aria-hidden="true" />
-                  {yaCopiada ? ' Copiado' : ' Copiar URL'}
-                </button>
+                <div className={galeriaStyles.cardAcciones}>
+                  <button
+                    className={`${galeriaStyles.copiarBtn} ${yaCopiada ? galeriaStyles.copiarBtnOk : ''}`}
+                    onClick={() => copiar(img.ruta)}
+                  >
+                    <i className={`fa-solid ${yaCopiada ? 'fa-check' : 'fa-copy'}`} aria-hidden="true" />
+                    {yaCopiada ? ' Copiado' : ' Copiar'}
+                  </button>
+                  {img.fuente === 'supabase' && (
+                    <button
+                      className={galeriaStyles.eliminarBtn}
+                      onClick={() => setEliminar(img)}
+                      title="Eliminar de Supabase"
+                    >
+                      <i className="fa-solid fa-trash" aria-hidden="true" />
+                    </button>
+                  )}
+                </div>
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Modal confirmación de eliminación */}
+      {eliminar && (
+        <div className={styles.modalOverlay} onClick={() => !eliminando && setEliminar(null)} style={{ zIndex: 1100 }}>
+          <div className={styles.modal} style={{ maxWidth: 420 }} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h3>
+                <i className="fa-solid fa-triangle-exclamation" style={{ marginRight: 8, color: '#dc2626' }} aria-hidden="true" />
+                Eliminar imagen
+              </h3>
+              <button className={styles.modalClose} onClick={() => setEliminar(null)} disabled={eliminando}>
+                <i className="fa-solid fa-xmark" aria-hidden="true" />
+              </button>
+            </div>
+            <div style={{ padding: '16px 24px' }}>
+              <p style={{ color: '#334', marginBottom: 8 }}>
+                ¿Eliminar permanentemente <strong>{eliminar.nombre}</strong> de Supabase Storage?
+              </p>
+              <p style={{ fontSize: '0.82rem', color: '#b45309', background: '#fef3c7', borderRadius: 8, padding: '8px 12px' }}>
+                <i className="fa-solid fa-circle-info" aria-hidden="true" style={{ marginRight: 6 }} />
+                Esta acción no se puede deshacer. Los productos que usen esta imagen quedarán sin foto.
+              </p>
+            </div>
+            <div style={{ padding: '0 24px 20px', display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+              <button className={styles.btnSecondary} onClick={() => setEliminar(null)} disabled={eliminando}>
+                Cancelar
+              </button>
+              <button
+                className={styles.btnDanger ?? styles.btnPrimary}
+                onClick={confirmarEliminar}
+                disabled={eliminando}
+                style={{ background: '#dc2626', color: 'white', border: 'none' }}
+              >
+                {eliminando
+                  ? <><i className="fa-solid fa-spinner fa-spin" aria-hidden="true" /> Eliminando…</>
+                  : <><i className="fa-solid fa-trash" aria-hidden="true" /> Eliminar</>
+                }
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

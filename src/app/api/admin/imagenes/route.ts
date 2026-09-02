@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { requerirAdmin } from '@/lib/admin';
-import { listFiles } from '@/lib/supabaseStorage';
+import { listFiles, deleteFile } from '@/lib/supabaseStorage';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -43,6 +43,36 @@ async function listarLocales(
         });
       }
     }
+  }
+}
+
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
+const BUCKET = 'productos';
+const PUBLIC_PREFIX = `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/`;
+
+export async function DELETE(request: NextRequest) {
+  const auth = await requerirAdmin(request);
+  if (!auth.ok) return auth.response;
+
+  const body = await request.json().catch(() => ({}));
+  const { ruta } = body as { ruta?: string };
+
+  if (!ruta) {
+    return NextResponse.json({ ok: false, message: 'Falta el campo ruta' }, { status: 400 });
+  }
+
+  if (!ruta.startsWith(PUBLIC_PREFIX)) {
+    return NextResponse.json({ ok: false, message: 'Solo se pueden eliminar imágenes de Supabase Storage' }, { status: 400 });
+  }
+
+  const filePath = ruta.replace(PUBLIC_PREFIX, '');
+
+  try {
+    await deleteFile(filePath);
+    return NextResponse.json({ ok: true, path: filePath });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ ok: false, message: msg }, { status: 500 });
   }
 }
 

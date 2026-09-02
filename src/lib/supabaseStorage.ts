@@ -113,3 +113,25 @@ export async function listFiles(prefix = ''): Promise<StorageItem[]> {
 
   return result;
 }
+
+/**
+ * Elimina un archivo del bucket dado su path relativo dentro del bucket.
+ * Ej: "concretos/agregados/grava.jpg"
+ */
+export async function deleteFile(path: string): Promise<void> {
+  if (!SUPABASE_URL || !SERVICE_KEY) {
+    throw new Error('NEXT_PUBLIC_SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY deben estar definidas.');
+  }
+
+  const url = `${SUPABASE_URL}/storage/v1/object/${BUCKET}`;
+  const res = await fetch(url, {
+    method: 'DELETE',
+    headers: { ...storageHeaders(), 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prefixes: [path] }),
+  });
+
+  if (!res.ok) {
+    const detail = await res.text();
+    throw new Error(`Supabase Storage delete error ${res.status}: ${detail}`);
+  }
+}
