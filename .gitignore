@@ -40,3 +40,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 imagenes/*.ai
+
+# archivos grandes / temporales
+pruebas/
+*.rar
+*.zip
+*.7z
