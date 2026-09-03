@@ -142,7 +142,7 @@ C:\fercadi-next\
 │   │   ├── ColorPicker.tsx
 │   │   ├── ContactForm.tsx
 │   │   ├── admin/ProductoForm.tsx
-│   │   ├── admin/ImageUploader.tsx  # onFile(file) → sube a /api/admin/upload
+│   │   ├── admin/ImageUploader.tsx  # Zona drag & drop + click. onFile(file) → sube a /api/admin/upload → convierte a WebP
 │   │   └── admin/MarkdownPreview.tsx # Parser Markdown → mismo render que tips/[slug]
 │   │
 │   ├── context/
@@ -283,13 +283,13 @@ Luego cerrar sesión y volver a iniciar para que localStorage se actualice.
 | `/api/search` | GET | `?q=` → ILIKE PostgreSQL, máx 20 |
 | `/api/admin/stats` | GET 🔒 | COUNT por sección |
 | `/api/admin/seed` | GET | Puebla BD con catálogo inicial |
-| `/api/admin/importar` | POST 🔒 | Importa `catalogo_prueba.csv` (15k+ productos) |
+| `/api/admin/importar` | POST 🔒 | Importa CSV (multipart: `file` + `seccion`). Ferretería: 26 cols proveedor. Otros: 8 cols simples |
 | `/api/admin/home/cards` | GET / PUT 🔒 | Lee y actualiza las 4 tarjetas del inicio |
 | `/api/admin/home/carousel` | GET / POST 🔒 | Lista slides / crea nuevo slide |
 | `/api/admin/home/carousel/[id]` | PUT / DELETE 🔒 | Edita / elimina slide |
 | `/api/admin/tips` | GET / POST 🔒 | Lista paginada / crea tip |
 | `/api/admin/tips/[id]` | GET / PUT / DELETE 🔒 | CRUD (DELETE = soft activo=0) |
-| `/api/admin/tips/ia` | POST 🔒 | Genera contenido con Gemini 1.5 Flash |
+| `/api/admin/tips/ia` | POST 🔒 | Genera contenido con Groq Llama 3.3 70B |
 | `/api/admin/productos` | GET / POST 🔒 | Lista paginada / crea producto |
 | `/api/admin/productos/[id]` | GET / PUT / DELETE 🔒 | CRUD (DELETE = soft activo=0) |
 | `/api/admin/pedidos` | GET 🔒 | Lista órdenes con filtros |
@@ -297,7 +297,6 @@ Luego cerrar sesión y volver a iniciar para que localStorage se actualice.
 | `/api/admin/imagenes` | GET 🔒 | Lista imágenes locales + Supabase Storage |
 | `/api/admin/imagenes` | DELETE 🔒 | Elimina imagen de Supabase dado `{ ruta }` (URL pública) |
 | `/api/admin/usuarios` | GET 🔒 | Lista paginada de usuarios con filtro por rol/búsqueda |
-| `/api/admin/usuarios/[id]` | PATCH 🔒 | Cambia rol admin↔usuario (no puede modificarse a sí mismo) |
 | `/api/admin/upload` | POST 🔒 | Sube imagen → convierte a WebP → Supabase Storage |
 
 🔒 = requieren header `x-usuario-id` de admin. Validado por `lib/admin.ts > requerirAdmin(req)`.
@@ -447,7 +446,7 @@ Producto → BtnAgregarCarrito (modal, selector cantidad)
 ```
 /admin/tips/nuevo → escribir tema en barra neurona
 → POST /api/admin/tips/ia { tema }
-→ Gemini 1.5 Flash → JSON { titulo, descripcion, contenido }
+→ Groq Llama 3.3 70B → JSON { titulo, descripcion, contenido }
 → setTitulo / setSlug / setDescripcion / setContenido
 → Revisar y editar → POST /api/admin/tips { slug, titulo, descripcion, contenido, activo }
 → redirect /admin/tips
@@ -487,9 +486,11 @@ Producto → BtnAgregarCarrito (modal, selector cantidad)
 | Sección Servicios en Acabados (`/textucos/servicios`) | ✅ |
 | Gestión de categorías admin (concretos, textucos, materiales, ferretería) | ✅ |
 | Filtro de categoría dinámico en `/admin/productos` | ✅ |
-| Gestión de usuarios admin (`/admin/usuarios`) — cambio de rol admin↔usuario | ✅ |
+| Gestión de usuarios admin (`/admin/usuarios`) — listado paginado con filtro | ✅ |
 | Galería de imágenes admin (`/admin/galeria`) — browse, copiar URL, eliminar Supabase | ✅ |
 | Preview Markdown en editor de tips (tabs Editar/Vista previa) | ✅ |
+| ImageUploader con drag & drop (PNG/JPG/WebP/AVIF/GIF → convierte a WebP) | ✅ |
+| Importación CSV multi-sección (ferretería 26 cols / concretos·textucos·materiales 8 cols simples) | ✅ |
 
 ### Pasos pendientes para dejar 100% operativo
 1. **Registrar cuenta** en `/login` tab Registro
@@ -498,7 +499,7 @@ Producto → BtnAgregarCarrito (modal, selector cantidad)
    UPDATE usuarios SET rol = 'admin' WHERE correo = 'tu@correo.com';
    ```
 3. **Cargar catálogo base**: visitar `GET /api/admin/seed`
-4. **Importar ferretería**: `/admin/importar` → "Importar catálogo"
+4. **Importar catálogo**: `/admin/importar` → elegir sección → subir CSV → "Importar"
 5. **Opcional — desinstalar mysql2**: `npm uninstall mysql2`
 
 ---
