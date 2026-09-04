@@ -53,7 +53,9 @@ Stack: Next.js 16 (App Router) · PostgreSQL (Supabase) · Vercel · CSS Modules
 | `categorias/page.tsx` | `/admin/categorias` | Gestión de categorías |
 | `pedidos/page.tsx` | `/admin/pedidos` | Lista de pedidos |
 | `pedidos/[id]/page.tsx` | `/admin/pedidos/:id` | Detalle de pedido |
-| `usuarios/page.tsx` | `/admin/usuarios` | Gestión de usuarios |
+| `usuarios/page.tsx` | `/admin/usuarios` | Gestión de usuarios (listado paginado con filtro por rol) |
+| `galeria/page.tsx` | `/admin/galeria` | Galería de imágenes Supabase + locales con paginación |
+| `importar/page.tsx` | `/admin/importar` | Importación CSV multi-sección (ferretería / concretos / textucos / materiales) |
 | `tips/page.tsx` | `/admin/tips` | Gestión de tips |
 | `nav-config/page.tsx` | `/admin/nav-config` | Configuración de navegación |
 
