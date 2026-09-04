@@ -1,8 +1,14 @@
 'use client';
 
 import { useEffect, useState, useCallback, useRef } from 'react';
+import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import styles from '@/styles/admin.module.css';
+
+function urlProducto(c: { seccion: string | null; categoria_slug: string | null; producto_slug: string | null }) {
+  if (!c.seccion || !c.categoria_slug || !c.producto_slug) return null;
+  return `/${c.seccion}/${c.categoria_slug}/${c.producto_slug}`;
+}
 
 interface Comentario {
   id: number;
@@ -13,6 +19,8 @@ interface Comentario {
   aprobado: boolean;
   creado_en: string;
   producto_nombre: string | null;
+  producto_slug: string | null;
+  categoria_slug: string | null;
   seccion: string | null;
 }
 
@@ -148,7 +156,7 @@ export default function AdminComentariosPage() {
         </div>
       ) : comentarios.length === 0 ? (
         <div className={styles.emptyText}>
-          <i className="fa-regular fa-comment-slash" style={{ fontSize: '2rem', opacity: 0.3, display: 'block', marginBottom: 8 }} />
+          <i className="fa-solid fa-comment-slash" aria-hidden="true" style={{ fontSize: '2rem', opacity: 0.3, display: 'block', marginBottom: 8 }} />
           No hay comentarios con estos filtros.
         </div>
       ) : (
@@ -196,20 +204,32 @@ export default function AdminComentariosPage() {
                     {formatFecha(c.creado_en)}
                   </td>
                   <td className={styles.accionesCol}>
+                    {urlProducto(c) && (
+                      <Link
+                        href={urlProducto(c)!}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.btnIcono}
+                        title="Ver producto"
+                        style={{ color: '#6366f1' }}
+                      >
+                        <i className="fa-solid fa-arrow-up-right-from-square" aria-hidden="true" />
+                      </Link>
+                    )}
                     <button
                       className={styles.btnIcono}
                       title={c.aprobado ? 'Ocultar comentario' : 'Hacer visible'}
                       onClick={() => toggleAprobado(c)}
                       style={{ color: c.aprobado ? '#d97706' : '#059669' }}
                     >
-                      <i className={c.aprobado ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'} />
+                      <i className={c.aprobado ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'} aria-hidden="true" />
                     </button>
                     <button
                       className={styles.btnIconoDanger}
                       title="Eliminar comentario"
                       onClick={() => eliminar(c)}
                     >
-                      <i className="fa-solid fa-trash" />
+                      <i className="fa-solid fa-trash" aria-hidden="true" />
                     </button>
                   </td>
                 </tr>

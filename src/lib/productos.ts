@@ -296,33 +296,75 @@ export async function getProductosFerreteria(opts: {
   const limit  = Math.min(60, Math.max(1, opts.limit ?? 24));
   const offset = (page - 1) * limit;
 
-  const where: string[] = ["seccion = 'ferreteria'", 'activo = 1'];
-  const params: any[]   = [];
+  // ── Filtros base (sin búsqueda) ───────────────────────────────
+  const baseWhere: string[] = ["seccion = 'ferreteria'", 'activo = 1'];
+  const baseParams: any[]   = [];
 
   if (opts.categoriaSlug) {
-    where.push('categoria_slug = ?');
-    params.push(opts.categoriaSlug);
-  } else if (opts.categoriasSlugs && opts.categoriasSlugs.length > 0) {
-    where.push(`categoria_slug IN (${opts.categoriasSlugs.map(() => '?').join(', ')})`);
-    params.push(...opts.categoriasSlugs);
+    baseWhere.push('categoria_slug = ?');
+    baseParams.push(opts.categoriaSlug);
+  } else if (opts.categoriasSlugs?.length) {
+    baseWhere.push(`categoria_slug IN (${opts.categoriasSlugs.map(() => '?').join(', ')})`);
+    baseParams.push(...opts.categoriasSlugs);
   }
   if (opts.marca) {
-    where.push('marca = ?');
-    params.push(opts.marca);
-  }
-  if (opts.q) {
-    where.push('(nombre ILIKE ? OR categoria_nombre ILIKE ?)');
-    params.push(`%${opts.q}%`, `%${opts.q}%`);
+    baseWhere.push('marca = ?');
+    baseParams.push(opts.marca);
   }
 
-  const whereClause = 'WHERE ' + where.join(' AND ');
+  // ── Relevancia cuando hay búsqueda ───────────────────────────
+  // IMPORTANTE: los params del SELECT (scoreParams) deben ir ANTES
+  // que los del WHERE en el array, porque el db-adapter numera los
+  // `?` de izquierda a derecha en el SQL completo.
+  let selectScore = '';
+  let scoreParams: any[] = [];
+  let qWhere      = '';
+  let qParams:  any[] = [];
+  let orderBy  = 'nombre ASC';
+
+  if (opts.q) {
+    const words = opts.q.trim().split(/\s+/).filter(w => w.length >= 2);
+
+    if (words.length <= 1) {
+      const q = words[0] ?? opts.q.trim();
+      selectScore = `,
+        CASE
+          WHEN nombre           ILIKE ? THEN 10
+          WHEN nombre           ILIKE ? THEN  8
+          WHEN nombre           ILIKE ? THEN  6
+          WHEN categoria_nombre ILIKE ? THEN  4
+          WHEN marca            ILIKE ? THEN  2
+          ELSE 0
+        END AS score`;
+      scoreParams = [q, `${q}%`, `%${q}%`, `${q}%`, `${q}%`];
+      qWhere  = '(nombre ILIKE ? OR categoria_nombre ILIKE ? OR marca ILIKE ?)';
+      qParams = [`%${q}%`, `%${q}%`, `%${q}%`];
+    } else {
+      const nameScore = words.map(() => `(CASE WHEN nombre ILIKE ? THEN 2 ELSE 0 END)`).join(' + ');
+      selectScore = `, (${nameScore}) AS score`;
+      scoreParams = words.map(w => `%${w}%`);
+      qWhere  = words.map(() => `(nombre ILIKE ? OR categoria_nombre ILIKE ? OR marca ILIKE ?)`).join(' AND ');
+      qParams = words.flatMap(w => [`%${w}%`, `%${w}%`, `%${w}%`]);
+    }
+    orderBy = 'score DESC, nombre ASC';
+  }
+
+  const whereClause = 'WHERE ' + [
+    ...baseWhere,
+    ...(qWhere ? [qWhere] : []),
+  ].join(' AND ');
 
   const [[rows], [countRows]]: any = await Promise.all([
     db.query(
-      `SELECT ${PUBLIC_COLS} FROM productos ${whereClause} ORDER BY nombre ASC LIMIT ? OFFSET ?`,
-      [...params, limit, offset]
+      `SELECT ${PUBLIC_COLS}${selectScore}
+       FROM productos ${whereClause}
+       ORDER BY ${orderBy} LIMIT ? OFFSET ?`,
+      [...scoreParams, ...baseParams, ...qParams, limit, offset]
     ),
-    db.query(`SELECT COUNT(*) AS total FROM productos ${whereClause}`, params),
+    db.query(
+      `SELECT COUNT(*) AS total FROM productos ${whereClause}`,
+      [...baseParams, ...qParams]
+    ),
   ]);
 
   const total = Number(countRows[0]?.total ?? 0);

@@ -105,8 +105,8 @@ export async function POST(req: Request) {
   // ── 5. Insertar comentario ────────────────────────────────────
   try {
     const [result]: any = await db.query(
-      `INSERT INTO comentarios_productos (producto_id, usuario_id, nombre, comentario, calificacion)
-       VALUES (?, ?, ?, ?, ?)`,
+      `INSERT INTO comentarios_productos (producto_id, usuario_id, nombre, comentario, calificacion, aprobado)
+       VALUES (?, ?, ?, ?, ?, false)`,
       [Number(producto_id), usuarioId, nombreUsuario, comentario.trim(), cal]
     );
 

@@ -56,6 +56,7 @@ Stack: Next.js 16 (App Router) · PostgreSQL (Supabase) · Vercel · CSS Modules
 | `usuarios/page.tsx` | `/admin/usuarios` | Gestión de usuarios (listado paginado con filtro por rol) |
 | `galeria/page.tsx` | `/admin/galeria` | Galería de imágenes Supabase + locales con paginación |
 | `importar/page.tsx` | `/admin/importar` | Importación CSV multi-sección (ferretería / concretos / textucos / materiales) |
+| `comentarios/page.tsx` | `/admin/comentarios` | Moderación de comentarios de productos (aprobar / ocultar / eliminar, filtros, búsqueda) |
 | `tips/page.tsx` | `/admin/tips` | Gestión de tips |
 | `nav-config/page.tsx` | `/admin/nav-config` | Configuración de navegación |
 
@@ -70,6 +71,9 @@ Stack: Next.js 16 (App Router) · PostgreSQL (Supabase) · Vercel · CSS Modules
 | `/api/admin/categorias` | CRUD categorías |
 | `/api/admin/pedidos` | CRUD pedidos |
 | `/api/admin/usuarios` | CRUD usuarios |
+| `/api/admin/comentarios` | GET comentarios con filtros/paginación/búsqueda |
+| `/api/admin/comentarios/[id]` | PATCH (aprobado) + DELETE comentario |
+| `/api/comentarios` | GET comentarios aprobados de un producto + POST nuevo comentario |
 | `/api/nav-config` | Leer/escribir configuración del navbar |
 | `/api/auth/login` | Autenticación |
 | `/api/auth/logout` | Cierre de sesión |

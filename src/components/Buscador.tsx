@@ -219,7 +219,8 @@ export default function Buscador() {
                                 <Highlight text={item.nombre} query={query} />
                               </span>
                               <span className={styles.cat}>
-                                {item.seccion} · {item.categoria}
+                                {item.seccion}
+                                {item.marca ? ` · ${item.marca}` : ` · ${item.categoria}`}
                               </span>
                             </div>
                             <i

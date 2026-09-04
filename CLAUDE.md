@@ -207,7 +207,7 @@ export default async function Page({ params }: { params: Params }) {
 | `getMaterialesCategorias()` | Categorías de materiales con marcas JSONB |
 | `getFerreteriaCategorias()` | Categorías con conteo de productos |
 | `getFerreteriaMarcas(categoriaSlug?)` | Marcas únicas en ferretería |
-| `getProductosFerreteria({categoriaSlug?, marca?, page?, limit?})` | Paginación server-side |
+| `getProductosFerreteria({categoriaSlug?, marca?, q?, page?, limit?})` | Paginación server-side con relevancia cuando hay `q` |
 
 ### 3. Base de datos (PostgreSQL — Supabase)
 
@@ -280,7 +280,9 @@ Luego cerrar sesión y volver a iniciar para que localStorage se actualice.
 | `/api/pedidos` | POST | Crea orden + ítems en transacción PostgreSQL |
 | `/api/perfil` | GET | Órdenes agrupadas + servicios del usuario |
 | `/api/productos` | GET | Catálogo público (solo PUBLIC_COLS) |
-| `/api/search` | GET | `?q=` → ILIKE PostgreSQL, máx 20 |
+| `/api/search` | GET | `?q=` → relevancia multi-nivel (exacto/starts/contains/cat/marca) + multi-palabra AND→OR, máx 20 |
+| `/api/comentarios` | GET | Comentarios aprobados de un producto (`?producto_id=X`) |
+| `/api/comentarios` | POST | Nuevo comentario (requiere `x-usuario-id`). `aprobado=false` por defecto |
 | `/api/admin/stats` | GET 🔒 | COUNT por sección |
 | `/api/admin/seed` | GET | Puebla BD con catálogo inicial |
 | `/api/admin/importar` | POST 🔒 | Importa CSV (multipart: `file` + `seccion`). Ferretería: 26 cols proveedor. Otros: 8 cols simples |
@@ -297,6 +299,9 @@ Luego cerrar sesión y volver a iniciar para que localStorage se actualice.
 | `/api/admin/imagenes` | GET 🔒 | Lista imágenes locales + Supabase Storage |
 | `/api/admin/imagenes` | DELETE 🔒 | Elimina imagen de Supabase dado `{ ruta }` (URL pública) |
 | `/api/admin/usuarios` | GET 🔒 | Lista paginada de usuarios con filtro por rol/búsqueda |
+| `/api/admin/comentarios` | GET 🔒 | Lista paginada con filtros `aprobado` + búsqueda `q` |
+| `/api/admin/comentarios/[id]` | PATCH 🔒 | Togglea `aprobado`. Body: `{ aprobado: boolean }` |
+| `/api/admin/comentarios/[id]` | DELETE 🔒 | Elimina permanentemente un comentario |
 | `/api/admin/upload` | POST 🔒 | Sube imagen → convierte a WebP → Supabase Storage |
 
 🔒 = requieren header `x-usuario-id` de admin. Validado por `lib/admin.ts > requerirAdmin(req)`.
@@ -478,7 +483,9 @@ Producto → BtnAgregarCarrito (modal, selector cantidad)
 | BtnAgregarCarrito en ferretería, concretos y textucos | ✅ |
 | Gestión del inicio (tarjetas + carrusel) desde `/admin/home` | ✅ |
 | Asistente IA para tips (Groq Llama 3.3 70B) | ✅ |
-| Buscador debounced con ILIKE PostgreSQL | ✅ |
+| Buscador global con relevancia multi-nivel + multi-palabra (Header, todas las páginas) | ✅ |
+| Búsqueda con relevancia en Ferretería (`getProductosFerreteria`) | ✅ |
+| Módulo de moderación de comentarios admin (`/admin/comentarios`) | ✅ |
 | Importación masiva CSV (15,756 productos) | ✅ |
 | Registro con campos completos (10 campos) | ✅ |
 | Hero banner unificado (`SectionHero`) en todas las secciones | ✅ |

@@ -8,6 +8,7 @@
 export interface SearchItem {
   nombre:      string;
   descripcion: string;
+  marca:       string;
   categoria:   string;
   seccion:     string;
   href:        string;
