@@ -1,5 +1,6 @@
 ﻿export const dynamic = 'force-dynamic'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getProducto } from '@/lib/productos'
@@ -10,6 +11,13 @@ import ChatProducto from '@/components/ChatProducto'
 import pStyles from '@/styles/product.module.css'
 
 const CATEGORIA = 'morteros'
+
+const COLORES_TEXTURIZADO = [
+  'almendra', 'blanco',   'cocoa',    'chabacano', 'crema',   'fresa',
+  'girasol',  'gris',     'plata',    'jamaica',   'mandarina','marron',
+  'cielo',    'negro',    'nuez',     'rosa',      'verde',   'olivo',
+  'trevol',   'violeta',  'zafiro',   'jazmin',
+]
 
 export async function generateMetadata({ params }: { params: Promise<{ producto: string }> }) {
   const { producto } = await params
@@ -37,6 +45,25 @@ export default async function ProductoPage({ params }: { params: Promise<{ produ
           </>
         }
       />
+
+      {producto === 'texturizado' && (
+        <section className={pStyles.coloresSection}>
+          <h2 className={pStyles.coloresTitulo}>Colores disponibles</h2>
+          <div className={pStyles.coloresGrid}>
+            {COLORES_TEXTURIZADO.map((color) => (
+              <div key={color} className={pStyles.colorCard}>
+                <Image
+                  src={`/colores/texturizado/${color}.png`}
+                  alt={color}
+                  width={200}
+                  height={200}
+                  style={{ width: '100%', height: 'auto' }}
+                />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {Number(p.precio) > 0 && (
         <section className={pStyles.detalleCarrito}>
