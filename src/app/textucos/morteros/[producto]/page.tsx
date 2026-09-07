@@ -12,11 +12,31 @@ import pStyles from '@/styles/product.module.css'
 
 const CATEGORIA = 'morteros'
 
-const COLORES_TEXTURIZADO = [
-  'almendra', 'blanco',   'cocoa',    'chabacano', 'crema',   'fresa',
-  'girasol',  'gris',     'plata',    'jamaica',   'mandarina','marron',
-  'cielo',    'negro',    'nuez',     'rosa',      'verde',   'olivo',
-  'trevol',   'violeta',  'zafiro',   'jazmin',
+const BASE = 'https://hykrbwzmavpenprwqsqi.supabase.co/storage/v1/object/public/productos/colores/texturizado'
+
+const COLORES_TEXTURIZADO: { nombre: string; src: string }[] = [
+  { nombre: 'almendra',  src: `${BASE}/almendra.webp`  },
+  { nombre: 'blanco',    src: `${BASE}/blanco.webp`    },
+  { nombre: 'cocoa',     src: `${BASE}/cocoa.webp`     },
+  { nombre: 'chabacano', src: `${BASE}/chabacano.webp` },
+  { nombre: 'crema',     src: `${BASE}/crema.webp`     },
+  { nombre: 'fresa',     src: `${BASE}/fresa.webp`     },
+  { nombre: 'girasol',   src: `${BASE}/girasol.webp`   },
+  { nombre: 'gris',      src: `${BASE}/gris.webp`      },
+  { nombre: 'plata',     src: `${BASE}/plata.webp`     },
+  { nombre: 'jamaica',   src: `${BASE}/jamaica.webp`   },
+  { nombre: 'mandarina', src: `${BASE}/mandarina.webp` },
+  { nombre: 'marron',    src: `${BASE}/marron.webp`    },
+  { nombre: 'cielo',     src: `${BASE}/cielo.webp`     },
+  { nombre: 'negro',     src: `${BASE}/negro.webp`     },
+  { nombre: 'nuez',      src: `${BASE}/nuez.webp`      },
+  { nombre: 'rosa',      src: `${BASE}/rosa.webp`      },
+  { nombre: 'verde',     src: `${BASE}/verde.webp`     },
+  { nombre: 'olivo',     src: `${BASE}/olivo.webp`     },
+  { nombre: 'trevol',    src: `${BASE}/trevol.webp`    },
+  { nombre: 'violeta',   src: `${BASE}/violeta.webp`   },
+  { nombre: 'zafiro',    src: `${BASE}/zafiro.webp`    },
+  { nombre: 'jazmin',    src: `${BASE}/jazmin.webp`    },
 ]
 
 export async function generateMetadata({ params }: { params: Promise<{ producto: string }> }) {
@@ -51,10 +71,10 @@ export default async function ProductoPage({ params }: { params: Promise<{ produ
           <h2 className={pStyles.coloresTitulo}>Colores disponibles</h2>
           <div className={pStyles.coloresGrid}>
             {COLORES_TEXTURIZADO.map((color) => (
-              <div key={color} className={pStyles.colorCard}>
+              <div key={color.nombre} className={pStyles.colorCard}>
                 <Image
-                  src={`/colores/texturizado/${color}.png`}
-                  alt={color}
+                  src={color.src}
+                  alt={color.nombre}
                   width={200}
                   height={200}
                   style={{ width: '100%', height: 'auto' }}
