@@ -1,6 +1,5 @@
 ﻿export const dynamic = 'force-dynamic'
 
-import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getProducto } from '@/lib/productos'
@@ -8,6 +7,7 @@ import ProductoDetalle from '@/components/ProductoDetalle'
 import BtnAgregarCarrito from '@/components/BtnAgregarCarrito'
 import ComentariosProducto from '@/components/ComentariosProducto'
 import ChatProducto from '@/components/ChatProducto'
+import ColoresGrid from '@/components/ColoresGrid'
 import pStyles from '@/styles/product.module.css'
 
 const CATEGORIA = 'morteros'
@@ -69,19 +69,7 @@ export default async function ProductoPage({ params }: { params: Promise<{ produ
       {producto === 'texturizado' && (
         <section className={pStyles.coloresSection}>
           <h2 className={pStyles.coloresTitulo}>Colores disponibles</h2>
-          <div className={pStyles.coloresGrid}>
-            {COLORES_TEXTURIZADO.map((color) => (
-              <div key={color.nombre} className={pStyles.colorCard}>
-                <Image
-                  src={color.src}
-                  alt={color.nombre}
-                  width={200}
-                  height={200}
-                  style={{ width: '100%', height: 'auto' }}
-                />
-              </div>
-            ))}
-          </div>
+          <ColoresGrid colores={COLORES_TEXTURIZADO} />
         </section>
       )}
 

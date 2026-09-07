@@ -539,21 +539,49 @@
   padding: 6px 4px;
 }
 
+/* Desktop: grid completo visible, grid móvil oculto */
+.coloresGridDesktop { display: grid; }
+.coloresGridMovil   { display: none; }
+
+.coloresVerMasBtn { display: none; }
+
 @media (max-width: 900px) {
   .coloresSection {
     padding: 36px 24px;
   }
-  .coloresGrid {
+  /* En tablet desktop sigue visible con 4 cols */
+  .coloresGridDesktop {
     grid-template-columns: repeat(4, 1fr);
     gap: 10px;
   }
 }
 
 @media (max-width: 540px) {
-  .coloresGrid {
-    grid-template-columns: repeat(3, 1fr);
+  /* Ocultar grid desktop, mostrar grid móvil y botón */
+  .coloresGridDesktop { display: none; }
+  .coloresGridMovil   { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+
+  .coloresVerMasBtn {
+    display: flex;
+    align-items: center;
     gap: 8px;
+    margin: 16px auto 0;
+    padding: 10px 28px;
+    border-radius: 25px;
+    border: 2px solid var(--azul-profundo);
+    background: transparent;
+    color: var(--azul-profundo);
+    font-weight: 700;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
   }
+
+  .coloresVerMasBtn:hover {
+    background: var(--azul-profundo);
+    color: #fff;
+  }
+
   .colorNombre {
     font-size: 0.58rem;
     padding: 5px 2px;
