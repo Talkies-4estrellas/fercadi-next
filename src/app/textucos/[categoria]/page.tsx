@@ -7,6 +7,8 @@ import { getProductosPorCategoria } from '@/lib/productos'
 import SectionHero from '@/components/SectionHero'
 import styles from '@/styles/product.module.css'
 
+const BLUR = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMSIgaGVpZ2h0PSIxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiNlOGU4ZTgiLz48L3N2Zz4='
+
 export async function generateMetadata({ params }: { params: Promise<{ categoria: string }> }) {
   const { categoria } = await params
   return { title: `${categoria.replace(/-/g, ' ')} - FERCADI` }
@@ -29,7 +31,7 @@ export default async function CategoriaPage({ params }: { params: Promise<{ cate
       />
 
       <div className={styles.general}>
-        {productos.map((producto) => (
+        {productos.map((producto, idx) => (
           <Link key={producto.slug} href={`/textucos/${categoria}/${producto.slug}`} className={styles.cuadro}>
             <div className={styles.azul}>
               {/* Usamos el nombre que viene de la base de datos */}
@@ -43,6 +45,9 @@ export default async function CategoriaPage({ params }: { params: Promise<{ cate
                   fill
                   sizes="280px"
                   style={{ objectFit: 'contain' }}
+                  priority={idx < 4}
+                  placeholder="blur"
+                  blurDataURL={BLUR}
                 />
               </div>
             )}

@@ -9,6 +9,8 @@ import styles from '@/styles/product.module.css'
 
 export const metadata = { title: 'Morteros y Afinadores - FERCADI' }
 
+const BLUR = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMSIgaGVpZ2h0PSIxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiNlOGU4ZTgiLz48L3N2Zz4='
+
 export default async function Page() {
   const productos = await getProductosPorCategoria('textucos', 'morteros')
   if (productos.length === 0) notFound()
@@ -35,6 +37,8 @@ export default async function Page() {
                   height={220}
                   style={{ objectFit: 'contain', width: '100%', height: '220px' }}
                   priority={idx < 4}
+                  placeholder="blur"
+                  blurDataURL={BLUR}
                 />
               )}
               <p className={styles.nombreProducto}>{producto.nombre}</p>

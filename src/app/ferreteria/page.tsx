@@ -116,7 +116,7 @@ export default async function FerreteriaPrincipalPage({ searchParams }: { search
           ) : (
             <>
               <div className={styles.productosGrid}>
-                {paginada.productos.map((p) => {
+                {paginada.productos.map((p, idx) => {
                   const img = resolverImagenProducto(p.imagen_url);
                   return (
                     <Link
@@ -132,6 +132,7 @@ export default async function FerreteriaPrincipalPage({ searchParams }: { search
                             fill
                             sizes="(max-width: 600px) 50vw, (max-width: 1024px) 33vw, 200px"
                             style={{ objectFit: 'contain', padding: 8 }}
+                            priority={idx < 4}
                           />
                         </div>
                       ) : (
