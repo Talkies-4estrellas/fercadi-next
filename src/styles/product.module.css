@@ -525,6 +525,40 @@
   box-shadow: 0 8px 24px rgba(1, 27, 79, 0.18);
 }
 
+/* ── Video Texturizado ──────────────────────────────────── */
+.videoSection {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 40px 56px;
+}
+
+.videoWrapper {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%; /* 16:9 */
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(1, 27, 79, 0.18);
+}
+
+.videoWrapper > div,
+.videoWrapper iframe {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  border: none;
+  pointer-events: none;
+}
+
+@media (max-width: 900px) {
+  .videoSection { padding: 0 24px 40px; }
+}
+
+@media (max-width: 540px) {
+  .videoSection { padding: 0 16px 32px; }
+}
+
 /* ── Modal "en casa" ─────────────────────────────────────── */
 .modalOverlay {
   position: fixed;

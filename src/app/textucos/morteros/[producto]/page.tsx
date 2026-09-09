@@ -8,6 +8,7 @@ import BtnAgregarCarrito from '@/components/BtnAgregarCarrito'
 import ComentariosProducto from '@/components/ComentariosProducto'
 import ChatProducto from '@/components/ChatProducto'
 import ColoresGrid from '@/components/ColoresGrid'
+import VideoTexturizado from '@/components/VideoTexturizado'
 import pStyles from '@/styles/product.module.css'
 
 const CATEGORIA = 'morteros'
@@ -67,10 +68,13 @@ export default async function ProductoPage({ params }: { params: Promise<{ produ
       />
 
       {producto === 'texturizado' && (
-        <section className={pStyles.coloresSection}>
-          <h2 className={pStyles.coloresTitulo}>Colores disponibles</h2>
-          <ColoresGrid colores={COLORES_TEXTURIZADO} />
-        </section>
+        <>
+          <section className={pStyles.coloresSection}>
+            <h2 className={pStyles.coloresTitulo}>Colores disponibles</h2>
+            <ColoresGrid colores={COLORES_TEXTURIZADO} />
+          </section>
+          <VideoTexturizado />
+        </>
       )}
 
       {Number(p.precio) > 0 && (
