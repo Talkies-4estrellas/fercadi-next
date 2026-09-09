@@ -516,9 +516,68 @@
   cursor: default;
 }
 
+.colorCardClickable {
+  cursor: pointer;
+}
+
 .colorCard:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 24px rgba(1, 27, 79, 0.18);
+}
+
+/* ── Modal "en casa" ─────────────────────────────────────── */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(1, 27, 79, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+  animation: fadeIn 0.18s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.modalContent {
+  position: relative;
+  max-width: 680px;
+  width: 100%;
+  animation: scaleIn 0.18s ease;
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.94); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+
+.modalCerrar {
+  position: absolute;
+  top: -14px;
+  right: -14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--azul-profundo);
+  color: #fff;
+  border: 2px solid rgba(255,255,255,0.3);
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1;
+  transition: background 0.2s;
+}
+
+.modalCerrar:hover {
+  background: var(--dorado);
+  color: var(--azul-profundo);
+  border-color: var(--dorado);
 }
 
 .colorCard img {
