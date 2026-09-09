@@ -541,7 +541,6 @@
   box-shadow: 0 8px 32px rgba(1, 27, 79, 0.18);
 }
 
-.videoWrapper > div,
 .videoWrapper iframe {
   position: absolute;
   inset: 0;
@@ -549,6 +548,16 @@
   height: 100% !important;
   border: none;
   pointer-events: none;
+}
+
+/* Overlay transparente que bloquea hover/click al iframe */
+.videoOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: auto;
+  cursor: default;
+  background: transparent;
 }
 
 @media (max-width: 900px) {
