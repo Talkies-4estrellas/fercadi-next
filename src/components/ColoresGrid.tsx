@@ -8,7 +8,7 @@ interface ColorItem { nombre: string; src: string }
 
 const FILAS_MOVIL = 2
 const CASA_BASE = 'https://hykrbwzmavpenprwqsqi.supabase.co/storage/v1/object/public/productos/colores/texturizado-casas'
-const SIN_CASA = new Set(['crema'])
+const SIN_CASA = new Set<string>([])
 
 function casaUrl(nombre: string): string | null {
   if (SIN_CASA.has(nombre)) return null
