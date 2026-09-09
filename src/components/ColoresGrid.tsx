@@ -7,7 +7,7 @@ import pStyles from '@/styles/product.module.css'
 interface ColorItem { nombre: string; src: string }
 
 const FILAS_MOVIL = 2
-const CASA_BASE = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/productos/colores/texturizado-casas`
+const CASA_BASE = 'https://hykrbwzmavpenprwqsqi.supabase.co/storage/v1/object/public/productos/colores/texturizado-casas'
 const SIN_CASA = new Set<string>([])
 
 function casaUrl(nombre: string): string | null {

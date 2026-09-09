@@ -13,7 +13,7 @@ import pStyles from '@/styles/product.module.css'
 
 const CATEGORIA = 'morteros'
 
-const BASE = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/productos/colores/texturizado`
+const BASE = 'https://hykrbwzmavpenprwqsqi.supabase.co/storage/v1/object/public/productos/colores/texturizado'
 
 const COLORES_TEXTURIZADO: { nombre: string; src: string }[] = [
   { nombre: 'almendra',  src: `${BASE}/almendra.webp`  },
