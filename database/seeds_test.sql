@@ -13,13 +13,12 @@
 -- ============================================================
 
 -- Hash bcrypt de 'Test1234' (salt 10):
--- $2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi
--- (valor estable generado con bcrypt.hashSync('Test1234', 10))
+-- Generado con: node -e "require('bcrypt').hash('Test1234',10).then(h=>console.log(h))"
 
 INSERT INTO usuarios (nombre, correo, password, rol) VALUES
-  ('Admin FERCADI',   'admin@test.com',    '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin'),
-  ('Usuario Prueba',  'usuario@test.com',  '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'usuario')
-ON CONFLICT (correo) DO NOTHING;
+  ('Admin FERCADI',   'admin@test.com',    '$2b$10$/CG6VQtd3fERPJRA0ri3heNHZ6xmHx4L7GjhoKjsMkm7GHDzdxGhe', 'admin'),
+  ('Usuario Prueba',  'usuario@test.com',  '$2b$10$/CG6VQtd3fERPJRA0ri3heNHZ6xmHx4L7GjhoKjsMkm7GHDzdxGhe', 'usuario')
+ON CONFLICT (correo) DO UPDATE SET password = EXCLUDED.password, rol = EXCLUDED.rol;
 
 -- ============================================================
 --  Verificar que se crearon:
